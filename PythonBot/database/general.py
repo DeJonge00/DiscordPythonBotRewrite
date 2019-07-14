@@ -1,5 +1,5 @@
 import database.common as common
-from discord import Message, Server, Channel
+from discord import Message, Guild, TextChannel, DMChannel
 
 GENERAL_DATABASE = 'general'
 WELCOME_TABLE = 'welcome'
@@ -77,14 +77,14 @@ def toggle_delete_commands(server_id: [str]):
 
 
 # Banned commands table
-def get_banned_command(id_type: str, iden: str, command: str):
-    r = get_table(BANNED_COMMANDS_TABLE).find_one({id_type: iden})
-    return r.get(command, False) if r else False
+def get_banned_command(id_type: str, iden: int, command: str):
+    r = get_table(BANNED_COMMANDS_TABLE).find_one({id_type: command})
+    return r.get(iden, False) if r else False
 
 
-def toggle_banned_command(id_type: str, iden: str, command: str):
+def toggle_banned_command(id_type: str, iden: int, command: str):
     v = not get_banned_command(id_type, iden, command)
-    get_table(BANNED_COMMANDS_TABLE).update({id_type: iden}, {'$set': {command: v}}, upsert=True)
+    get_table(BANNED_COMMANDS_TABLE).update({id_type: command}, {'$set': {iden: v}}, upsert=True)
     return v
 
 
@@ -100,13 +100,13 @@ def set_prefix(server_id: str, prefix: str):
 
 # Command Counter
 def command_counter(name: str, message: Message):
-    if message.server:
-        server = message.server.name
+    if message.guild:
+        server = str(message.guild)
     else:
         server = "Direct Message"
     get_table(COMMAND_COUNTER_TABLE).insert_one({
         'command': name,
-        'timestamp': message.timestamp.timestamp(),
+        'timestamp': message.created_at.timestamp(),
         'server': server,
         'channel': message.channel.name,
         'author': message.author.name
@@ -131,7 +131,7 @@ def toggle_role(server_id: str, role_id: str):
 
 
 # Bot information
-def server_as_dict(s: Server):
+def server_as_dict(s: Guild):
     return {
         'name': s.name,
         SERVER_ID: s.id,
@@ -139,25 +139,25 @@ def server_as_dict(s: Server):
         'bots': len([x for x in s.members if x.bot]),
         'icon': s.icon_url,
         'channels': {
-            'text': [c.id for c in s.channels if str(c.type) == 'text'],
-            'voice': [c.id for c in s.channels if str(c.type) == 'voice']
+            'text': [c.id for c in s.channels if isinstance(c, TextChannel) == 'text'],
+            'voice': [c.id for c in s.channels if isinstance(c, DMChannel) == 'voice']
         }
     }
 
 
-def channel_as_dict(c: Channel):
+def channel_as_dict(c: TextChannel):
+    channel_type = 'text' if isinstance(c, TextChannel) else 'voice'
     return {
         'name': c.name,
         CHANNEL_ID: c.id,
-        'type': str(c.type)
+        'type': channel_type
     }
 
 
-def update_server_list(servers: [Server]):
+def update_server_list(servers: [Guild]):
     server_table = get_table(SERVER_TABLE)
     channel_table = get_table(CHANNEL_TABLE)
     for s in servers:
         server_table.replace_one({SERVER_ID: s.id}, server_as_dict(s), upsert=True)
         for c in s.channels:
-            if str(c.type) in ['text', 'voice']:
-                channel_table.replace_one({CHANNEL_ID: c.id}, channel_as_dict(c), upsert=True)
+            channel_table.replace_one({CHANNEL_ID: c.id}, channel_as_dict(c), upsert=True)
