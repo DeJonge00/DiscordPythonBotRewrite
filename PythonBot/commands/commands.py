@@ -9,7 +9,7 @@ from discord import Embed, TextChannel, Attachment, User
 class BasicCommands(Cog):
     def __init__(self, my_bot):
         self.bot = my_bot
-        print('Basic started')
+        print('Basic commands started')
 
     @commands.command(name='botstats', help="Biri's botstats!", aliases=['botinfo'])
     async def botstats(self, ctx):

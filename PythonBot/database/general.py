@@ -25,11 +25,11 @@ def get_table(table):
 
 
 # Welcome
-def set_message(table: str, server_id: str, channel_id: str, message: str):
+def set_message(table: str, server_id: int, channel_id: int, message: str):
     get_table(table).update({SERVER_ID: server_id}, {'$set': {CHANNEL_ID: channel_id, 'message': message}}, upsert=True)
 
 
-def get_message(table: str, server_id: str):
+def get_message(table: str, server_id: int):
     r = get_table(table).find_one({SERVER_ID: server_id})
     if not r:
         return None, None
@@ -89,13 +89,13 @@ def toggle_banned_command(id_type: str, iden: int, command: str):
 
 
 # Prefix
-def get_prefix(server_id: str):
+def get_prefix(server_id: int):
     r = get_table(PREFIX_TABLE).find_one({SERVER_ID: server_id})
     return r.get('prefix') if r else None
 
 
-def set_prefix(server_id: str, prefix: str):
-    get_table(PREFIX_TABLE).update({SERVER_ID: server_id}, {'$set': {'prefix': prefix}}, upsert=True)
+def set_prefix(server_id: int, prefix: str):
+    get_table(PREFIX_TABLE).update_one({SERVER_ID: server_id}, {'$set': {'prefix': prefix}}, upsert=True)
 
 
 # Command Counter
@@ -114,17 +114,17 @@ def command_counter(name: str, message: Message):
 
 
 # Self-assignable roles
-def get_roles(server_id: str):
+def get_roles(server_id: int):
     r = get_table(SELF_ASSIGNABLE_ROLES_TABLE).find_one({SERVER_ID: server_id})
     return [i for i in r.keys() if r[i] == True] if r else []
 
 
-def get_role(server_id: str, role_id: str):
+def get_role(server_id: int, role_id: int):
     r = get_table(SELF_ASSIGNABLE_ROLES_TABLE).find_one({SERVER_ID: server_id})
     return r.get(role_id, False) if r else False
 
 
-def toggle_role(server_id: str, role_id: str):
+def toggle_role(server_id: int, role_id: int):
     v = not get_role(server_id, role_id)
     get_table(SELF_ASSIGNABLE_ROLES_TABLE).update({SERVER_ID: server_id}, {'$set': {role_id: v}}, upsert=True)
     return v

@@ -8,7 +8,8 @@ from discord import Member, Status, Game
 
 COGS = [
     'commands.admin_commands',
-    'commands.commands'
+    'commands.commands',
+    'commands.config_commands'
 ]
 
 

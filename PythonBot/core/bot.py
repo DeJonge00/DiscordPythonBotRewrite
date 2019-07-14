@@ -20,12 +20,12 @@ class PythonBot(Bot):
 
         super(PythonBot, self, ).__init__(command_prefix=prefix, pm_help=True)  # , formatter=customHelpFormatter)
 
-    async def _get_prefix(self, message):
+    async def get_prefix(self, message):
         try:
-            p = dbcon.get_prefix(message.server.id)
-            return p if p else await super(PythonBot, self)._get_prefix(message)
+            p = dbcon.get_prefix(message.guild.id)
+            return p if p else await super(PythonBot, self).get_prefix(message)
         except (KeyError, AttributeError):
-            return await super(PythonBot, self)._get_prefix(message)
+            return await super(PythonBot, self).get_prefix(message)
 
     @staticmethod
     async def delete_message(message: Message):
