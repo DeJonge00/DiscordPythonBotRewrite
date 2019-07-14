@@ -3,7 +3,8 @@ from discord.permissions import Permissions
 RPGDB = 'logs/rpg.db'
 pidfile = "logs/pid.txt"
 
-game_name = 'with a catbus!'
+TEXT = 'text'
+EMBED = 'embed'
 
 SERVICE = False
 

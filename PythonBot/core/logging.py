@@ -1,7 +1,7 @@
 import datetime
 from discord.abc import GuildChannel
 from discord import Message, TextChannel, Guild, User, DMChannel
-from core import constants
+from core.constants import TEXT, EMBED, bot_list_servers
 
 
 def str_cmd(s: str):
@@ -9,7 +9,7 @@ def str_cmd(s: str):
 
 
 async def error(event, filename="errors", serverid=None):
-    if serverid in constants.bot_list_servers:
+    if serverid in bot_list_servers:
         return
     text = datetime.datetime.utcnow().strftime("%H:%M:%S") + " | " + str_cmd(event)
     file = open("logs/" + str_cmd(filename.replace('/', '')) + ".txt", "a+")
@@ -18,7 +18,7 @@ async def error(event, filename="errors", serverid=None):
     print(text)
 
 
-async def log(note, author, string, filename):
+async def log(note: str, author: str, string: str, filename: str):
     file = open("logs/" + str_cmd(filename.replace('/', '')) + ".txt", "a+")
     text = "{} | {} | {} : {}".format(datetime.datetime.utcnow().strftime("%H:%M:%S"), str_cmd(note), str_cmd(author),
                                       str_cmd(string))
@@ -26,16 +26,16 @@ async def log(note, author, string, filename):
     print(text)
 
 
-async def message(mess: Message, action: str, number=0):
+async def message(mess: Message, action: str):
     await message_content(mess.content, mess.channel, mess.guild, mess.author, mess.created_at, mess.raw_mentions,
-                          action, number)
+                          action)
 
 
 async def message_content(content: str, channel: GuildChannel, server: Guild, author: User,
-                          timestamp: Message.created_at, raw_mentions: list, action: str, number=0):
+                          timestamp: Message.created_at, raw_mentions: list, action: str):
     # True if not a direct message
     public = isinstance(channel, TextChannel)
-    if public and server.id in constants.bot_list_servers:
+    if public and server.id in bot_list_servers:
         return
     if not public:
         servername = 'direct message'
@@ -45,8 +45,8 @@ async def message_content(content: str, channel: GuildChannel, server: Guild, au
         channelname = str(channel)
     file = open("logs/" + str_cmd(servername.replace('/', '')) + ".txt", "a+")
     if action == "pic":
-        text = "{} | {} | {} | {} posted a pic: {}".format(timestamp.strftime("%H:%M:%S"), str_cmd(servername),
-                                                           str_cmd(channelname), str_cmd(str(author)), number)
+        text = "{} | {} | {} | {} posted a pic".format(timestamp.strftime("%H:%M:%S"), str_cmd(servername),
+                                                           str_cmd(channelname), str_cmd(str(author)))
     else:
         cont = content
         if public:

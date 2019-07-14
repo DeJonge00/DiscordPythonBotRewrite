@@ -1,6 +1,8 @@
+from core.constants import TEXT, EMBED
+
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
-from discord import Embed, TextChannel
+from discord import Embed, TextChannel, Attachment, User
 
 
 # Mod commands
@@ -30,24 +32,26 @@ class BasicCommands(Cog):
         embed.add_field(name='Owner', value='Nya#2698')
         embed.add_field(name='Landlord', value='Kappa#2915')
         embed.set_thumbnail(url=self.bot.user.avatar_url)
-        await ctx.send(embed=embed)
+        await self.bot.send_message(destination=ctx, embed=embed)
+
+    @staticmethod
+    def command_echo(args: [str], attachments: [Attachment], author: User):
+        if len(args) > 0:
+            return {TEXT: " ".join(args)}
+
+        if len(attachments) > 0:
+            embed = Embed(colour=0x000000)
+            embed.set_author(name=author.display_name, icon_url=author.avatar_url)
+            embed.set_image(url=attachments[0].url)
+            return {EMBED: embed} # TODO Testing images
+        return {TEXT: author.mention + " b-b-baka!"}
 
     @commands.command()
     async def echo(self, ctx: Context, *args):
-        # if not await self.bot.pre_command(message=ctx.message, command='echo'):
-        #     return
-
-        if len(args) > 0:
-            await ctx.send(content=" ".join(args))
+        if not await self.bot.pre_command(ctx=ctx, command='echo'):
             return
-
-        if len(ctx.message.attachments) > 0:
-            embed = Embed(colour=0x000000)
-            embed.set_author(name=ctx.message.author.display_name, icon_url=ctx.message.author.avatar_url)
-            embed.set_image(url=ctx.message.attachments[0].get('url'))
-            await ctx.send(embed=embed)
-            return
-        await ctx.send(content=ctx.message.author.mention + " b-b-baka!")
+        answer = BasicCommands.command_echo(args, ctx.message.attachments, ctx.message.author)
+        await self.bot.send_message(destination=ctx, content=answer.get(TEXT, None), embed=answer.get(EMBED, None))
 
 
 def setup(bot):

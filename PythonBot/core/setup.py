@@ -1,6 +1,7 @@
 from core import constants
 from core.bot import PythonBot
 from database import general as dbcon
+from secret.secrets import game_name
 
 from datetime import datetime
 from discord import Member, Status, Game
@@ -25,7 +26,7 @@ def create_bot():
         print("Started at: " + datetime.utcnow().strftime("%H:%M:%S") + "\n")
         if not hasattr(bot, 'uptime'):
             bot.uptime = datetime.utcnow()
-        await bot.change_presence(activity=Game(name=constants.game_name), status=Status.do_not_disturb)
+        await bot.change_presence(activity=Game(name=game_name), status=Status.do_not_disturb)
 
         dbcon.update_server_list(bot.guilds)
 
@@ -33,7 +34,7 @@ def create_bot():
     async def on_member_update(before: Member, after: Member):
         if before.id == constants.NYAid:
             if before.activity != after.activity:
-                activity = after.activity if after.activity else Game(name=constants.game_name)
+                activity = after.activity if after.activity else Game(name=game_name)
                 await bot.change_presence(activity=activity, status=Status.do_not_disturb)
                 return
 

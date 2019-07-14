@@ -1,10 +1,11 @@
-from discord.ext.commands import Bot, Context
-from discord import Message, TextChannel, DMChannel
-
 from core import constants, logging as log
 from core.customHelpFormatter import customHelpFormatter
 from database import general as dbcon
 from secret.secrets import prefix
+
+from datetime import datetime
+from discord.ext.commands import Bot, Context
+from discord import Message, TextChannel, DMChannel, Forbidden
 
 
 class PythonBot(Bot):
@@ -18,6 +19,55 @@ class PythonBot(Bot):
         self.API = api
 
         super(PythonBot, self, ).__init__(command_prefix=prefix, pm_help=True)  # , formatter=customHelpFormatter)
+
+    async def _get_prefix(self, message):
+        try:
+            p = dbcon.get_prefix(message.server.id)
+            return p if p else await super(PythonBot, self)._get_prefix(message)
+        except (KeyError, AttributeError):
+            return await super(PythonBot, self)._get_prefix(message)
+
+    @staticmethod
+    async def delete_message(message: Message):
+        if not isinstance(message.channel, DMChannel):
+            try:
+                return await message.delete()
+            except Forbidden:
+                m = '{} | {} | No permissions to delete message \'{}\''
+                m = m.format(message.guild.name, message.channel.name, message.content)
+                await log.error(m, filename=message.guild.name)
+
+    async def send_message(self, destination: Context, content=None, *, file=None, tts=False, embed=None):
+        try:
+            try:
+                guild = destination.guild
+            except AttributeError:
+                guild = None
+
+            if content:
+                await log.message_content(content, destination.channel, guild, self.user, datetime.now(), [],
+                                          "send message:")
+            if file:
+                await log.message_content(content, destination.channel, guild, self.user, datetime.now(), [],
+                                          "pic")
+            if embed:
+                await log.log("send a message", str(self.user), 'embedded message',
+                              str(guild) if guild else str(destination))
+            return await destination.send(content=content, tts=tts, embed=embed)
+        except Forbidden:
+            if embed:
+                m = 'Sorry, it seems I cannot send embedded messages in this channel...'
+                await self.send_message(destination, content=m)
+            elif file:
+                m = 'Sorry, it seems I cannot send files in this channel...'
+                await self.send_message(destination, content=m)
+            else:
+                m = '{} | {} | No permissions to send message \'{}\''
+                if isinstance(destination, TextChannel):
+                    m = m.format(destination.guild.name, str(destination), content)
+                else:
+                    m = m.format('direct message', str(destination), content)
+                await log.error(m, filename=str(destination))
 
     @staticmethod
     def command_allowed_in(location_type: str, identifier: int, command_name: str):
