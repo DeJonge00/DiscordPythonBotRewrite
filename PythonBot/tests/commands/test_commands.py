@@ -80,3 +80,6 @@ class Commands(unittest.TestCase):
         for original, formatted in answers.items():
             self.assertEqual(formatted, bc.command_emojify(original.split()).get(TEXT))
 
+    def test_command_hype(self):
+        answer = bc.command_hype([get_test_emoji('emoji1', 1)])
+        self.assertEqual('<:emoji1:1>', answer.get(TEXT))
