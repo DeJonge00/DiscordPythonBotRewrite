@@ -3,9 +3,10 @@ from config.constants import TEXT, EMBED
 from core.bot import PythonBot
 from database.pats import increment_pats
 
+from asyncio import sleep
+from discord import Embed, TextChannel, Attachment, User, Forbidden
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
-from discord import Embed, TextChannel, Attachment, User
 import random
 
 EMBED_COLOR = 0x008909
@@ -101,6 +102,22 @@ class BasicCommands(Cog):
         answer = BasicCommands.command_cookie(ctx.message.author.display_name)
         await self.bot.send_message(ctx, content=answer.get(TEXT), embed=answer.get(EMBED))
 
+    @commands.command(name='delete', help="Delete your message automatically in a bit!", aliases=["del", "d"])
+    async def delete(self, ctx, *args):
+        if not await self.bot.pre_command(ctx=ctx, command='delete', is_typing=False, delete_message=False):
+            return
+
+        if len(args) > 0:
+            s = args[0]
+            try:
+                s = float(s)
+            except ValueError:
+                s = 1
+        else:
+            s = 1
+        await sleep(s)
+        await self.bot.delete_message(ctx.message)
+
     @staticmethod
     def command_echo(args: [str], attachments: [Attachment], author: User):
         """
@@ -138,6 +155,28 @@ class BasicCommands(Cog):
             return
         answer = BasicCommands.command_echo(args, ctx.message.attachments, ctx.message.author)
         await self.bot.send_message(destination=ctx, content=answer.get(TEXT), embed=answer.get(EMBED))
+
+    @staticmethod
+    def command_embed(args: [str], author_name: str, author_avatar_url: str, attachments: [Attachment]):
+        embed = Embed(colour=EMBED_COLOR)
+        embed.set_author(name=author_name, icon_url=author_avatar_url)
+        if len(args) > 0:
+            embed.add_field(name='Message', value=' '.join(args))
+        # TODO Images only work if the image has not been deleted yet
+        # if len(attachments) > 0:
+        #     embed.set_image(url=attachments[0].url)
+        return {EMBED: embed}
+
+    @commands.command(name='embed', help="I'll embed that message for you!")
+    async def embed(self, ctx, *args):
+        if not await self.bot.pre_command(ctx=ctx, command='embed'):
+            return
+        await self.bot.send_message(destination=ctx,
+                                    embed=BasicCommands.command_embed(args, ctx.message.author.display_name,
+                                                                      ctx.message.author.avatar_url,
+                                                                      ctx.message.attachments).get(EMBED))
+
+    # TODO Replace >countdown with a >remindme (not spammy, but same functionality)
 
 
 def setup(bot):

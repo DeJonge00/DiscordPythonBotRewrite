@@ -41,3 +41,18 @@ class Commands(unittest.TestCase):
 
         embed: Embed = bc.command_echo('', [attachment], author).get(EMBED)
         self.assertEqual(file_url, embed.image.url)
+
+    def test_command_embed(self):
+        author_name = 'author_name'
+        author_url = 'author_url'
+        text = 'Hello World'
+        attachment_url = 'attachment_url'
+        attachment = get_test_attachment(url='attachment_url')
+
+        embed = bc.command_embed(text.split(), author_name, author_url, [attachment]).get(EMBED)
+
+        self.assertEqual(author_name, embed.author.name)
+        self.assertEqual(author_url, embed.author.icon_url)
+        self.assertEqual(text, embed.fields[0].value)
+        # TODO Fix test when the todo in the function is resolved
+        # self.assertEqual(attachment_url, embed.image.url)
