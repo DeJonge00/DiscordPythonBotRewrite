@@ -4,7 +4,7 @@ from database import general as dbcon
 from secret.secrets import game_name
 
 from datetime import datetime
-from discord import Member, Status, Game
+from discord import Member, Status, Game, Spotify
 
 COGS = [
     'commands.admin_commands',
@@ -35,7 +35,10 @@ def create_bot():
     async def on_member_update(before: Member, after: Member):
         if before.id == constants.NYAid:
             if before.activity != after.activity:
-                activity = after.activity if after.activity else Game(name=game_name)
+                if isinstance(after.activity, Spotify):
+                    activity = Game(name='🎵 {} 🎵'.format(after.activity.title))
+                else:
+                    activity = after.activity if after.activity else Game(name=game_name)
                 await bot.change_presence(activity=activity, status=Status.do_not_disturb)
                 return
 

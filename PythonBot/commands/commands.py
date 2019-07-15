@@ -5,7 +5,7 @@ from database.pats import increment_pats
 
 from asyncio import sleep
 from datetime import datetime
-from discord import Embed, TextChannel, Attachment, User, Forbidden, Emoji, Member
+from discord import Embed, TextChannel, Attachment, User, Forbidden, Emoji, Member, Message, Guild
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 import hashlib
@@ -411,7 +411,140 @@ class BasicCommands(Cog):
         self.patTimes[ctx.message.author.id] = time
         await self.bot.send_message(ctx, answer.get(TEXT))
 
+    # TODO Figure out why there is 8s of lag between system clock and message timestamp
+    # @commands.command(name='ping', help="Give someone a compliment")
+    # async def ping(self, ctx: Context):
+    #     if not await self.bot.pre_command(ctx=ctx, command='ping'):
+    #         return
+    #     r = random.randint(0, 100)
+    #     result = '*Miss* You win!' if r < 20 else '*Pong* You lose...' if r < 40 else '*Pong*'
+    #     m = await self.bot.send_message(ctx, ':ping_pong: ' + result)
+    #     t = datetime.utcnow()
+    #     if not m:
+    #         return
+    #     print(t)
+    #     t = (m.created_at - t)
+    #     print(m.created_at)
+    #     time = ''
+    #     if t.seconds > 0:
+    #         time += ' {}s'.format(t.seconds)
+    #     if t.microseconds > 0:
+    #         time += ' {}μs'.format(t.microseconds)
+    #     await m.edit(content=':ping_pong: {}\nMy ping is `{}`'.format(result, time.lstrip(' ')))
+
+    @commands.command(name='purr', help="Purr like you never purred before!")
+    async def purr(self, ctx: Context):
+        if not await self.bot.pre_command(ctx=ctx, command='purr'):
+            return
+        await self.bot.send_message(ctx, random.choice(constants.purr).format(ctx.message.author.mention))
+
+    @commands.command(name='quote', help="Get a random quote!")
+    async def quote(self, ctx: Context):
+        if not await self.bot.pre_command(ctx=ctx, command='quote'):
+            return
+        params = {'method': 'getQuote', 'format': 'json', 'lang': 'en'}
+        r = requests.get('http://api.forismatic.com/api/1.0/', params=params)
+        while not isinstance(r, dict):
+            if r.status_code != 200:
+                await self.bot.send_message(ctx, 'Something went wrong on my end...')
+                return
+            r = r.json()
+        m = '`{}`'.format(r.get('quoteText'))
+        if r.get('quoteAuthor'):
+            m += '\n- {}'.format(r.get('quoteAuthor'))
+        await self.bot.send_message(ctx, m)
+
     # TODO Replace >countdown with a >remindme (not spammy, but same functionality)
+
+    # TODO Role comman + possible structure change (toggle instead of add/remove)
+
+    @commands.command(name='serverinfo', help="Get the guild's information!",
+                      aliases=['serverstats', 'guildstats', 'guildinfo'])
+    async def serverinfo(self, ctx, *args):
+        if not await self.bot.pre_command(ctx=ctx, command='serverinfo', cannot_be_private=True):
+            return
+
+        # Determine guild
+        guild: Guild = None
+        if (ctx.message.author.id in [constants.NYAid, constants.KAPPAid]) and len(args) > 0:
+            for s in self.bot.guilds:
+                if s.name.lower().encode("ascii", "replace").decode("ascii") == ' '.join(args):
+                    guild = s
+                    break
+        if not guild:
+            guild = ctx.message.guild
+
+        # Add guild information
+        embed = Embed(colour=EMBED_COLOR)
+        embed.set_author(name=guild.name, icon_url=ctx.message.author.avatar_url)
+        if guild.icon:
+            embed.set_thumbnail(url=guild.icon_url)
+        embed.add_field(name="Server ID", value=guild.id)
+        embed.add_field(name="Creation date", value=guild.created_at)
+        embed.add_field(name="Region", value=guild.region)
+        embed.add_field(name="Members", value=guild.member_count)
+        embed.add_field(name="Owner", value='{} ({})'.format(guild.owner.display_name, guild.owner.mention))
+        embed.add_field(name="Custom Emoji", value='{}/{}'.format(len(guild.emojis), guild.emoji_limit))
+        embed.add_field(name="Roles", value=str(len(guild.roles)))
+        embed.add_field(name="Channels", value=str(len(guild.channels)))
+        if guild.premium_tier:
+            embed.add_field(name="Premium tier", value=guild.premium_tier)
+        if len(guild.features) > 0:
+            f = ""
+            for feat in guild.features:
+                f += "{}\n".format(feat)
+            embed.add_field(name="Features", value=f)
+        if guild.afk_channel:
+            v = "{} ({}s)".format(guild.afk_channel, guild.afk_timeout)
+            embed.add_field(name="AFK Channel", value=v)
+
+        await self.bot.send_message(ctx, embed=embed)
+
+        # Print more secrets
+        if ctx.message.author.id in [constants.NYAid, constants.KAPPAid]:
+            for c in guild.channels:
+                print(self.bot.prep_str_for_print(c.name))
+
+    @staticmethod
+    def command_urban(args: [str]):
+        q = " ".join(args)
+        if not q:
+            return {TEXT: '...'}
+
+        embed = Embed(colour=EMBED_COLOR)
+        try:
+            params = {'term': q}
+            r = requests.get('http://api.urbandictionary.com/v0/define', params=params).json().get('list')
+            if len(r) <= 0:
+                embed.add_field(name="Definition", value="I'm afraid there are no results for '{}'".format(q))
+                return {EMBED: embed}
+
+            r = r[0]
+            embed.add_field(name="Urban Dictionary Query", value=r.get('word'))
+            definition = r.get('definition').replace('[', '').replace(']', '')
+            if len(definition) > 500:
+                definition = definition[:500] + '...'
+            embed.add_field(name="Definition", value=definition, inline=False)
+            example = r.get('example').replace('[', '').replace(']', '')
+            if len(definition) < 500:
+                if len(example) + len(definition) > 500:
+                    example = example[:500 - len(definition)]
+                if len(example) > 20:
+                    embed.add_field(name="Example", value=example)
+            embed.add_field(name="👍", value=r.get('thumbs_up'))
+            embed.add_field(name="👎", value=r.get('thumbs_down'))
+            return {EMBED: embed}
+        except KeyError:
+            embed.add_field(name="Definition", value="ERROR ERROR ... CANT HANDLE AWESOMENESS LEVEL")
+            return {EMBED: embed}
+
+    @commands.command(pass_context=1, help="Search the totally official wiki!", aliases=["ud", "urbandictionary"])
+    async def urban(self, ctx: Context, *args):
+        if not await self.bot.pre_command(ctx=ctx, command='urban'):
+            return
+
+        answer = BasicCommands.command_urban(args)
+        await self.bot.send_message(ctx, content=answer.get(TEXT), embed=answer.get(EMBED))
 
 
 def setup(bot):

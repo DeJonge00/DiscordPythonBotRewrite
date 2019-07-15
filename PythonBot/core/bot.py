@@ -124,6 +124,10 @@ class PythonBot(Bot):
         # Give options if multiple users were found
         return await self.ask_one_from_multiple(ctx, users, question='Which user did you mean?')
 
+    @staticmethod
+    def prep_str_for_print(s: str):
+        return s.encode("ascii", "replace").decode("ascii")
+
     """ Overwiting functions """
 
     async def get_prefix(self, message):
@@ -154,7 +158,7 @@ class PythonBot(Bot):
                 await log.error(m, filename=message.guild.name)
 
     async def send_message(self, destination: Context, content: str = None, *, file=None, tts: bool = False,
-                           embed: Embed = None):
+                           embed: Embed = None) -> Message:
         """
         Function that allows extra checks to be done before sending a message.
         :param destination: The destination the message should be send to

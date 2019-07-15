@@ -138,7 +138,7 @@ def server_as_dict(s: Guild):
         SERVER_ID: s.id,
         'members': s.member_count,
         'bots': len([x for x in s.members if x.bot]),
-        'icon': s.icon_url,
+        'icon': str(s.icon_url),
         'channels': {
             'text': [c.id for c in s.channels if isinstance(c, TextChannel) == 'text'],
             'voice': [c.id for c in s.channels if isinstance(c, DMChannel) == 'voice']
