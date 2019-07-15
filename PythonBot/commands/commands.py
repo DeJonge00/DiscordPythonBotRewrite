@@ -4,7 +4,7 @@ from core.bot import PythonBot
 from database.pats import increment_pats
 
 from asyncio import sleep
-from discord import Embed, TextChannel, Attachment, User, Forbidden, Emoji
+from discord import Embed, TextChannel, Attachment, User, Forbidden, Emoji, Member
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 import random
@@ -208,7 +208,7 @@ class BasicCommands(Cog):
         :param args: The text of the message, excluding the command and split by space.
         :param display_name: The name of the author of the message.
         :param avatar_url: The avatar-url of the author of the message.
-        :param emoji: The list of emoji the bot can see.
+        :param emoji_list: The list of emoji the bot can see.
         :return:
         """
         if len(args) <= 0:
@@ -281,7 +281,7 @@ class BasicCommands(Cog):
             return
         try:
             target = await self.bot.get_member_from_message(ctx, args, in_text=True)
-        except ValueError as e:
+        except ValueError:
             return
 
         if target == ctx.message.author:
@@ -304,6 +304,27 @@ class BasicCommands(Cog):
             return
         answer = BasicCommands.command_hype(ctx.guild.emojis)
         await self.bot.send_message(ctx, content=answer.get(TEXT))
+
+    # TODO Kick command
+
+    @staticmethod
+    def command_kill(author: Member, target: Member):
+        if author is target:
+            return {TEXT: "Suicide is not the answer, 42 is"}
+        return {TEXT: random.choice(constants.kill).format(u=[target.mention])}
+
+    @commands.command(name='kill', help="Wish someone a happy death! (is a bit explicit)")
+    async def kill(self, ctx: Context, *args):
+        if not await self.bot.pre_command(ctx=ctx, command='kill'):
+            return
+
+        try:
+            target = await self.bot.get_member_from_message(ctx=ctx, args=args, in_text=True)
+        except ValueError:
+            return
+
+        answer = BasicCommands.command_kill(ctx.message.author, target)
+        await self.bot.send_message(ctx, answer.get(TEXT))
 
     # TODO Replace >countdown with a >remindme (not spammy, but same functionality)
 
