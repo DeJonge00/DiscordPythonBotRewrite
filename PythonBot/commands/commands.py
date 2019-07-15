@@ -4,9 +4,11 @@ from core.bot import PythonBot
 from database.pats import increment_pats
 
 from asyncio import sleep
+from datetime import datetime
 from discord import Embed, TextChannel, Attachment, User, Forbidden, Emoji, Member
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
+import hashlib
 import random
 import re
 import requests
@@ -31,6 +33,7 @@ englishyfy_numbers = {
 class BasicCommands(Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
+        self.patTimes = {}
         print('Basic commands started')
 
     @commands.command(name='botstats', help="Biri's botstats!", aliases=['botinfo'])
@@ -342,6 +345,70 @@ class BasicCommands(Cog):
             return
 
         answer = BasicCommands.command_kiss(ctx.message.author, target)
+        await self.bot.send_message(ctx, answer.get(TEXT))
+
+    @commands.command(name='lenny', help="( ͡° ͜ʖ ͡°)!")
+    async def lenny(self, ctx, *args):
+        if not await self.bot.pre_command(ctx=ctx, command='lenny'):
+            return
+        await self.bot.send_message(ctx, " ".join(args) + " ( ͡° ͜ʖ ͡°)")
+
+    # TODO Lottery command
+
+    @commands.command(pass_context=1, help="Calculate how nice you are!")
+    async def nice(self, ctx, *args):
+        if not await self.bot.pre_command(ctx=ctx, command='nice'):
+            return
+        try:
+            user = await self.bot.get_member_from_message(ctx=ctx, args=args, in_text=True, errors={})
+        except ValueError:
+            user = ctx.message.author
+
+        n = int(hashlib.sha1(user.name.encode()).hexdigest(), 16) % 100
+        await self.bot.send_message(ctx, '{}, it has been determined you are {}% nice'.format(user.name, n))
+
+    @staticmethod
+    def command_pat(time: datetime, author: Member, last_pat_time: datetime, target: Member):
+        """
+        Performs a pat if criteria are met.
+        :param time: The current time.
+        :param author: The one who does the patting.
+        :param last_pat_time: The last time author pat.
+        :param target: The one who will receive a pat.
+        :return:
+        """
+        if author is target:
+            return {TEXT: author.mention + " One does not simply pat ones own head"}
+
+        if last_pat_time and (time - last_pat_time).total_seconds() < 60:
+            return {TEXT: author.mention + " Not so fast, b-b-baka!"}
+
+        n = increment_pats(author.id, target.id)
+        s = '' if n is 1 else 's'
+        m = "{} has pat {} {} time{} now".format(author.mention, target.mention, n, s)
+        if n % 100 is 0:
+            m += "\nWoooooaaaaahh LEGENDARY!!!"
+        elif n % 25 is 0:
+            m += "\nWow, that is going somewhere!"
+        elif n % 10 is 0:
+            m += "\nSugoi!"
+
+        return {TEXT: m}
+
+    @commands.command(name='pat', help="PAT ALL THE THINGS!")
+    async def pat(self, ctx: Context, *args):
+        if not await self.bot.pre_command(ctx=ctx, command='pat'):
+            return
+
+        try:
+            errors = {'no_mention': ctx.message.author.mention + " You cant pat air lmao"}
+            target = await self.bot.get_member_from_message(ctx=ctx, args=args, in_text=True, errors=errors)
+        except ValueError:
+            return
+
+        time = datetime.utcnow()
+        answer = BasicCommands.command_pat(time, ctx.message.author, self.patTimes.get(ctx.message.author.id), target)
+        self.patTimes[ctx.message.author.id] = time
         await self.bot.send_message(ctx, answer.get(TEXT))
 
     # TODO Replace >countdown with a >remindme (not spammy, but same functionality)

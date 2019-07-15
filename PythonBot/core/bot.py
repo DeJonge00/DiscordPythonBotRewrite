@@ -177,6 +177,7 @@ class PythonBot(Bot):
                 await log.message_content(content, destination.channel, guild, self.user, datetime.now(), [],
                                           "pic")
             if embed:
+                # TODO Adjust logging for embedded messages
                 await log.log("send a message", str(self.user), 'embedded message',
                               str(guild) if guild else str(destination))
             return await destination.send(content=content, tts=tts, embed=embed)
