@@ -56,3 +56,10 @@ class Commands(unittest.TestCase):
         self.assertEqual(text, embed.fields[0].value)
         # TODO Fix test when the todo in the function is resolved
         # self.assertEqual(attachment_url, embed.image.url)
+
+    def test_command_emoji(self):
+        text = '1234'
+
+        self.assertEqual("https://cdn.discordapp.com/emojis/{}.png".format(text),
+                         bc.command_emoji(text.split(), '', '', []).get(EMBED).image.url)
+

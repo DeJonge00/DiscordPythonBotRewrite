@@ -1,12 +1,12 @@
-setuptools
-requests
 discord.py          ==  '1.2.3'
-pillow 
-wikipedia 
-urbanpyctionary 
-youtube-dl
-pymysql
-opuslib 
-PyNaCl 
-urbandictionary
+requests
+setuptools
+pillow
 pymongo
+pymysql
+PyNaCl
+opuslib
+urbanpyctionary
+wikipedia
+youtube-dl
+urbandictionary

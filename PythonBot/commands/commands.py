@@ -4,10 +4,12 @@ from core.bot import PythonBot
 from database.pats import increment_pats
 
 from asyncio import sleep
-from discord import Embed, TextChannel, Attachment, User, Forbidden
+from discord import Embed, TextChannel, Attachment, User, Forbidden, Emoji
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 import random
+import re
+import requests
 
 EMBED_COLOR = 0x008909
 
@@ -158,11 +160,21 @@ class BasicCommands(Cog):
 
     @staticmethod
     def command_embed(args: [str], author_name: str, author_avatar_url: str, attachments: [Attachment]):
+        """
+        Embeds the text of the message into an embed
+        :param args: The text of the message
+        :param author_name: The display name of the author of the message
+        :param author_avatar_url: The avatar-url of the author of the message
+        :param attachments: The attachments of the message
+        :return: {TEXT: the text of the response,
+                  EMBED: The embed of the response}
+        """
         embed = Embed(colour=EMBED_COLOR)
         embed.set_author(name=author_name, icon_url=author_avatar_url)
         if len(args) > 0:
             embed.add_field(name='Message', value=' '.join(args))
-        # TODO Images only work if the image has not been deleted yet
+        else:  # TODO Images only work if the image has not been deleted yet
+            return {TEXT: 'You will have to specify what to embed (images arent working yet, sorry)'}
         # if len(attachments) > 0:
         #     embed.set_image(url=attachments[0].url)
         return {EMBED: embed}
@@ -171,10 +183,52 @@ class BasicCommands(Cog):
     async def embed(self, ctx, *args):
         if not await self.bot.pre_command(ctx=ctx, command='embed'):
             return
-        await self.bot.send_message(destination=ctx,
-                                    embed=BasicCommands.command_embed(args, ctx.message.author.display_name,
-                                                                      ctx.message.author.avatar_url,
-                                                                      ctx.message.attachments).get(EMBED))
+        answer = BasicCommands.command_embed(args, ctx.message.author.display_name, ctx.message.author.avatar_url,
+                                             ctx.message.attachments)
+        await self.bot.send_message(destination=ctx, content=answer.get(TEXT), embed=answer.get(EMBED))
+
+    @staticmethod
+    def command_emoji(args: [str], display_name: str, avatar_url: str, emoji: [Emoji]):
+        # TODO Test gif emoji with nitro users
+        """
+        Given a message, find an emoji and display it in an embedded message.
+        :param args: The text of the message, excluding the command and split by space.
+        :param display_name: The name of the author of the message.
+        :param avatar_url: The avatar-url of the author of the message.
+        :param emoji: The list of emoji the bot can see.
+        :return:
+        """
+        if len(args) <= 0:
+            return {TEXT: "I NEED MORE ARGUMENTS"}
+
+        text = ' '.join(args)
+        try:
+            # Emoji id was given
+            emojiid = re.findall('\d+', text)[0]
+        except IndexError:
+            # Search for emoji name in known emoji
+            emoji = re.findall('[a-zA-Z]+', text)
+            for e in emoji:
+                if e.name in emoji:
+                    emojiid = e.id
+                    break
+            else:
+                # No emoji was found
+                return {TEXT: 'Sorry, emoji not found...'}
+        ext = 'gif' if requests.get(
+            'https://cdn.discordapp.com/emojis/{}.gif'.format(emojiid)).status_code == 200 else 'png'
+        embed = Embed(colour=EMBED_COLOR)
+        embed.set_author(name=display_name, icon_url=avatar_url)
+        embed.set_image(url="https://cdn.discordapp.com/emojis/{}.{}".format(emojiid, ext))
+        return {EMBED: embed}
+
+    @commands.command(name='emoji', help="Make big emojis")
+    async def emoji(self, ctx, *args):
+        if not await self.bot.pre_command(ctx=ctx, command='emoji'):
+            return
+        answer = BasicCommands.command_emoji(args, ctx.message.author.display_name, ctx.message.author.avatar_url,
+                                             self.bot.emojis)
+        await self.bot.send_message(ctx, content=answer.get(TEXT), embed=answer.get(EMBED))
 
     # TODO Replace >countdown with a >remindme (not spammy, but same functionality)
 
