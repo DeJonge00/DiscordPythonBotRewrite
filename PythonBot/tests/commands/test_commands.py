@@ -4,6 +4,7 @@ from config.constants import TEXT, EMBED
 from tests.objects import get_test_attachment, get_test_user
 
 from discord import Attachment, User, Embed
+import re
 
 
 class Commands(unittest.TestCase):
@@ -15,6 +16,19 @@ class Commands(unittest.TestCase):
     def test_command_compliment(self):
         # TODO Think of testing random functions
         pass
+
+    @staticmethod
+    def get_cookie_number(answer: {TEXT: str}):
+        r = re.match('.*?(\d+).*?', answer.get(TEXT))
+        return int(r.groups()[0])
+
+    def test_command_cookie(self):
+        # Make sure the name does not contain numbers for this test
+        display_name = 'name'
+        self.assertEqual(
+            Commands.get_cookie_number(answer=bc.command_cookie(display_name)) + 1,
+            Commands.get_cookie_number(answer=bc.command_cookie(display_name))
+        )
 
     def test_command_echo(self):
         author = get_test_user('author_name')

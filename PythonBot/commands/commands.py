@@ -1,11 +1,14 @@
 from config import constants
 from config.constants import TEXT, EMBED
 from core.bot import PythonBot
+from database.pats import increment_pats
 
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 from discord import Embed, TextChannel, Attachment, User
 import random
+
+EMBED_COLOR = 0x008909
 
 
 # Mod commands
@@ -56,7 +59,7 @@ class BasicCommands(Cog):
 
         return {TEXT: "**{}** casted **{}** on {}.\n{}".format(author_name, chosen_spell, target, chosen_result)}
 
-    @commands.command(pass_context=1, help="Cast a spell!")
+    @commands.command(name='cast', help="Cast a spell!")
     async def cast(self, ctx: Context, *args):
         if not await self.bot.pre_command(ctx=ctx, command='cast'):
             return
@@ -64,7 +67,7 @@ class BasicCommands(Cog):
         answer = BasicCommands.command_cast(args, author_name=ctx.message.author.display_name)
         await self.bot.send_message(ctx, content=answer.get(TEXT))
 
-    @commands.command(pass_context=1, help="Give someone a compliment")
+    @commands.command(name='compliment', help="Give someone a compliment")
     async def compliment(self, ctx, *args):
         if not await self.bot.pre_command(ctx=ctx, command='compliment'):
             return
@@ -73,6 +76,30 @@ class BasicCommands(Cog):
         except ValueError:
             return
         await self.bot.send_message(ctx, random.choice(constants.compliments).format(u=[target.mention]))
+
+    @staticmethod
+    def command_cookie(display_name: str):
+        n = increment_pats('cookie', 'all')
+        s = '' if n == 1 else 's'
+        m = "has now been clicked {} time{} in total".format(n, s)
+        if n % 100 == 0:
+            embed = Embed(colour=0x000000)
+            m = 'The cookie {}!!!'.format(m)
+            embed.add_field(name="Cookie clicker: " + display_name + " has clicked the cookie",
+                            value=m)
+            url = 'https://res.cloudinary.com/lmn/image/upload/e_sharpen:100/f_auto,fl_lossy,q_auto/v1/gameskinny/' \
+                  'deea3dc3c4bebf48c8d61d0490b24768.png'
+            embed.set_thumbnail(url=url)
+            return {TEXT: m, EMBED: embed}
+        return {TEXT: "{} has clicked the cookie. It {}".format(display_name, m)}
+
+    @commands.command(name='cookie', help="Collectively click the cookie!")
+    async def cookie(self, ctx):
+        if not await self.bot.pre_command(ctx=ctx, command='cookie'):
+            return
+
+        answer = BasicCommands.command_cookie(ctx.message.author.display_name)
+        await self.bot.send_message(ctx, content=answer.get(TEXT), embed=answer.get(EMBED))
 
     @staticmethod
     def command_echo(args: [str], attachments: [Attachment], author: User):
