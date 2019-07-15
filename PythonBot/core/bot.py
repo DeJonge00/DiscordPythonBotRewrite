@@ -32,7 +32,7 @@ class PythonBot(Bot):
         :param s: The text
         :return: filtered text
         """
-        return ''.join([l for l in s.split('') if re.match('[a-zA-Z0-9]', l)])
+        return ''.join([l for l in s if re.match('[a-zA-Z0-9]', l)])
 
     async def ask_one_from_multiple(self, ctx: Context, group: list, question='', errors: dict = {}):
         """

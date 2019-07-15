@@ -80,3 +80,14 @@ class Commands(unittest.TestCase):
         for original, formatted in answers.items():
             self.assertEqual(formatted, bc.command_emojify(original.split()).get(TEXT))
 
+    def test_command_hype(self):
+        answer = bc.command_hype([get_test_emoji('emoji1', 1)])
+        self.assertEqual('<:emoji1:1>', answer.get(TEXT))
+
+    def test_command_kill(self):
+        author = get_test_user('author')
+        target = get_test_user('target')
+        answer = bc.command_kill(author, author)
+        self.assertEqual("Suicide is not the answer, 42 is", answer.get(TEXT))
+        answer = bc.command_kill(author, target)
+        self.assertNotEqual("Suicide is not the answer, 42 is", answer.get(TEXT))

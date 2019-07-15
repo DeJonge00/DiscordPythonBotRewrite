@@ -4,7 +4,7 @@ from core.bot import PythonBot
 from database.pats import increment_pats
 
 from asyncio import sleep
-from discord import Embed, TextChannel, Attachment, User, Forbidden, Emoji
+from discord import Embed, TextChannel, Attachment, User, Forbidden, Emoji, Member
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 import random
@@ -193,7 +193,7 @@ class BasicCommands(Cog):
         return {EMBED: embed}
 
     @commands.command(name='embed', help="I'll embed that message for you!")
-    async def embed(self, ctx, *args):
+    async def embed(self, ctx: Context, *args):
         if not await self.bot.pre_command(ctx=ctx, command='embed'):
             return
         answer = BasicCommands.command_embed(args, ctx.message.author.display_name, ctx.message.author.avatar_url,
@@ -208,7 +208,7 @@ class BasicCommands(Cog):
         :param args: The text of the message, excluding the command and split by space.
         :param display_name: The name of the author of the message.
         :param avatar_url: The avatar-url of the author of the message.
-        :param emoji: The list of emoji the bot can see.
+        :param emoji_list: The list of emoji the bot can see.
         :return:
         """
         if len(args) <= 0:
@@ -235,7 +235,7 @@ class BasicCommands(Cog):
         return {EMBED: embed}
 
     @commands.command(name='emoji', help="Make big emojis")
-    async def emoji(self, ctx, *args):
+    async def emoji(self, ctx: Context, *args):
         if not await self.bot.pre_command(ctx=ctx, command='emoji'):
             return
         answer = BasicCommands.command_emoji(args, ctx.message.author.display_name, ctx.message.author.avatar_url,
@@ -244,6 +244,11 @@ class BasicCommands(Cog):
 
     @staticmethod
     def command_emojify(args: [str]):
+        """
+        The command that emojifies a string
+        :param args: The string to be emojified
+        :return: The emojfied string
+        """
         text = " ".join(args).lower()
         if not text:
             return {TEXT: 'Please give me a string to emojify...'}
@@ -257,12 +262,69 @@ class BasicCommands(Cog):
 
         return {TEXT: ' '.join([convert_char(c) for c in text])}
 
-    @commands.command(pass_context=1, help="Use emojis to instead of ascii to spell!")
-    async def emojify(self, ctx, *args):
+    @commands.command(name='emojify', help="Use emojis to instead of ascii to spell!")
+    async def emojify(self, ctx: Context, *args):
         if not await self.bot.pre_command(ctx=ctx, command='emojify'):
             return
 
         await self.bot.send_message(ctx, BasicCommands.command_emojify(args).get(TEXT))
+
+    @commands.command(name='face', help="Make a random face!")
+    async def face(self, ctx: Context):
+        if not await self.bot.pre_command(ctx=ctx, command='face'):
+            return
+        await self.bot.send_message(ctx, random.choice(constants.faces))
+
+    @commands.command(name='hug', help="Give hugs!")
+    async def hug(self, ctx: Context, *args):
+        if not await self.bot.pre_command(ctx=ctx, command='hug'):
+            return
+        try:
+            target = await self.bot.get_member_from_message(ctx, args, in_text=True)
+        except ValueError:
+            return
+
+        if target == ctx.message.author:
+            hug = ctx.message.author.mention + " Trying to give yourself a hug? Haha, so lonely..."
+            await self.bot.send_message(ctx, hug)
+            return
+
+        hug = random.choice(constants.hug).format(u=[ctx.message.author.mention, target.mention])
+        await self.bot.send_message(ctx, hug)
+
+    @staticmethod
+    def command_hype(emoji: [Emoji]):
+        if len(emoji) <= 0:
+            return {TEXT: 'Your server doesnt have custom emoji for me to use...'}
+        return {TEXT: ' '.join([str(e) for e in random.sample(emoji, k=min(len(emoji), 10))])}
+
+    @commands.command(name='hype', help="Hype everyone with random emoji!")
+    async def hype(self, ctx: Context):
+        if not await self.bot.pre_command(ctx=ctx, command='hype', cannot_be_private=True):
+            return
+        answer = BasicCommands.command_hype(ctx.guild.emojis)
+        await self.bot.send_message(ctx, content=answer.get(TEXT))
+
+    # TODO Kick command
+
+    @staticmethod
+    def command_kill(author: Member, target: Member):
+        if author is target:
+            return {TEXT: "Suicide is not the answer, 42 is"}
+        return {TEXT: random.choice(constants.kill).format(u=[target.mention])}
+
+    @commands.command(name='kill', help="Wish someone a happy death! (is a bit explicit)")
+    async def kill(self, ctx: Context, *args):
+        if not await self.bot.pre_command(ctx=ctx, command='kill'):
+            return
+
+        try:
+            target = await self.bot.get_member_from_message(ctx=ctx, args=args, in_text=True)
+        except ValueError:
+            return
+
+        answer = BasicCommands.command_kill(ctx.message.author, target)
+        await self.bot.send_message(ctx, answer.get(TEXT))
 
     # TODO Replace >countdown with a >remindme (not spammy, but same functionality)
 
