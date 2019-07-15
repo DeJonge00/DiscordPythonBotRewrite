@@ -18,7 +18,7 @@ class AdminCommands(Cog):
 
         cog = ' '.join(args)
         if cog not in get_cogs():
-            await self.bot.send_message(ctx, "That cog is either")
+            await self.bot.send_message(ctx, "That cog is either misspelled or non-existent")
             return
 
         self.bot.unload_extension(cog)

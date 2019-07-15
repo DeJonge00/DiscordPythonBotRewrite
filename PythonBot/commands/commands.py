@@ -1,5 +1,5 @@
 from config import constants
-from config.constants import TEXT, EMBED
+from config.constants import TEXT, EMBED, ERROR
 from core.bot import PythonBot
 from database.pats import increment_pats
 
@@ -12,6 +12,7 @@ import hashlib
 import random
 import re
 import requests
+import wikipedia
 
 EMBED_COLOR = 0x008909
 
@@ -546,7 +547,7 @@ class BasicCommands(Cog):
         answer = BasicCommands.command_urban(args)
         await self.bot.send_message(ctx, content=answer.get(TEXT), embed=answer.get(EMBED))
 
-    @commands.command(pass_context=1, help="Get a user's information!", aliases=["user", "info"])
+    @commands.command(name='userinfo', help="Get a user's information!", aliases=["user", "info"])
     async def userinfo(self, ctx: Context, *args):
         if not await self.bot.pre_command(ctx=ctx, command='userinfo', cannot_be_private=True):
             return
@@ -581,6 +582,39 @@ class BasicCommands(Cog):
             m += "\n" + user.roles[r].name
         embed.add_field(name="Roles", value=m)
         await self.bot.send_message(ctx, embed=embed)
+
+    @staticmethod
+    async def command_wikipedia(ctx: Context, ask_one, args: [str]):
+        q = " ".join(args)
+        if not q:
+            return {TEXT: '...'}
+
+        embed = Embed(colour=0x00FF00)
+        s = wikipedia.search(q)
+        if len(s) <= 0:
+            return {TEXT: 'I cant find anything for that query'}
+        try:
+            s = await ask_one(ctx, s, 'Which result would you want to see?')
+        except ValueError:
+            return {ERROR: 'No choice returned when option was given to user'}
+        try:
+            page = wikipedia.WikipediaPage(s)
+        except wikipedia.exceptions.DisambiguationError:
+            return {TEXT: "This is too ambiguous..."}
+
+        embed.add_field(name="Title", value=page.title)
+        embed.add_field(name='Content', value=wikipedia.summary(s, sentences=2))
+        embed.add_field(name='Page url', value=page.url)
+        return {EMBED: embed}
+
+    @commands.command(name='wikipedia', help="Search the wiki!", aliases=["wiki"])
+    async def wikipedia(self, ctx, *args):
+        if not await self.bot.pre_command(ctx=ctx, command='wikipedia'):
+            return
+
+        answer = await BasicCommands.command_wikipedia(ctx, self.bot.ask_one_from_multiple, args)
+        if answer.get(TEXT) or answer.get(EMBED):
+            await self.bot.send_message(ctx, content=answer.get(TEXT), embed=answer.get(EMBED))
 
 
 def setup(bot):

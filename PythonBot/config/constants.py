@@ -3,8 +3,9 @@ from discord.permissions import Permissions
 RPGDB = 'logs/rpg.db'
 pidfile = "logs/pid.txt"
 
-TEXT = 'text'
-EMBED = 'embed'
+TEXT = 'text_message'
+EMBED = 'embed_message'
+ERROR = 'error_message'
 
 SERVICE = False
 
