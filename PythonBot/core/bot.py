@@ -128,6 +128,15 @@ class PythonBot(Bot):
     def prep_str_for_print(s: str):
         return s.encode("ascii", "replace").decode("ascii")
 
+    async def quit(self):
+        self.running = False
+        for key in self.commands_counters.keys():
+            print('Command "{}" was used {} times'.format(key, self.commands_counters.get(key)))
+        if self.RPGGAME:
+            self.rpggame.quit()
+        if self.MUSIC:
+            await self.musicplayer.quit()
+
     """ Overwiting functions """
 
     async def get_prefix(self, message):

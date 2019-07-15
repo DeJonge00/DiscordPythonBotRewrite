@@ -9,9 +9,9 @@ from discord import Member, Status, Game, Spotify
 
 def get_cogs():
     return [
-        'commands.admin_commands',
+        'commands.admin',
         'commands.commands',
-        'commands.config_commands'
+        'commands.config'
     ]
 
 
@@ -38,7 +38,7 @@ def create_bot():
         if before.id == constants.NYAid:
             if before.activity != after.activity:
                 if isinstance(after.activity, Spotify):
-                    activity = Game(name='🎵 {} 🎵'.format(after.activity.title))
+                    activity = Game(name='🎵 {}: {} 🎵'.format(after.activity.artist, after.activity.title))
                 else:
                     activity = after.activity if after.activity else Game(name=game_name)
                 await bot.change_presence(activity=activity, status=Status.do_not_disturb)

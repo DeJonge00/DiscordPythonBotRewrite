@@ -1,5 +1,5 @@
 import unittest
-from commands.config_commands import ConfigCommands as cc
+from commands.config import ConfigCommands as cc
 from core.constants import TEXT, EMBED
 
 GUILD_ID = 1234567890
