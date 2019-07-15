@@ -13,6 +13,19 @@ import requests
 
 EMBED_COLOR = 0x008909
 
+englishyfy_numbers = {
+    '0': 'zero',
+    '1': 'one',
+    '2': 'two',
+    '3': 'three',
+    '4': 'four',
+    '5': 'five',
+    '6': 'six',
+    '7': 'seven',
+    '8': 'eight',
+    '9': 'nine'
+}
+
 
 # Mod commands
 class BasicCommands(Cog):
@@ -188,7 +201,7 @@ class BasicCommands(Cog):
         await self.bot.send_message(destination=ctx, content=answer.get(TEXT), embed=answer.get(EMBED))
 
     @staticmethod
-    def command_emoji(args: [str], display_name: str, avatar_url: str, emoji: [Emoji]):
+    def command_emoji(args: [str], display_name: str, avatar_url: str, emoji_list: [Emoji]):
         # TODO Test gif emoji with nitro users
         """
         Given a message, find an emoji and display it in an embedded message.
@@ -204,22 +217,21 @@ class BasicCommands(Cog):
         text = ' '.join(args)
         try:
             # Emoji id was given
-            emojiid = re.findall('\d+', text)[0]
-        except IndexError:
+            emoji_id = re.match('\D*([0-9]{15,25})\D*', text).groups()[0]
+        except AttributeError:
             # Search for emoji name in known emoji
-            emoji = re.findall('[a-zA-Z]+', text)
-            for e in emoji:
-                if e.name in emoji:
-                    emojiid = e.id
+            for e in emoji_list:
+                if e.name in args:
+                    emoji_id = e.id
                     break
             else:
                 # No emoji was found
                 return {TEXT: 'Sorry, emoji not found...'}
         ext = 'gif' if requests.get(
-            'https://cdn.discordapp.com/emojis/{}.gif'.format(emojiid)).status_code == 200 else 'png'
+            'https://cdn.discordapp.com/emojis/{}.gif'.format(emoji_id)).status_code == 200 else 'png'
         embed = Embed(colour=EMBED_COLOR)
         embed.set_author(name=display_name, icon_url=avatar_url)
-        embed.set_image(url="https://cdn.discordapp.com/emojis/{}.{}".format(emojiid, ext))
+        embed.set_image(url="https://cdn.discordapp.com/emojis/{}.{}".format(emoji_id, ext))
         return {EMBED: embed}
 
     @commands.command(name='emoji', help="Make big emojis")
@@ -229,6 +241,28 @@ class BasicCommands(Cog):
         answer = BasicCommands.command_emoji(args, ctx.message.author.display_name, ctx.message.author.avatar_url,
                                              self.bot.emojis)
         await self.bot.send_message(ctx, content=answer.get(TEXT), embed=answer.get(EMBED))
+
+    @staticmethod
+    def command_emojify(args: [str]):
+        text = " ".join(args).lower()
+        if not text:
+            return {TEXT: 'Please give me a string to emojify...'}
+
+        def convert_char(c: str):
+            if c.isalpha():
+                return ' ' if c is ' ' else ":regional_indicator_" + c + ":"
+            if c in englishyfy_numbers.keys():
+                return ':{}:'.format(englishyfy_numbers.get(c))
+            return ":question:" if c is '?' else ":exclamation:" if c == "!" else c
+
+        return {TEXT: ' '.join([convert_char(c) for c in text])}
+
+    @commands.command(pass_context=1, help="Use emojis to instead of ascii to spell!")
+    async def emojify(self, ctx, *args):
+        if not await self.bot.pre_command(ctx=ctx, command='emojify'):
+            return
+
+        await self.bot.send_message(ctx, BasicCommands.command_emojify(args).get(TEXT))
 
     # TODO Replace >countdown with a >remindme (not spammy, but same functionality)
 

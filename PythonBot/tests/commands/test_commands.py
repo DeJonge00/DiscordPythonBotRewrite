@@ -1,7 +1,7 @@
 import unittest
 from commands.commands import BasicCommands as bc
 from config.constants import TEXT, EMBED
-from tests.objects import get_test_attachment, get_test_user
+from tests.objects import get_test_attachment, get_test_user, get_test_emoji
 
 from discord import Attachment, User, Embed
 import re
@@ -58,8 +58,25 @@ class Commands(unittest.TestCase):
         # self.assertEqual(attachment_url, embed.image.url)
 
     def test_command_emoji(self):
-        text = '1234'
+        for text in ['', 'abcdef']:
+            answer = bc.command_emoji(text.split(), '', '', [])
+            self.assertTrue(answer.get(TEXT))
+            self.assertFalse(answer.get(EMBED))
 
-        self.assertEqual("https://cdn.discordapp.com/emojis/{}.png".format(text),
-                         bc.command_emoji(text.split(), '', '', []).get(EMBED).image.url)
+        emoji_name = 'emoji1'
+        emoji_id = 123451234512345
+        emoji1 = get_test_emoji(emoji_name, emoji_id)
+        for text in [str(emoji_id), emoji_name]:
+            answer = bc.command_emoji(text.split(), '', '', [emoji1]).get(EMBED)
+            self.assertTrue(answer)
+            self.assertEqual("https://cdn.discordapp.com/emojis/{}.png".format(emoji_id), answer.image.url)
+
+    def test_command_emojify(self):
+        answers = {
+            'lol': ':regional_indicator_l: :regional_indicator_o: :regional_indicator_l:',
+            '?!': ':question: :exclamation:',
+            '012345': ':zero: :one: :two: :three: :four: :five:'
+        }
+        for original, formatted in answers.items():
+            self.assertEqual(formatted, bc.command_emojify(original.split()).get(TEXT))
 
