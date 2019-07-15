@@ -32,7 +32,22 @@ class ConfigCommands(Cog):
 
         response = ConfigCommands.command_prefix(ctx.guild.id, args)
         content = response.get(TEXT).format(await self.bot.get_prefix(ctx.message))
-        await self.bot.send_message(destination=ctx,content=content)
+        await self.bot.send_message(destination=ctx, content=content)
+
+    @commands.command(name='toggledeletecommands', help="Toggle whether commands will be deleted here",
+                      aliases=['tdc'])
+    async def toggledeletecommands(self, ctx: Context):
+        if not await self.bot.pre_command(ctx=ctx, command='toggledeletecommands', cannot_be_private=True,
+                                          one_of_needed=['manage_channels', 'manage_messages', 'administrator']):
+            return
+
+        dbcon.toggle_delete_commands(ctx.message.guild.id)
+
+        if dbcon.get_delete_commands(ctx.message.guild.id):
+            m = 'Commands will now be deleted in this server'
+        else:
+            m = 'Commands will now not be deleted in this server'
+        await self.bot.send_message(ctx, content=m)
 
 
 def setup(bot):

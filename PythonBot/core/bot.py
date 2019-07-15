@@ -235,7 +235,7 @@ class PythonBot(Bot):
 
     async def pre_command(self, ctx: Context, command: str, is_typing=True, delete_message=True,
                           cannot_be_private=False, must_be_private=False, must_be_nsfw=False, owner_check=False,
-                          checks=[]):
+                          one_of_needed=None):
         """
         This command should be run first in each command, substitutes the premade wrappers.
         :param ctx: The context of the send message
@@ -255,14 +255,14 @@ class PythonBot(Bot):
                 await ctx.send("Hahahaha, no")
                 await log.message(ctx.message, 'Command "{}" used, but owner rights needed'.format(command))
                 return False
-            elif checks:
-                perms = ctx.channel.permissions_for(ctx.message.author)
-                check_names = [constants.permissions.get(y) for y in checks]
-                if not any([x[1] for x in list(perms) if x[0] in check_names]):
+            elif one_of_needed:
+                user_perms = [perm for perm, v in iter(ctx.message.channel.permissions_for(ctx.message.author)) if v]
+                if not any(set(one_of_needed).intersection(set(user_perms))):
                     await ctx.send("Hahahaha, no")
-                    m = 'Command "{}" used, but either of [{}] needed'.format(command, ' '.join(check_names))
+                    m = 'Command "{}" used, but one of the perms \'{}\' needed'.format(command, ', '.join(one_of_needed))
                     await log.message(ctx.message, m)
                     return False
+
         # Check whether the message can be send in this specific server and channel
         if isinstance(ctx.channel, DMChannel):
             if cannot_be_private:
