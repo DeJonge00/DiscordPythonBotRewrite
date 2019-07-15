@@ -5,7 +5,7 @@ from database.pats import increment_pats
 
 from asyncio import sleep
 from datetime import datetime
-from discord import Embed, TextChannel, Attachment, User, Forbidden, Emoji, Member, Message, Guild
+from discord import Embed, Attachment, User, Emoji, Member, Guild, Spotify
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 import hashlib
@@ -545,6 +545,42 @@ class BasicCommands(Cog):
 
         answer = BasicCommands.command_urban(args)
         await self.bot.send_message(ctx, content=answer.get(TEXT), embed=answer.get(EMBED))
+
+    @commands.command(pass_context=1, help="Get a user's information!", aliases=["user", "info"])
+    async def userinfo(self, ctx: Context, *args):
+        if not await self.bot.pre_command(ctx=ctx, command='userinfo', cannot_be_private=True):
+            return
+
+        user = await self.bot.get_member_from_message(ctx, args, in_text=True)
+
+        embed = Embed(colour=EMBED_COLOR)
+        embed.set_author(name=str(user.name), icon_url=user.avatar_url)
+
+        if user.bot:
+            botv = "Yes"
+        else:
+            botv = "No"
+        embed.add_field(name="Bot", value=botv)
+        embed.add_field(name="Id", value=user.id)
+        if user.nick:
+            embed.add_field(name="Nickname", value=user.nick)
+        embed.add_field(name="Discriminator", value=user.discriminator)
+        embed.add_field(name="Status", value=user.status.name)
+        if user.activity:
+            game = str(user.activity)
+            if isinstance(user.activity, Spotify):
+                game += ' ({})'.format(user.activity.title)
+        else:
+            game = "Nothing"
+        embed.add_field(name="Playing", value=game)
+        embed.add_field(name="Joined date", value=user.joined_at.strftime("%D, %H:%M:%S"))
+        if user.premium_since:
+            embed.add_field(name="Premium since", value=user.premium_since)
+        m = "everyone"
+        for r in range(1, len(user.roles)):
+            m += "\n" + user.roles[r].name
+        embed.add_field(name="Roles", value=m)
+        await self.bot.send_message(ctx, embed=embed)
 
 
 def setup(bot):

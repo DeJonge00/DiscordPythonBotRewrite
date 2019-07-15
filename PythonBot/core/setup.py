@@ -6,16 +6,18 @@ from secret.secrets import game_name
 from datetime import datetime
 from discord import Member, Status, Game, Spotify
 
-COGS = [
-    'commands.admin_commands',
-    'commands.commands',
-    'commands.config_commands'
-]
+
+def get_cogs():
+    return [
+        'commands.admin_commands',
+        'commands.commands',
+        'commands.config_commands'
+    ]
 
 
 def create_bot():
     bot = PythonBot()
-    for cog in COGS:
+    for cog in get_cogs():
         bot.load_extension(cog)
 
     @bot.event
