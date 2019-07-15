@@ -1,10 +1,10 @@
-from discord.ext import commands
+from discord.ext.commands.formatter import HelpFormatter
 from secret.secrets import prefix
 
 
-class customHelpFormatter(commands.HelpFormatter):
+class CustomHelpFormatter(HelpFormatter):
     def __init__(self):
-        super(customHelpFormatter, self).__init__()
+        super(CustomHelpFormatter, self).__init__()
 
     def format(self):
         return super().format()

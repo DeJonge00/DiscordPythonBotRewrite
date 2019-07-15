@@ -1,11 +1,13 @@
-from core import constants, logging as log
-from core.customHelpFormatter import customHelpFormatter
+from config import constants
+from core import logging as log
+from discord.ext.commands.formatter import HelpFormatter
 from database import general as dbcon
 from secret.secrets import prefix
 
 from datetime import datetime
 from discord.ext.commands import Bot, Context
-from discord import Message, TextChannel, DMChannel, Forbidden
+from discord import Message, TextChannel, DMChannel, Forbidden, Embed, Member
+import re
 
 
 class PythonBot(Bot):
@@ -18,9 +20,118 @@ class PythonBot(Bot):
         self.RPGGAME = rpggame
         self.API = api
 
-        super(PythonBot, self, ).__init__(command_prefix=prefix, pm_help=True)  # , formatter=customHelpFormatter)
+        # TODO Add custom help formatter
+        super(PythonBot, self, ).__init__(command_prefix=prefix, pm_help=True)  # , formatter=HelpFormatter)
+
+    """ Helper functions """
+
+    @staticmethod
+    def prep_str(s):
+        """
+        Strip text of weird characters
+        :param s: The text
+        :return: filtered text
+        """
+        return ''.join([l for l in s.split('') if re.match('[a-zA-Z0-9]', l)])
+
+    async def ask_one_from_multiple(self, ctx: Context, group: list, question='', errors: dict = {}):
+        """
+        Ask a user to select one object from a list by name
+        :param ctx: Where the question should be asked
+        :param group: The list of items to be chosen from
+        :param question: The question to ask
+        :param errors: The possible error messages
+        :return:
+        """
+        m = question
+        for x in range(min(len(group), 10)):
+            m += '\n{}) {}'.format(x + 1, str(group[x]))
+        m = await self.send_message(ctx, m)
+
+        def check(message: Message):
+            return message.author is ctx.message.author and message.channel is ctx.channel
+
+        r = await self.wait_for(event='message', timeout=60, check=check)
+
+        if dbcon.get_delete_commands(ctx.guild.id):
+            await self.delete_message(m)
+            if r:
+                await self.delete_message(r)
+
+        if not r:
+            if errors:
+                error = errors.get('no_reaction') if errors.get('no_reaction') else 'Or not...'
+                await self.send_message(ctx, error)
+            raise ValueError
+        try:
+            num = int(r.content) - 1
+            if not (0 <= num < min(10, len(group))):
+                raise ValueError
+        except ValueError:
+            await self.send_message(ctx, 'That was not a valid number')
+            raise
+        return group[num]
+
+    async def get_member_from_message(self, ctx: Context, args: [str], in_text=False,
+                                      errors: dict = {'none': ''}, from_all_members=False) -> Member:
+        """
+        Determine the Member object of the user in the given message
+        :param ctx: Where to send the answer
+        :param args: The text to search through
+        :param in_text: Text only mentions allowed (as opposed to mentions)
+        :param errors: The custom errors to return
+            errors_example = {
+              'no_mention': No user was mentioned in the message,
+              'no_user': No user was found with the given name,
+              'no_reaction': The user did not react to the choice within a minute
+            }
+        :param from_all_members: Indicate whether to limit the search to members in the current server
+        :return:
+        """
+        # Exceptions
+        if len(ctx.message.mentions) > 0:
+            return ctx.message.mentions[0]
+
+        if len(args) <= 0 or (isinstance(ctx.message.channel, DMChannel) and not from_all_members):
+            return ctx.message.author
+
+        if not in_text:
+            if errors:
+                error = errors.get('no_mention') if errors.get('no_mention') else 'Please mention a user'
+                await self.send_message(ctx.message.channel, error)
+            raise ValueError
+
+        # Look for users with the given name
+        name = PythonBot.prep_str(' '.join(args)).lower()
+        if from_all_members:
+            users = [x for x in self.get_all_members() if PythonBot.prep_str(x.name).lower().startswith(name) or
+                     PythonBot.prep_str(x.display_name).lower().startswith(name)]
+        else:
+            users = [x for x in ctx.message.guild.members if PythonBot.prep_str(x.name).lower().startswith(name) or
+                     PythonBot.prep_str(x.display_name).lower().startswith(name)]
+        users.sort(key=lambda s: len(s.name))
+
+        # Check validity of lookup results
+        if len(users) <= 0:
+            if errors:
+                error = errors.get('no_users') if errors.get(
+                    'no_users') else 'I could not find a user with that name'
+                await self.send_message(error)
+            raise ValueError
+        if len(users) == 1:
+            return users[0]
+
+        # Give options if multiple users were found
+        return await self.ask_one_from_multiple(ctx, users, question='Which user did you mean?')
+
+    """ Overwiting functions """
 
     async def get_prefix(self, message):
+        """
+        Overwrites default get_prefix, adds lookup in the database first. Defaults to the super function.
+        :param message: The message (including server) to find prefix for
+        :return:
+        """
         try:
             p = dbcon.get_prefix(message.guild.id)
             return p if p else await super(PythonBot, self).get_prefix(message)
@@ -29,6 +140,11 @@ class PythonBot(Bot):
 
     @staticmethod
     async def delete_message(message: Message):
+        """
+        Function that allows extra checks to be done before deleting a message.
+        :param message: The message to be deleted
+        :return:
+        """
         if not isinstance(message.channel, DMChannel):
             try:
                 return await message.delete()
@@ -37,7 +153,17 @@ class PythonBot(Bot):
                 m = m.format(message.guild.name, message.channel.name, message.content)
                 await log.error(m, filename=message.guild.name)
 
-    async def send_message(self, destination: Context, content=None, *, file=None, tts=False, embed=None):
+    async def send_message(self, destination: Context, content: str = None, *, file=None, tts: bool = False,
+                           embed: Embed = None):
+        """
+        Function that allows extra checks to be done before sending a message.
+        :param destination: The destination the message should be send to
+        :param content: The content of the message
+        :param file: The file attached to the message
+        :param tts: Whether the message is text-to-speech or not
+        :param embed: An embed to be send as part of the message
+        :return:
+        """
         try:
             try:
                 guild = destination.guild
@@ -109,6 +235,7 @@ class PythonBot(Bot):
         :param checks: Additional permission checks, the user must have at least one of these to issue the command
         :return:
         """
+        # Check permissions
         if ctx.message.author.id not in [constants.KAPPAid, constants.NYAid]:
             if owner_check:
                 await ctx.send("Hahahaha, no")
@@ -122,6 +249,7 @@ class PythonBot(Bot):
                     m = 'Command "{}" used, but either of [{}] needed'.format(command, ' '.join(check_names))
                     await log.message(ctx.message, m)
                     return False
+        # Check whether the message can be send in this specific server and channel
         if isinstance(ctx.channel, DMChannel):
             if cannot_be_private:
                 await ctx.send('This command cannot be used in private channels')
@@ -145,6 +273,7 @@ class PythonBot(Bot):
             if delete_message and dbcon.get_delete_commands(ctx.guild.id):
                 await ctx.message.delete()
 
+        # Log and send the message
         await log.message(ctx.message, 'Command "{}" used'.format(command))
         if is_typing:
             await ctx.channel.trigger_typing()

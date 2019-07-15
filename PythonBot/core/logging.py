@@ -1,7 +1,7 @@
 import datetime
 from discord.abc import GuildChannel
-from discord import Message, TextChannel, Guild, User, DMChannel
-from core.constants import TEXT, EMBED, bot_list_servers
+from discord import Message, TextChannel, Guild, User
+from config.constants import bot_list_servers
 
 
 def str_cmd(s: str):

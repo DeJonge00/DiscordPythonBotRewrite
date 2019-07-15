@@ -104,11 +104,12 @@ def command_counter(name: str, message: Message):
         server = str(message.guild)
     else:
         server = "Direct Message"
+    channel_name = str(message.channel) if isinstance(message.channel, DMChannel) else message.channel.name
     get_table(COMMAND_COUNTER_TABLE).insert_one({
         'command': name,
         'timestamp': message.created_at.timestamp(),
         'server': server,
-        'channel': message.channel.name,
+        'channel': channel_name,
         'author': message.author.name
     })
 

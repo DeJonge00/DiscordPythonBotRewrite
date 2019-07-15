@@ -1,4 +1,4 @@
-from core.constants import TEXT, EMBED
+from config.constants import TEXT, EMBED
 from database import general as dbcon
 
 from discord.ext import commands
@@ -16,7 +16,7 @@ class ConfigCommands(Cog):
     def command_prefix(guild_id: int, args: [str]):
         if len(args) < 1:
             return {TEXT: "You have to specify a prefix after the command"}
-        
+
         new_prefix = ' '.join(args)
         if not (0 < len(new_prefix) <= 10):
             return {TEXT: 'My prefix has to be between 1 and 10 characters'}
@@ -31,8 +31,8 @@ class ConfigCommands(Cog):
             return
 
         response = ConfigCommands.command_prefix(ctx.guild.id, args)
-        await self.bot.send_message(destination=ctx,
-                                    content=response.get(TEXT).format(await self.bot.get_prefix(ctx.message)))
+        content = response.get(TEXT).format(await self.bot.get_prefix(ctx.message))
+        await self.bot.send_message(destination=ctx,content=content)
 
 
 def setup(bot):

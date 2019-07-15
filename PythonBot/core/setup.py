@@ -1,4 +1,4 @@
-from core import constants
+from config import constants
 from core.bot import PythonBot
 from database import general as dbcon
 from secret.secrets import game_name
