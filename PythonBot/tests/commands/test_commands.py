@@ -91,3 +91,12 @@ class Commands(unittest.TestCase):
         self.assertEqual("Suicide is not the answer, 42 is", answer.get(TEXT))
         answer = bc.command_kill(author, target)
         self.assertNotEqual("Suicide is not the answer, 42 is", answer.get(TEXT))
+
+    def test_command_kiss(self):
+        author = get_test_user('author')
+        target = get_test_user('target')
+        failure_answer = "{0} Trying to kiss yourself? Let me do that for you...\n*kisses {0}*".format(author.mention)
+        answer = bc.command_kiss(author, author)
+        self.assertEqual(failure_answer, answer.get(TEXT))
+        answer = bc.command_kiss(author, target)
+        self.assertNotEqual(failure_answer, answer.get(TEXT))

@@ -326,6 +326,24 @@ class BasicCommands(Cog):
         answer = BasicCommands.command_kill(ctx.message.author, target)
         await self.bot.send_message(ctx, answer.get(TEXT))
 
+    @staticmethod
+    def command_kiss(author: Member, target: Member):
+        if author is target:
+            return {TEXT: "{0} Trying to kiss yourself? Let me do that for you...\n*kisses {0}*".format(author.mention)}
+        return {TEXT: random.choice(constants.kisses).format(u=[author.mention, target.mention])}
+
+    @commands.command(name='kiss', help="Give someone a little kiss!")
+    async def kiss(self, ctx, *args):
+        if not await self.bot.pre_command(ctx=ctx, command='kiss'):
+            return
+        try:
+            target = await self.bot.get_member_from_message(ctx=ctx, args=args, in_text=True)
+        except ValueError:
+            return
+
+        answer = BasicCommands.command_kiss(ctx.message.author, target)
+        await self.bot.send_message(ctx, answer.get(TEXT))
+
     # TODO Replace >countdown with a >remindme (not spammy, but same functionality)
 
 
