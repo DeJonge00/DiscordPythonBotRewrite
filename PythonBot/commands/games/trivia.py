@@ -40,9 +40,7 @@ class Trivia(Cog):
         await self.bot.send_message(ctx, "New trivia game requested!\nPlease chose a game mode: 1)time attack  2)turn by turn")
 
         def check_channel(msg):
-            if msg.channel != ctx.channel or msg.author != ctx.message.author:
-                return False
-            return True
+            return msg.channel != ctx.channel or msg.author != ctx.message.author
 
         game_mode = await self.bot.wait_for('message', check=check_channel)
         if game_mode.content == '1':
