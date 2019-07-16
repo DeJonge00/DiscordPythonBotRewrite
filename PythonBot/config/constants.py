@@ -51,6 +51,7 @@ ytdl_before = "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5"
 s_to_ringels_whitelist = []
 auto_name_change_whitelist = [PRIVATESERVERid]
 nickname_change_whitelist = [PRIVATESERVERid]
+image_spam_protection_removal = []
 
 # Blacklists
 sponge_capitalization_blacklist = bot_list_servers
