@@ -38,6 +38,19 @@ class ModCommands(Cog):
         for user in ctx.message.mentions:
             await user.kick(reason=answer.get(KICK_REASON))
 
+    @commands.command(pass_context=1, help="Remove a weird chat")
+    async def purge(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='purge', is_typing=False,
+                                          perm_needed=['administrator', 'manage_messages']):
+            return
+        match = re.match('.*?(\d+)?.*((<@!?\d+>)+)?', ' '.join(args))
+        limit = int(match.groups()[0]) if match else 10
+
+        if len(ctx.message.mentions) > 0:
+            await ctx.channel.purge(check=lambda m: m.author in ctx.message.mentions, limit=limit)
+            return
+        await ctx.channel.purge(limit=limit)
+
 
 def setup(bot):
     bot.add_cog(ModCommands(bot))
