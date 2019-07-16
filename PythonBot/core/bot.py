@@ -1,7 +1,7 @@
 from config import constants
 from core import logging as log
 from discord.ext.commands.formatter import HelpFormatter
-from database import general as dbcon
+from database.general import delete_commands, prefix, banned_commands, command_counter
 from secret.secrets import prefix
 
 from datetime import datetime
@@ -54,7 +54,7 @@ class PythonBot(Bot):
 
         r = await self.wait_for(event='message', timeout=60, check=check)
 
-        if dbcon.get_delete_commands(ctx.guild.id):
+        if delete_commands.get_delete_commands(ctx.guild.id):
             await self.delete_message(m)
             if r:
                 await self.delete_message(r)
@@ -147,7 +147,7 @@ class PythonBot(Bot):
         :return:
         """
         try:
-            p = dbcon.get_prefix(message.guild.id)
+            p = prefix.get_prefix(message.guild.id)
             return p if p else await super(PythonBot, self).get_prefix(message)
         except (KeyError, AttributeError):
             return await super(PythonBot, self).get_prefix(message)
@@ -223,8 +223,9 @@ class PythonBot(Bot):
         :param command_name: the name of the command issued
         :return: A boolean stating the command is allowed (True) or banned here (False)
         """
-        return command_name == 'togglecommand' or not (dbcon.get_banned_command(location_type, identifier, command_name)
-                                                       or dbcon.get_banned_command(location_type, identifier, 'all'))
+        return command_name == 'togglecommand' or not (
+                    banned_commands.get_banned_command(location_type, identifier, command_name)
+                    or banned_commands.get_banned_command(location_type, identifier, 'all'))
 
     @staticmethod
     def command_allowed_in_server(server_id: int, command_name: str):
@@ -238,7 +239,8 @@ class PythonBot(Bot):
         return PythonBot.command_allowed_in('channel', channel_id, command_name) and (
                 len(split) <= 1 or PythonBot.command_allowed_in('channel', channel_id, split[0]))
 
-    async def pre_command(self, message: Message, channel: (TextChannel, DMChannel), command: str, is_typing=True, delete_message=True,
+    async def pre_command(self, message: Message, channel: (TextChannel, DMChannel), command: str, is_typing=True,
+                          delete_message=True,
                           cannot_be_private=False, must_be_private=False, must_be_nsfw=False, owner_check=False,
                           perm_needed=None):
         """
@@ -291,12 +293,12 @@ class PythonBot(Bot):
             if not self.command_allowed_in_channel(channel.id, command):
                 await log.message(message, 'Command "{}" used, but is channelbanned'.format(command))
                 return False
-            if delete_message and dbcon.get_delete_commands(channel.guild.id):
+            if delete_message and delete_commands.get_delete_commands(channel.guild.id):
                 await self.delete_message(message)
 
         # Log and send the message
         await log.message(message, 'Command "{}" used'.format(command))
         if is_typing:
             await channel.trigger_typing()
-        dbcon.command_counter(command, message)
+        command_counter.command_counter(command, message)
         return True

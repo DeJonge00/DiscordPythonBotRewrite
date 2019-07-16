@@ -1,6 +1,5 @@
 from core.setup import get_cogs
 from core.bot import PythonBot
-from config import constants
 
 from discord import HTTPException
 from discord.ext import commands

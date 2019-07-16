@@ -1,5 +1,5 @@
 from config.constants import TEXT, STAR_EMOJI
-from database import general as dbcon
+from database.general import prefix, delete_commands, starboard
 
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
@@ -20,7 +20,7 @@ class ConfigCommands(Cog):
         if not (0 < len(new_prefix) <= 10):
             return {TEXT: 'My prefix has to be between 1 and 10 characters'}
 
-        dbcon.set_prefix(guild_id, new_prefix)
+        prefix.set_prefix(guild_id, new_prefix)
         return {TEXT: 'The prefix for this server is now \'{}\''}
 
     @commands.command(name='prefix', help="Change my prefix", aliases=['setprefix', 'changeprefix'])
@@ -42,9 +42,9 @@ class ConfigCommands(Cog):
                                           perm_needed=['manage_channels', 'manage_messages', 'administrator']):
             return
 
-        dbcon.toggle_delete_commands(ctx.message.guild.id)
+        delete_commands.toggle_delete_commands(ctx.message.guild.id)
 
-        if dbcon.get_delete_commands(ctx.message.guild.id):
+        if delete_commands.get_delete_commands(ctx.message.guild.id):
             m = 'Commands will now be deleted in this server'
         else:
             m = 'Commands will now not be deleted in this server'
@@ -59,11 +59,11 @@ class ConfigCommands(Cog):
                                           perm_needed=['administrator', 'manage_server', 'manage_channels']):
             return
 
-        if dbcon.get_star_channel(ctx.message.guild.id) == ctx.channel.id:
-            dbcon.delete_star_channel(ctx.message.guild.id)
+        if starboard.get_star_channel(ctx.message.guild.id) == ctx.channel.id:
+            starboard.delete_star_channel(ctx.message.guild.id)
             m = "The starboard for this server has been succesfully deleted!"
         else:
-            dbcon.set_star_channel(ctx.message.guild.id, ctx.message.channel.id)
+            starboard.set_star_channel(ctx.message.guild.id, ctx.message.channel.id)
             m = 'React with {} to see your messages get saved in this channel'.format(STAR_EMOJI)
 
         await self.bot.send_message(ctx, m)

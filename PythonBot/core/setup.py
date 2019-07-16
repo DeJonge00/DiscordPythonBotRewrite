@@ -1,12 +1,13 @@
 from config import constants
-from config.constants import STAR_EMOJI
+from config.constants import STAR_EMOJI, WELCOME_EMBED_COLOR, member_counter_message
 from core import message_handler, logging as log
 from core.bot import PythonBot
-from database import general as dbcon
+from database.general import bot_information, general, welcome, member_counter
 from secret.secrets import game_name
 
+import asyncio
 from datetime import datetime
-from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel
+from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel, Embed, Guild, VoiceChannel
 
 
 def get_cogs():
@@ -21,6 +22,40 @@ def get_cogs():
     ]
 
 
+REMOVE_JOIN_MESSAGE = False
+REMOVE_LEAVE_MESSAGE = False
+
+
+async def on_member_message(guild: Guild, member: Member, func_name, text, do_log=True) -> bool:
+    if do_log:
+        await log.error(guild.name + " | Member " + str(member) + " just " + text,
+                        filename=guild.name, serverid=guild.id)
+    channel, mes = welcome.get_message(func_name, guild.id)
+    if not channel or not mes:
+        return False
+    embed = Embed(colour=WELCOME_EMBED_COLOR)
+    embed.add_field(name="User {}!".format(PythonBot.prep_str_for_print(text)), value=mes.format(member.name))
+    channel = guild.get_channel(channel)
+    if not channel:
+        print('CHANNEL NOT FOUND')
+        return False
+    m = await channel.send(embed=embed)
+    if REMOVE_JOIN_MESSAGE:
+        await asyncio.sleep(30)
+        await m.delete()
+    return True
+
+
+async def update_member_counter(guild: Guild):
+    channel_id = member_counter.get_member_counter_channel(guild.id)
+    if not channel_id:
+        return
+    channel: VoiceChannel = guild.get_channel(channel_id)
+    if not channel:
+        return
+    await channel.edit(name=member_counter_message.format(guild.member_count))
+
+
 def create_bot():
     bot = PythonBot()
     for cog in get_cogs():
@@ -29,7 +64,6 @@ def create_bot():
     @bot.event
     async def on_ready():
         print('\nStarted bot')
-        print("User: " + bot.user.name)
         print("Disc: " + bot.user.discriminator)
         print("ID: " + str(bot.user.id))
         print("Started at: " + datetime.utcnow().strftime("%H:%M:%S") + "\n")
@@ -37,7 +71,7 @@ def create_bot():
             bot.uptime = datetime.utcnow()
         await bot.change_presence(activity=Game(name=game_name), status=Status.do_not_disturb)
 
-        dbcon.update_server_list(bot.guilds)
+        bot_information.update_server_list(bot.guilds)
 
     @bot.event
     async def on_message(message: Message):
@@ -73,6 +107,20 @@ def create_bot():
                     activity = after.activity if after.activity else Game(name=game_name)
                 await bot.change_presence(activity=activity, status=Status.do_not_disturb)
                 return
+
+    @bot.event
+    async def on_member_join(member: Member):
+        await update_member_counter(member.guild)
+        if member.bot:
+            return
+        await on_member_message(member.guild, member, general.WELCOME_TABLE, 'joined')
+
+    @bot.event
+    async def on_member_remove(member: Member):
+        await update_member_counter(member.guild)
+        if member.bot:
+            return
+        await on_member_message(member.guild, member, general.GOODBYE_TABLE, 'left')
 
     @bot.event
     async def on_reaction_add(reaction, user):
