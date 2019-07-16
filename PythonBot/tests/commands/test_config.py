@@ -1,6 +1,6 @@
 import unittest
-from commands.config_commands import ConfigCommands as cc
-from core.constants import TEXT, EMBED
+from commands.config import ConfigCommands as cc
+from config.constants import TEXT
 
 GUILD_ID = 1234567890
 

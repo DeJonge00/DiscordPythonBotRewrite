@@ -1,17 +1,18 @@
 from config import constants
 from core import logging as log
 from discord.ext.commands.formatter import HelpFormatter
-from database import general as dbcon
+from database.general import delete_commands, prefix, banned_commands, command_counter
 from secret.secrets import prefix
 
 from datetime import datetime
-from discord.ext.commands import Bot, Context
 from discord import Message, TextChannel, DMChannel, Forbidden, Embed, Member
+from discord.abc import GuildChannel
+from discord.ext.commands import Bot, Context
 import re
 
 
 class PythonBot(Bot):
-    def __init__(self, music=False, rpggame=False, api=False):
+    def __init__(self, music=False, rpggame=False, api=False, embed_list=False):
         self.running = True
 
         self.commands_counters = {}
@@ -19,7 +20,7 @@ class PythonBot(Bot):
         self.MUSIC = music
         self.RPGGAME = rpggame
         self.API = api
-
+        self.EMBED_LIST = embed_list
         # TODO Add custom help formatter
         super(PythonBot, self, ).__init__(command_prefix=prefix, pm_help=True)  # , formatter=HelpFormatter)
 
@@ -53,7 +54,7 @@ class PythonBot(Bot):
 
         r = await self.wait_for(event='message', timeout=60, check=check)
 
-        if dbcon.get_delete_commands(ctx.guild.id):
+        if delete_commands.get_delete_commands(ctx.guild.id):
             await self.delete_message(m)
             if r:
                 await self.delete_message(r)
@@ -92,13 +93,13 @@ class PythonBot(Bot):
         if len(ctx.message.mentions) > 0:
             return ctx.message.mentions[0]
 
-        if len(args) <= 0 or (isinstance(ctx.message.channel, DMChannel) and not from_all_members):
+        if len(args) <= 0 or (isinstance(ctx.channel, DMChannel) and not from_all_members):
             return ctx.message.author
 
         if not in_text:
             if errors:
                 error = errors.get('no_mention') if errors.get('no_mention') else 'Please mention a user'
-                await self.send_message(ctx.message.channel, error)
+                await self.send_message(ctx.channel, error)
             raise ValueError
 
         # Look for users with the given name
@@ -116,13 +117,26 @@ class PythonBot(Bot):
             if errors:
                 error = errors.get('no_users') if errors.get(
                     'no_users') else 'I could not find a user with that name'
-                await self.send_message(error)
+                await self.send_message(ctx.channel, error)
             raise ValueError
         if len(users) == 1:
             return users[0]
 
         # Give options if multiple users were found
         return await self.ask_one_from_multiple(ctx, users, question='Which user did you mean?')
+
+    @staticmethod
+    def prep_str_for_print(s: str):
+        return s.encode("ascii", "replace").decode("ascii")
+
+    async def quit(self):
+        self.running = False
+        for key in self.commands_counters.keys():
+            print('Command "{}" was used {} times'.format(key, self.commands_counters.get(key)))
+        if self.RPGGAME:
+            self.rpggame.quit()
+        if self.MUSIC:
+            await self.musicplayer.quit()
 
     """ Overwiting functions """
 
@@ -133,7 +147,7 @@ class PythonBot(Bot):
         :return:
         """
         try:
-            p = dbcon.get_prefix(message.guild.id)
+            p = prefix.get_prefix(message.guild.id)
             return p if p else await super(PythonBot, self).get_prefix(message)
         except (KeyError, AttributeError):
             return await super(PythonBot, self).get_prefix(message)
@@ -153,8 +167,8 @@ class PythonBot(Bot):
                 m = m.format(message.guild.name, message.channel.name, message.content)
                 await log.error(m, filename=message.guild.name)
 
-    async def send_message(self, destination: Context, content: str = None, *, file=None, tts: bool = False,
-                           embed: Embed = None):
+    async def send_message(self, destination, content: str = None, *, file=None, tts: bool = False,
+                           embed: Embed = None) -> Message:
         """
         Function that allows extra checks to be done before sending a message.
         :param destination: The destination the message should be send to
@@ -164,6 +178,10 @@ class PythonBot(Bot):
         :param embed: An embed to be send as part of the message
         :return:
         """
+
+        if isinstance(destination, Context):
+            destination = destination.channel
+
         try:
             try:
                 guild = destination.guild
@@ -171,12 +189,13 @@ class PythonBot(Bot):
                 guild = None
 
             if content:
-                await log.message_content(content, destination.channel, guild, self.user, datetime.now(), [],
+                await log.message_content(content, destination, guild, self.user, datetime.now(), [],
                                           "send message:")
             if file:
-                await log.message_content(content, destination.channel, guild, self.user, datetime.now(), [],
+                await log.message_content(content, destination, guild, self.user, datetime.now(), [],
                                           "pic")
             if embed:
+                # TODO Adjust logging for embedded messages
                 await log.log("send a message", str(self.user), 'embedded message',
                               str(guild) if guild else str(destination))
             return await destination.send(content=content, tts=tts, embed=embed)
@@ -204,8 +223,9 @@ class PythonBot(Bot):
         :param command_name: the name of the command issued
         :return: A boolean stating the command is allowed (True) or banned here (False)
         """
-        return command_name == 'togglecommand' or not (dbcon.get_banned_command(location_type, identifier, command_name)
-                                                       or dbcon.get_banned_command(location_type, identifier, 'all'))
+        return command_name == 'togglecommand' or not (
+                    banned_commands.get_banned_command(location_type, identifier, command_name)
+                    or banned_commands.get_banned_command(location_type, identifier, 'all'))
 
     @staticmethod
     def command_allowed_in_server(server_id: int, command_name: str):
@@ -219,12 +239,14 @@ class PythonBot(Bot):
         return PythonBot.command_allowed_in('channel', channel_id, command_name) and (
                 len(split) <= 1 or PythonBot.command_allowed_in('channel', channel_id, split[0]))
 
-    async def pre_command(self, ctx: Context, command: str, is_typing=True, delete_message=True,
+    async def pre_command(self, message: Message, channel: (TextChannel, DMChannel), command: str, is_typing=True,
+                          delete_message=True,
                           cannot_be_private=False, must_be_private=False, must_be_nsfw=False, owner_check=False,
-                          checks=[]):
+                          perm_needed=None):
         """
         This command should be run first in each command, substitutes the premade wrappers.
-        :param ctx: The context of the send message
+        :param message: The send message
+        :param channel: The channel (DMChannel or TextChannel) the message was send in
         :param command: the command issued
         :param is_typing: Indicate whether to show the bot typing in the channel
         :param delete_message: Indicate whether to delete the message afterwards
@@ -232,50 +254,51 @@ class PythonBot(Bot):
         :param must_be_private: Indicate whether the command must be issued in a private channel
         :param must_be_nsfw: Indicate whether the command can be issued outside of NSFW channels
         :param owner_check: Indicate whether the user must be a guild owner to issue the command
-        :param checks: Additional permission checks, the user must have at least one of these to issue the command
+        :param perm_needed: Additional permission checks, the user must have at least one of these to issue the command
         :return:
         """
         # Check permissions
-        if ctx.message.author.id not in [constants.KAPPAid, constants.NYAid]:
+        if message.author.id not in [constants.KAPPAid, constants.NYAid]:
             if owner_check:
-                await ctx.send("Hahahaha, no")
-                await log.message(ctx.message, 'Command "{}" used, but owner rights needed'.format(command))
+                await channel.send("Hahahaha, no")
+                await log.message(message, 'Command "{}" used, but owner rights needed'.format(command))
                 return False
-            elif checks:
-                perms = ctx.channel.permissions_for(ctx.message.author)
-                check_names = [constants.permissions.get(y) for y in checks]
-                if not any([x[1] for x in list(perms) if x[0] in check_names]):
-                    await ctx.send("Hahahaha, no")
-                    m = 'Command "{}" used, but either of [{}] needed'.format(command, ' '.join(check_names))
-                    await log.message(ctx.message, m)
+            elif perm_needed:
+                user_perms = [perm for perm, v in iter(channel.permissions_for(message.author)) if v]
+                if not any(set(perm_needed).intersection(set(user_perms))):
+                    await channel.send("Hahahaha, no")
+                    m = 'Command "{}" used, but one of the perms \'{}\' needed'.format(command, ', '.join(perm_needed))
+                    await log.message(message, m)
                     return False
+
         # Check whether the message can be send in this specific server and channel
-        if isinstance(ctx.channel, DMChannel):
+        if isinstance(channel, DMChannel):
             if cannot_be_private:
-                await ctx.send('This command cannot be used in private channels')
-                await log.message(ctx.message, 'Command "{}" used, but cannot be private'.format(command))
+                await channel.send('This command cannot be used in private channels')
+                await log.message(message, 'Command "{}" used, but cannot be private'.format(command))
                 return False
         else:
+            channel: TextChannel
             if must_be_private:
-                await ctx.send('This command has to be used in a private conversation')
-                await log.message(ctx.message, 'Command "{}" used, but must be private'.format(command))
+                await channel.send('This command has to be used in a private conversation')
+                await log.message(message, 'Command "{}" used, but must be private'.format(command))
                 return False
-            if must_be_nsfw and not ctx.channel.is_nsfw():
-                await ctx.send('This command cannot be used outside NSFW channels')
-                await log.message(ctx.message, 'Command "{}" used, but must be an NSFW channel'.format(command))
+            if must_be_nsfw and not channel.is_nsfw():
+                await channel.send('This command cannot be used outside NSFW channels')
+                await log.message(message, 'Command "{}" used, but must be an NSFW channel'.format(command))
                 return False
-            if not self.command_allowed_in_server(ctx.guild.id, command):
-                await log.message(ctx.message, 'Command "{}" used, but is serverbanned'.format(command))
+            if not self.command_allowed_in_server(channel.guild.id, command):
+                await log.message(message, 'Command "{}" used, but is serverbanned'.format(command))
                 return False
-            if not self.command_allowed_in_channel(ctx.channel.id, command):
-                await log.message(ctx.message, 'Command "{}" used, but is channelbanned'.format(command))
+            if not self.command_allowed_in_channel(channel.id, command):
+                await log.message(message, 'Command "{}" used, but is channelbanned'.format(command))
                 return False
-            if delete_message and dbcon.get_delete_commands(ctx.guild.id):
-                await ctx.message.delete()
+            if delete_message and delete_commands.get_delete_commands(channel.guild.id):
+                await self.delete_message(message)
 
         # Log and send the message
-        await log.message(ctx.message, 'Command "{}" used'.format(command))
+        await log.message(message, 'Command "{}" used'.format(command))
         if is_typing:
-            await ctx.channel.trigger_typing()
-        dbcon.command_counter(command, ctx.message)
+            await channel.trigger_typing()
+        command_counter.command_counter(command, message)
         return True

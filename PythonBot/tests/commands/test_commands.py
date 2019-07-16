@@ -3,7 +3,8 @@ from commands.commands import BasicCommands as bc
 from config.constants import TEXT, EMBED
 from tests.objects import get_test_attachment, get_test_user, get_test_emoji
 
-from discord import Attachment, User, Embed
+from discord import Embed
+from datetime import datetime, timedelta
 import re
 
 
@@ -91,3 +92,36 @@ class Commands(unittest.TestCase):
         self.assertEqual("Suicide is not the answer, 42 is", answer.get(TEXT))
         answer = bc.command_kill(author, target)
         self.assertNotEqual("Suicide is not the answer, 42 is", answer.get(TEXT))
+
+    def test_command_kiss(self):
+        author = get_test_user('author')
+        target = get_test_user('target')
+        failure_answer = "{0} Trying to kiss yourself? Let me do that for you...\n*kisses {0}*".format(author.mention)
+        answer = bc.command_kiss(author, author)
+        self.assertEqual(failure_answer, answer.get(TEXT))
+        answer = bc.command_kiss(author, target)
+        self.assertNotEqual(failure_answer, answer.get(TEXT))
+
+    def test_command_pat(self):
+        author = get_test_user('author')
+        target = get_test_user('target')
+        time = datetime.utcnow()
+        last_pat = time - timedelta(days=1)
+
+        answer = bc.command_pat(time, author, last_pat, author)
+        self.assertEqual(author.mention + " One does not simply pat ones own head", answer.get(TEXT))
+        answer = bc.command_pat(time, author, time, target)
+        self.assertEqual(author.mention + " Not so fast, b-b-baka!", answer.get(TEXT))
+
+        def get_pat_nr(text: str):
+            answer_regex = "<.+> has pat <.+> (.+) times? now.*"
+            try:
+                return int(re.match(answer_regex, text).groups()[0])
+            except:
+                return -1
+
+        prev = get_pat_nr(bc.command_pat(time, author, last_pat, target).get(TEXT))
+        for i in range(3):
+            answer = get_pat_nr(bc.command_pat(time, author, last_pat, target).get(TEXT))
+            self.assertEqual(prev + 1, answer)
+            prev = answer
