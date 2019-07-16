@@ -7,7 +7,7 @@ from discord.ext.commands import Cog, Context
 class MiscCommands(Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
-        print('Misc commands started')
+        print('Misc commands cog started')
 
     @commands.command(name='inviteme', help="Invite me to your own server")
     async def inviteme(self, ctx: Context):

@@ -14,6 +14,8 @@ def get_cogs():
         'commands.admin',
         'commands.commands',
         'commands.config',
+        'commands.image',
+        'commands.lookup',
         'commands.misc',
         'commands.mod'
     ]

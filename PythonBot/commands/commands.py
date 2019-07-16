@@ -21,7 +21,7 @@ class BasicCommands(Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
         self.patTimes = {}
-        print('Basic commands started')
+        print('Basic commands cog started')
 
     @commands.command(name='botstats', help="Biri's botstats!", aliases=['botinfo'])
     async def botstats(self, ctx: Context):

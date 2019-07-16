@@ -11,7 +11,7 @@ import re
 class ModCommands(Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
-        print('Mod commands started')
+        print('Mod commands cog started')
 
     @staticmethod
     def command_banish(mod: Member, users: [Member], text: str):

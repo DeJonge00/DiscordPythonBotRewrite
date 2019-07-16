@@ -9,7 +9,7 @@ from discord.ext.commands import Cog, Context
 class AdminCommands(Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
-        print('Admin started')
+        print('Admin commands cog started')
 
     @commands.command(name='serverlist', hidden=1, help="List the servers the bot can see", aliases=['guildlist'])
     async def serverlist(self, ctx):
