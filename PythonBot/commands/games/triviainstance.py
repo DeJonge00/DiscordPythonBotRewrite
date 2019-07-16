@@ -108,9 +108,7 @@ class TriviaInstance:
                 return False
             if msg.content.lower() == "any":
                 return True
-            if is_natural_nbr(msg.content) and int(msg.content) in range(1, len(self.categories)+1):
-                return True
-            return False
+            return is_natural_nbr(msg.content) and int(msg.content) in range(1, len(self.categories)+1)
 
         def is_dif(msg):
             if msg.channel != self.channel or msg.author != self.game_creator:
@@ -235,9 +233,8 @@ class TriviaInstance:
                     if msg.author in failed_players:
                         return False
                     failed_players.append(msg.author)
-                    if is_acceptable_answer(msg) and self.is_answer_correct(question, msg.content, answers_list):
-                        return True
-                    return False
+                    return is_acceptable_answer(msg) and self.is_answer_correct(question, msg.content, answers_list)
+
                 try:
                     player_answer = await self.bot.wait_for('message', check=is_correct_multiple_answer,
                                                             timeout=ANSWER_TIMEOUT)
@@ -252,9 +249,8 @@ class TriviaInstance:
                     if msg.author in failed_players:
                         return False
                     failed_players.append(msg.author)
-                    if is_boolean_answer(msg) and msg.content.lower() == question['correct_answer'].lower():
-                        return True
-                    return False
+                    return is_boolean_answer(msg) and msg.content.lower() == question['correct_answer'].lower()
+
                 try:
                     player_answer = await self.bot.wait_for('message', check=is_correct_boolean_answer,
                                                             timeout=ANSWER_TIMEOUT)
@@ -343,9 +339,7 @@ class TriviaInstance:
         if is_natural_nbr(answer):
             if answers_list[int(answer) - 1] == question['correct_answer']:
                 return True
-        if answer == question['correct_answer'].lower():
-            return True
-        return False
+        return answer == question['correct_answer'].lower()
 
 
 def is_acceptable_answer(msg):
@@ -361,9 +355,7 @@ def is_boolean_answer(msg):
 
 
 def is_natural_nbr(msg):
-    if msg.isdigit() and int(msg) > 0:
-        return True
-    return False
+    return msg.isdigit() and int(msg) > 0
 
 
 class TriviaPlayer:
