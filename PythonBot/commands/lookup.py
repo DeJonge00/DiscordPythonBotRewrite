@@ -88,8 +88,8 @@ class LookupCommands(Cog):
 
         return {EMBED: embed}
 
-    @commands.command(pass_context=1, help="Look up someones osu stats!")
-    async def osu(self, ctx, *args):
+    @commands.command(name='osu', help="Look up someones osu stats!")
+    async def osu(self, ctx: Context, *args):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='osu'):
             return
 

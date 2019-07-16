@@ -93,13 +93,13 @@ class PythonBot(Bot):
         if len(ctx.message.mentions) > 0:
             return ctx.message.mentions[0]
 
-        if len(args) <= 0 or (isinstance(ctx.message.channel, DMChannel) and not from_all_members):
+        if len(args) <= 0 or (isinstance(ctx.channel, DMChannel) and not from_all_members):
             return ctx.message.author
 
         if not in_text:
             if errors:
                 error = errors.get('no_mention') if errors.get('no_mention') else 'Please mention a user'
-                await self.send_message(ctx.message.channel, error)
+                await self.send_message(ctx.channel, error)
             raise ValueError
 
         # Look for users with the given name
@@ -117,7 +117,7 @@ class PythonBot(Bot):
             if errors:
                 error = errors.get('no_users') if errors.get(
                     'no_users') else 'I could not find a user with that name'
-                await self.send_message(error)
+                await self.send_message(ctx.channel, error)
             raise ValueError
         if len(users) == 1:
             return users[0]
