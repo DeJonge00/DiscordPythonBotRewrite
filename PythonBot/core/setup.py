@@ -14,6 +14,7 @@ def get_cogs():
     return [
         'commands.admin',
         'commands.commands',
+        'commands.games.trivia',
         'commands.config',
         'commands.image',
         'commands.lookup',
