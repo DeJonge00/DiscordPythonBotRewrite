@@ -1,6 +1,5 @@
 from core.setup import get_cogs
 from core.bot import PythonBot
-from config import constants
 
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
@@ -14,7 +13,8 @@ class AdminCommands(Cog):
 
     @commands.command(name='serverlist', hidden=1, help="List the servers the bot can see", aliases=['guildlist'])
     async def serverlist(self, ctx):
-        if not await self.bot.pre_command(ctx=ctx, command='serverlist', owner_check=True, is_typing=False):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='serverlist',
+                                          owner_check=True, is_typing=False):
             return
         m = ""
         for i in sorted([x for x in self.bot.guilds], key=lambda l: len(l.members), reverse=True):
@@ -24,10 +24,10 @@ class AdminCommands(Cog):
 
     @commands.command(pass_context=1, hidden=True)
     async def reload(self, ctx: Context, *args):
-        if not await self.bot.pre_command(ctx=ctx, command='reload', owner_check=True):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='reload', owner_check=True):
             return
 
-        cog = ' '.join(args)
+        cog = 'commands.' + ' '.join(args)
         if cog not in get_cogs():
             await self.bot.send_message(ctx, "That cog is either misspelled or non-existent")
             return
@@ -47,7 +47,7 @@ class AdminCommands(Cog):
 
     @commands.command(name='quit', hidden=True, help="Lets me go to sleep")
     async def quit(self, ctx: Context):
-        if not await self.bot.pre_command(ctx=ctx, command='quit', owner_check=True):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='quit', owner_check=True):
             return
 
         await self.bot.send_message(destination=ctx, content="ZZZzzz...")

@@ -1,11 +1,12 @@
-from config import constants
-from config.constants import TEXT, EMBED, ERROR
+from config import constants, command_text
+from config.constants import TEXT, EMBED, ERROR, BASIC_COMMANDS_EMBED_COLOR as EMBED_COLOR
+from config.structs import englishyfy_numbers
 from core.bot import PythonBot
 from database.pats import increment_pats
 
 from asyncio import sleep
 from datetime import datetime
-from discord import Embed, Attachment, User, Emoji, Member, Guild, Spotify
+from discord import Embed, Attachment, User, Emoji, Member, Spotify
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 import hashlib
@@ -13,21 +14,6 @@ import random
 import re
 import requests
 import wikipedia
-
-EMBED_COLOR = 0x008909
-
-englishyfy_numbers = {
-    '0': 'zero',
-    '1': 'one',
-    '2': 'two',
-    '3': 'three',
-    '4': 'four',
-    '5': 'five',
-    '6': 'six',
-    '7': 'seven',
-    '8': 'eight',
-    '9': 'nine'
-}
 
 
 # Mod commands
@@ -39,7 +25,7 @@ class BasicCommands(Cog):
 
     @commands.command(name='botstats', help="Biri's botstats!", aliases=['botinfo'])
     async def botstats(self, ctx: Context):
-        if not await self.bot.pre_command(ctx=ctx, command='botstats'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='botstats'):
             return
         embed = Embed(colour=0x000000)
         embed.set_author(name=ctx.message.author.display_name, icon_url=ctx.message.author.avatar_url)
@@ -74,14 +60,14 @@ class BasicCommands(Cog):
 
         # Casting spell
         target = ' '.join(args)
-        chosen_spell = random.choice(constants.spell)
-        chosen_result = random.choice(constants.spellresult)
+        chosen_spell = random.choice(command_text.spell)
+        chosen_result = random.choice(command_text.spellresult)
 
         return {TEXT: "**{}** casted **{}** on {}.\n{}".format(author_name, chosen_spell, target, chosen_result)}
 
     @commands.command(name='cast', help="Cast a spell!")
     async def cast(self, ctx: Context, *args):
-        if not await self.bot.pre_command(ctx=ctx, command='cast'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='cast'):
             return
 
         answer = BasicCommands.command_cast(args, author_name=ctx.message.author.display_name)
@@ -89,13 +75,13 @@ class BasicCommands(Cog):
 
     @commands.command(name='compliment', help="Give someone a compliment")
     async def compliment(self, ctx, *args):
-        if not await self.bot.pre_command(ctx=ctx, command='compliment'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='compliment'):
             return
         try:
             target = await self.bot.get_member_from_message(ctx=ctx, args=args, in_text=True)
         except ValueError:
             return
-        await self.bot.send_message(ctx, random.choice(constants.compliments).format(u=[target.mention]))
+        await self.bot.send_message(ctx, random.choice(command_text.compliments).format(u=[target.mention]))
 
     @staticmethod
     def command_cookie(display_name: str):
@@ -115,7 +101,7 @@ class BasicCommands(Cog):
 
     @commands.command(name='cookie', help="Collectively click the cookie!")
     async def cookie(self, ctx):
-        if not await self.bot.pre_command(ctx=ctx, command='cookie'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='cookie'):
             return
 
         answer = BasicCommands.command_cookie(ctx.message.author.display_name)
@@ -123,7 +109,8 @@ class BasicCommands(Cog):
 
     @commands.command(name='delete', help="Delete your message automatically in a bit!", aliases=["del", "d"])
     async def delete(self, ctx, *args):
-        if not await self.bot.pre_command(ctx=ctx, command='delete', is_typing=False, delete_message=False):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='delete', is_typing=False,
+                                          delete_message=False):
             return
 
         if len(args) > 0:
@@ -170,7 +157,7 @@ class BasicCommands(Cog):
 
     @commands.command(name='echo', help="I'll be a parrot!", aliases=['parrot'])
     async def echo(self, ctx: Context, *args):
-        if not await self.bot.pre_command(ctx=ctx, command='echo'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='echo'):
             return
         answer = BasicCommands.command_echo(args, ctx.message.attachments, ctx.message.author)
         await self.bot.send_message(destination=ctx, content=answer.get(TEXT), embed=answer.get(EMBED))
@@ -198,7 +185,7 @@ class BasicCommands(Cog):
 
     @commands.command(name='embed', help="I'll embed that message for you!")
     async def embed(self, ctx: Context, *args):
-        if not await self.bot.pre_command(ctx=ctx, command='embed'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='embed'):
             return
         answer = BasicCommands.command_embed(args, ctx.message.author.display_name, ctx.message.author.avatar_url,
                                              ctx.message.attachments)
@@ -240,7 +227,7 @@ class BasicCommands(Cog):
 
     @commands.command(name='emoji', help="Make big emojis")
     async def emoji(self, ctx: Context, *args):
-        if not await self.bot.pre_command(ctx=ctx, command='emoji'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='emoji'):
             return
         answer = BasicCommands.command_emoji(args, ctx.message.author.display_name, ctx.message.author.avatar_url,
                                              self.bot.emojis)
@@ -268,20 +255,20 @@ class BasicCommands(Cog):
 
     @commands.command(name='emojify', help="Use emojis to instead of ascii to spell!")
     async def emojify(self, ctx: Context, *args):
-        if not await self.bot.pre_command(ctx=ctx, command='emojify'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='emojify'):
             return
 
         await self.bot.send_message(ctx, BasicCommands.command_emojify(args).get(TEXT))
 
     @commands.command(name='face', help="Make a random face!")
     async def face(self, ctx: Context):
-        if not await self.bot.pre_command(ctx=ctx, command='face'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='face'):
             return
-        await self.bot.send_message(ctx, random.choice(constants.faces))
+        await self.bot.send_message(ctx, random.choice(command_text.faces))
 
     @commands.command(name='hug', help="Give hugs!")
     async def hug(self, ctx: Context, *args):
-        if not await self.bot.pre_command(ctx=ctx, command='hug'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='hug'):
             return
         try:
             target = await self.bot.get_member_from_message(ctx, args, in_text=True)
@@ -293,7 +280,7 @@ class BasicCommands(Cog):
             await self.bot.send_message(ctx, hug)
             return
 
-        hug = random.choice(constants.hug).format(u=[ctx.message.author.mention, target.mention])
+        hug = random.choice(command_text.hug).format(u=[ctx.message.author.mention, target.mention])
         await self.bot.send_message(ctx, hug)
 
     @staticmethod
@@ -304,7 +291,8 @@ class BasicCommands(Cog):
 
     @commands.command(name='hype', help="Hype everyone with random emoji!")
     async def hype(self, ctx: Context):
-        if not await self.bot.pre_command(ctx=ctx, command='hype', cannot_be_private=True):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='hype',
+                                          cannot_be_private=True):
             return
         answer = BasicCommands.command_hype(ctx.guild.emojis)
         await self.bot.send_message(ctx, content=answer.get(TEXT))
@@ -315,11 +303,11 @@ class BasicCommands(Cog):
     def command_kill(author: Member, target: Member):
         if author is target:
             return {TEXT: "Suicide is not the answer, 42 is"}
-        return {TEXT: random.choice(constants.kill).format(u=[target.mention])}
+        return {TEXT: random.choice(command_text.kill).format(u=[target.mention])}
 
     @commands.command(name='kill', help="Wish someone a happy death! (is a bit explicit)")
     async def kill(self, ctx: Context, *args):
-        if not await self.bot.pre_command(ctx=ctx, command='kill'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='kill'):
             return
 
         try:
@@ -334,11 +322,11 @@ class BasicCommands(Cog):
     def command_kiss(author: Member, target: Member):
         if author is target:
             return {TEXT: "{0} Trying to kiss yourself? Let me do that for you...\n*kisses {0}*".format(author.mention)}
-        return {TEXT: random.choice(constants.kisses).format(u=[author.mention, target.mention])}
+        return {TEXT: random.choice(command_text.kisses).format(u=[author.mention, target.mention])}
 
     @commands.command(name='kiss', help="Give someone a little kiss!")
     async def kiss(self, ctx, *args):
-        if not await self.bot.pre_command(ctx=ctx, command='kiss'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='kiss'):
             return
         try:
             target = await self.bot.get_member_from_message(ctx=ctx, args=args, in_text=True)
@@ -350,7 +338,7 @@ class BasicCommands(Cog):
 
     @commands.command(name='lenny', help="( ͡° ͜ʖ ͡°)!")
     async def lenny(self, ctx, *args):
-        if not await self.bot.pre_command(ctx=ctx, command='lenny'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='lenny'):
             return
         await self.bot.send_message(ctx, " ".join(args) + " ( ͡° ͜ʖ ͡°)")
 
@@ -358,7 +346,7 @@ class BasicCommands(Cog):
 
     @commands.command(pass_context=1, help="Calculate how nice you are!")
     async def nice(self, ctx, *args):
-        if not await self.bot.pre_command(ctx=ctx, command='nice'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='nice'):
             return
         try:
             user = await self.bot.get_member_from_message(ctx=ctx, args=args, in_text=True, errors={})
@@ -398,7 +386,7 @@ class BasicCommands(Cog):
 
     @commands.command(name='pat', help="PAT ALL THE THINGS!")
     async def pat(self, ctx: Context, *args):
-        if not await self.bot.pre_command(ctx=ctx, command='pat'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='pat'):
             return
 
         try:
@@ -415,7 +403,7 @@ class BasicCommands(Cog):
     # TODO Figure out why there is 8s of lag between system clock and message timestamp
     # @commands.command(name='ping', help="Give someone a compliment")
     # async def ping(self, ctx: Context):
-    #     if not await self.bot.pre_command(ctx=ctx, command='ping'):
+    #     if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='ping'):
     #         return
     #     r = random.randint(0, 100)
     #     result = '*Miss* You win!' if r < 20 else '*Pong* You lose...' if r < 40 else '*Pong*'
@@ -435,13 +423,13 @@ class BasicCommands(Cog):
 
     @commands.command(name='purr', help="Purr like you never purred before!")
     async def purr(self, ctx: Context):
-        if not await self.bot.pre_command(ctx=ctx, command='purr'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='purr'):
             return
-        await self.bot.send_message(ctx, random.choice(constants.purr).format(ctx.message.author.mention))
+        await self.bot.send_message(ctx, random.choice(command_text.purr).format(ctx.message.author.mention))
 
     @commands.command(name='quote', help="Get a random quote!")
     async def quote(self, ctx: Context):
-        if not await self.bot.pre_command(ctx=ctx, command='quote'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='quote'):
             return
         params = {'method': 'getQuote', 'format': 'json', 'lang': 'en'}
         r = requests.get('http://api.forismatic.com/api/1.0/', params=params)
@@ -462,17 +450,19 @@ class BasicCommands(Cog):
     @commands.command(name='serverinfo', help="Get the guild's information!",
                       aliases=['serverstats', 'guildstats', 'guildinfo'])
     async def serverinfo(self, ctx, *args):
-        if not await self.bot.pre_command(ctx=ctx, command='serverinfo', cannot_be_private=True):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='serverinfo',
+                                          cannot_be_private=True):
             return
 
         # Determine guild
-        guild: Guild = None
         if (ctx.message.author.id in [constants.NYAid, constants.KAPPAid]) and len(args) > 0:
             for s in self.bot.guilds:
                 if s.name.lower().encode("ascii", "replace").decode("ascii") == ' '.join(args):
                     guild = s
                     break
-        if not guild:
+            else:
+                guild = ctx.message.guild
+        else:
             guild = ctx.message.guild
 
         # Add guild information
@@ -541,7 +531,7 @@ class BasicCommands(Cog):
 
     @commands.command(pass_context=1, help="Search the totally official wiki!", aliases=["ud", "urbandictionary"])
     async def urban(self, ctx: Context, *args):
-        if not await self.bot.pre_command(ctx=ctx, command='urban'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='urban'):
             return
 
         answer = BasicCommands.command_urban(args)
@@ -549,7 +539,8 @@ class BasicCommands(Cog):
 
     @commands.command(name='userinfo', help="Get a user's information!", aliases=["user", "info"])
     async def userinfo(self, ctx: Context, *args):
-        if not await self.bot.pre_command(ctx=ctx, command='userinfo', cannot_be_private=True):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='userinfo',
+                                          cannot_be_private=True):
             return
 
         user = await self.bot.get_member_from_message(ctx, args, in_text=True)
@@ -609,7 +600,7 @@ class BasicCommands(Cog):
 
     @commands.command(name='wikipedia', help="Search the wiki!", aliases=["wiki"])
     async def wikipedia(self, ctx, *args):
-        if not await self.bot.pre_command(ctx=ctx, command='wikipedia'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='wikipedia'):
             return
 
         answer = await BasicCommands.command_wikipedia(ctx, self.bot.ask_one_from_multiple, args)

@@ -37,17 +37,22 @@ def get_message(table: str, server_id: int):
 
 
 # Starboard
-def set_star_channel(server_id: str, channel_id: str):
+def set_star_channel(server_id: int, channel_id: int):
     table = get_table(STARBOARD_CHANNEL_TABLE)
     table.update({SERVER_ID: server_id}, {'$set': {CHANNEL_ID: channel_id}}, upsert=True)
 
 
-def get_star_channel(server_id: str):
+def delete_star_channel(server_id: int):
+    table = get_table(STARBOARD_CHANNEL_TABLE)
+    table.delete_one({SERVER_ID: server_id})
+
+
+def get_star_channel(server_id: int):
     r = get_table(STARBOARD_CHANNEL_TABLE).find_one({SERVER_ID: server_id})
     if not r:
         print("Starboard channel not specified for server")
         return None
-    return r.get(CHANNEL_ID) if r else None
+    return int(r.get(CHANNEL_ID)) if r else None
 
 
 def get_star_message(message_id: str):

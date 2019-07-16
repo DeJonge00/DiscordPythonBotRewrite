@@ -1,9 +1,9 @@
-from config.constants import TEXT, EMBED
+from config.constants import TEXT, STAR_EMOJI
 from database import general as dbcon
 
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
-from discord import Embed, TextChannel, Attachment, User, Permissions, Message
+from discord import Permissions
 
 
 # Mod commands
@@ -27,7 +27,8 @@ class ConfigCommands(Cog):
     @commands.command(name='prefix', help="Change my prefix", aliases=['setprefix', 'changeprefix'])
     async def prefix(self, ctx, *args):
         c = [Permissions.administrator, Permissions.manage_channels]
-        if not await self.bot.pre_command(ctx=ctx, command='prefix', cannot_be_private=True, checks=c):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='prefix',
+                                          cannot_be_private=True, checks=c):
             return
 
         response = ConfigCommands.command_prefix(ctx.guild.id, args)
@@ -37,8 +38,9 @@ class ConfigCommands(Cog):
     @commands.command(name='toggledeletecommands', help="Toggle whether commands will be deleted here",
                       aliases=['tdc'])
     async def toggledeletecommands(self, ctx: Context):
-        if not await self.bot.pre_command(ctx=ctx, command='toggledeletecommands', cannot_be_private=True,
-                                          one_of_needed=['manage_channels', 'manage_messages', 'administrator']):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='toggledeletecommands',
+                                          cannot_be_private=True,
+                                          perm_needed=['manage_channels', 'manage_messages', 'administrator']):
             return
 
         dbcon.toggle_delete_commands(ctx.message.guild.id)
@@ -48,6 +50,24 @@ class ConfigCommands(Cog):
         else:
             m = 'Commands will now not be deleted in this server'
         await self.bot.send_message(ctx, content=m)
+
+    # TODO >togglecommand
+
+    @commands.command(name='starboard', help="Change my prefix", aliases=['star'])
+    async def starboard(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='starboard',
+                                          cannot_be_private=True,
+                                          perm_needed=['administrator', 'manage_server', 'manage_channels']):
+            return
+
+        if dbcon.get_star_channel(ctx.message.guild.id) == ctx.channel.id:
+            dbcon.delete_star_channel(ctx.message.guild.id)
+            m = "The starboard for this server has been succesfully deleted!"
+        else:
+            dbcon.set_star_channel(ctx.message.guild.id, ctx.message.channel.id)
+            m = 'React with {} to see your messages get saved in this channel'.format(STAR_EMOJI)
+
+        await self.bot.send_message(ctx, m)
 
 
 def setup(bot):
