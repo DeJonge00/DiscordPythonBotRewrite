@@ -7,7 +7,7 @@ from secret.secrets import game_name
 
 import asyncio
 from datetime import datetime
-from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel, Embed, Guild, VoiceChannel
+from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel, Embed, Guild, VoiceChannel, User
 
 
 def get_cogs():
@@ -138,5 +138,25 @@ def create_bot():
             await bot.embed_list.handle_reaction(reaction)
         if reaction.emoji == STAR_EMOJI:
             await message_handler.handle_star_reaction(bot, reaction)
+
+    @bot.event
+    async def on_member_ban(guild: Guild, user: User):
+        await log.error(guild.name + " | User " + str(user) + " banned", filename=guild.name, serverid=guild.id)
+
+    @bot.event
+    async def on_member_unban(guild: Guild, user: User):
+        await log.error(guild.name + " | User " + str(user) + " unbanned", filename=guild.name, serverid=guild.id)
+
+    @bot.event
+    async def on_server_join(guild: Guild):
+        channel = bot.get_guild(constants.PRIVATESERVERid).get_channel(constants.SNOWFLAKE_GENERAL)
+        m = "I joined a new server named '{}' with {} members, senpai!".format(guild.name, guild.member_count)
+        await bot.send_message(channel, m)
+
+    @bot.event
+    async def on_server_remove(guild: Guild):
+        channel = bot.get_guild(constants.PRIVATESERVERid).get_channel(constants.SNOWFLAKE_GENERAL)
+        m = "A server named '{}' ({} members) just removed me from service :(".format(guild.name, guild.member_count)
+        await bot.send_message(channel, m)
 
     return bot

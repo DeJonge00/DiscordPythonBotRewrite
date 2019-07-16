@@ -90,7 +90,6 @@ class ModCommands(Cog):
         answer = ModCommands.set_welcome(args, GOODBYE_TABLE, 'Goodbye', ctx.guild.id, ctx.channel.id)
         await self.bot.send_message(ctx.channel, content=answer.get(TEXT))
 
-    # {prefix}setwelcome <message>
     @commands.command(pass_context=1, help="Sets a welcome message", aliases=['welcome'])
     async def setwelcome(self, ctx: Context, *args):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='setwelcome',
