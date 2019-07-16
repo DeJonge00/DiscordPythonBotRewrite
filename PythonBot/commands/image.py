@@ -75,16 +75,32 @@ class ImageCommands(Cog):
         await self.send_picture_template_command(ctx.message, ctx.channel, 'cuddle', pic_links=image_links.hug_gifs)
 
     @commands.command(name='happy', help="Awwww yeaaahhh!")
-    async def happy(self, ctx):
+    async def happy(self, ctx: Context):
         await self.send_picture_template_command(ctx.message, ctx.channel, 'happy', pic_links=image_links.happy_gifs)
 
     @commands.command(name='lewd', help="LLEEEEEEEEWWDD!!!")
-    async def lewd(self, ctx):
+    async def lewd(self, ctx: Context):
         await self.send_picture_template_command(ctx.message, ctx.channel, 'lewd', pic_links=image_links.lewd_gifs)
 
     @commands.command(name='love', help="Everyone needs love in their life!")
-    async def love(self, ctx):
+    async def love(self, ctx: Context):
         await self.send_picture_template_command(ctx.message, ctx.channel, 'love', pic_links=image_links.love_gifs)
+
+    @commands.command(name='nyan', help="Nyanyanyanyanyanyanyanyanya!")
+    async def nyan(self, ctx: Context):
+        await self.send_picture_template_command(ctx.message, ctx.channel, 'nyan', pic_links=image_links.nyan_gifs)
+
+    @commands.command(name='otter', help="OTTERSSSSS!")
+    async def otter(self, ctx: Context):
+        await self.send_picture_template_command(ctx.message, ctx.channel, 'otter', pic_links=image_links.otters)
+
+    @commands.command(name='plsno', help="Nonononononono!", aliases=['nopls'])
+    async def plsno(self, ctx: Context):
+        await self.send_picture_template_command(ctx.message, ctx.channel, 'plsno', pic_links=image_links.plsno_gifs)
+
+    @commands.command(name='sadness', help="Cri!")
+    async def sadness(self, ctx: Context):
+        await self.send_picture_template_command(ctx.message, ctx.channel, 'sadness', pic_links=image_links.sad_gifs)
 
 
 def setup(bot):
