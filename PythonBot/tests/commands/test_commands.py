@@ -3,7 +3,7 @@ from commands.commands import BasicCommands as bc
 from config.constants import TEXT, EMBED
 from tests.objects import get_test_attachment, get_test_user, get_test_emoji
 
-from discord import Attachment, User, Embed
+from discord import Embed
 from datetime import datetime, timedelta
 import re
 

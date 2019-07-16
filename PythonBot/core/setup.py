@@ -13,7 +13,9 @@ def get_cogs():
     return [
         'commands.admin',
         'commands.commands',
-        'commands.config'
+        'commands.config',
+        'commands.misc',
+        'commands.mod'
     ]
 
 

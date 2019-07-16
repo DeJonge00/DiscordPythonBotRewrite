@@ -5,6 +5,7 @@ TEXT = 'text_message'
 EMBED = 'embed_message'
 IMAGE = 'image'
 ERROR = 'error_message'
+KICK_REASON = 'kick_message'
 
 SERVICE = False
 

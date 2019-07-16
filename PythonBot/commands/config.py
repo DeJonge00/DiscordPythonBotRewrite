@@ -6,7 +6,6 @@ from discord.ext.commands import Cog, Context
 from discord import Permissions
 
 
-# Mod commands
 class ConfigCommands(Cog):
     def __init__(self, my_bot):
         self.bot = my_bot
