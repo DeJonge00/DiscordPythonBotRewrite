@@ -1,10 +1,10 @@
 from core.bot import PythonBot
 from config.constants import TEXT, KICK_REASON, member_counter_message
 from database.general.general import WELCOME_TABLE, GOODBYE_TABLE
-from database.general.member_counter import set_member_counter_channel
+from database.general.member_counter import set_member_counter_channel, get_member_counter_channel
 from database.general.welcome import set_message
 
-from discord import Member, TextChannel, PermissionOverwrite
+from discord import Member, TextChannel, PermissionOverwrite, Forbidden
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
@@ -45,23 +45,35 @@ class ModCommands(Cog):
         await self.bot.send_message(ctx.channel, m)
 
     @staticmethod
-    async def command_membercount(user: Member, channel: TextChannel):
+    async def command_membercount(user: Member, channel: TextChannel, args: [str]):
         if not channel.permissions_for(user).manage_channels:
             return {TEXT: 'I need permission to manage channels'}
         name = member_counter_message.format(channel.guild.member_count)
         permissions = {channel.guild.default_role: PermissionOverwrite(connect=False, read_messages=True),
                        user.roles[-1]: PermissionOverwrite(manage_channels=True, connect=True)}
-        channel = await channel.guild.create_category(name=name, overwrites=permissions)
+
+        old_channel_id = get_member_counter_channel(guild_id=channel.guild.id)
+        if old_channel_id:
+            try:
+                await channel.guild.get_channel(old_channel_id).delete()
+            except Forbidden:
+                pass
+        if len(args) >= 1 and args[0].lower() in ['voicechannel', 'voice', 'vc', 'v']:
+            channel = await channel.guild.create_voice_channel(name=name, position=0, overwrites=permissions)
+        elif len(args) >= 1 and args[0].lower() in ['textchannel', 'text', 't']:
+            channel = await channel.guild.create_text_channel(name=name, position=0, overwrites=permissions)
+        else:
+            channel = await channel.guild.create_category(name=name, overwrites=permissions)
         set_member_counter_channel(channel.guild.id, channel.id)
         return {TEXT: 'Channel \'{}\' created'.format(name)}
 
     @commands.command(name='membercount', help="Count the people in this server for everyone to see",
                       aliases=['membercounter'])
-    async def membercount(self, ctx: Context):
+    async def membercount(self, ctx: Context, *args):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='purge', is_typing=False,
                                           perm_needed=['administrator', 'manage_channels']):
             return
-        answer = await ModCommands.command_membercount(ctx.guild.me, ctx.channel)
+        answer = await ModCommands.command_membercount(ctx.guild.me, ctx.channel, args)
         await self.bot.send_message(ctx.channel, answer.get(TEXT))
 
     @commands.command(name='purge', help="Remove a weird chat")
