@@ -51,7 +51,7 @@ class ModCommands(Cog):
         name = member_counter_message.format(channel.guild.member_count)
         permissions = {channel.guild.default_role: PermissionOverwrite(connect=False, read_messages=True),
                        user.roles[-1]: PermissionOverwrite(manage_channels=True, connect=True)}
-        channel = await channel.guild.create_voice_channel(name=name, position=0, overwrites=permissions)
+        channel = await channel.guild.create_category(name=name, overwrites=permissions)
         set_member_counter_channel(channel.guild.id, channel.id)
         return {TEXT: 'Channel \'{}\' created'.format(name)}
 
