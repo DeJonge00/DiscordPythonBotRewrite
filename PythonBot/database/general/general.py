@@ -1,5 +1,4 @@
 import database.common as common
-from discord import Message, Guild, TextChannel, DMChannel
 
 GENERAL_DATABASE = 'general'
 WELCOME_TABLE = 'welcome'

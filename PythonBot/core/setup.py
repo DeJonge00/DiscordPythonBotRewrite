@@ -51,8 +51,9 @@ async def update_member_counter(guild: Guild):
         return
     channel: VoiceChannel = guild.get_channel(channel_id)
     if not channel:
+        member_counter.delete_member_counter_channel(guild.id)
         return
-    await channel.edit(name=member_counter_message.format(guild.member_count))
+    await channel.edit(name=member_counter_message.format(guild.member_count), reason='User left/joined')
 
 
 def create_bot():
@@ -146,13 +147,13 @@ def create_bot():
         log.announcement(guild_name=guild.name, announcement_text='User {} got unbanned'.format(user))
 
     @bot.event
-    async def on_server_join(guild: Guild):
+    async def on_guild_join(guild: Guild):
         channel = bot.get_guild(constants.PRIVATESERVERid).get_channel(constants.SNOWFLAKE_GENERAL)
         m = "I joined a new server named '{}' with {} members, senpai!".format(guild.name, guild.member_count)
         await bot.send_message(channel, m)
 
     @bot.event
-    async def on_server_remove(guild: Guild):
+    async def on_guild_remove(guild: Guild):
         channel = bot.get_guild(constants.PRIVATESERVERid).get_channel(constants.SNOWFLAKE_GENERAL)
         m = "A server named '{}' ({} members) just removed me from service :(".format(guild.name, guild.member_count)
         await bot.send_message(channel, m)

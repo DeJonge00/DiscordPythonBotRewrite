@@ -1,6 +1,7 @@
 from core.bot import PythonBot
 from config.constants import TEXT, KICK_REASON, member_counter_message
 from database.general.general import WELCOME_TABLE, GOODBYE_TABLE
+from database.general.member_counter import set_member_counter_channel
 from database.general.welcome import set_message
 
 from discord import Member, TextChannel, PermissionOverwrite
@@ -40,13 +41,18 @@ class ModCommands(Cog):
         for user in ctx.message.mentions:
             await user.kick(reason=answer.get(KICK_REASON))
 
+        m = 'Banished users {} successfully'.format(', '.join(ctx.message.mentions))
+        await self.bot.send_message(ctx.channel, m)
+
     @staticmethod
     async def command_membercount(user: Member, channel: TextChannel):
         if not channel.permissions_for(user).manage_channels:
             return {TEXT: 'I need permission to manage channels'}
         name = member_counter_message.format(channel.guild.member_count)
-        permissions = {channel.guild.default_role: PermissionOverwrite(connect=False, read_messages=True)}
+        permissions = {channel.guild.default_role: PermissionOverwrite(connect=False, read_messages=True),
+                       user.roles[-1]: PermissionOverwrite(manage_channels=True, connect=True)}
         channel = await channel.guild.create_voice_channel(name=name, position=0, overwrites=permissions)
+        set_member_counter_channel(channel.guild.id, channel.id)
         return {TEXT: 'Channel \'{}\' created'.format(name)}
 
     @commands.command(name='membercount', help="Count the people in this server for everyone to see",
