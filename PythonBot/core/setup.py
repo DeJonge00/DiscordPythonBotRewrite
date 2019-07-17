@@ -28,8 +28,7 @@ REMOVE_LEAVE_MESSAGE = False
 
 async def on_member_message(guild: Guild, member: Member, func_name, text, do_log=True) -> bool:
     if do_log:
-        await log.error(guild.name + " | Member " + str(member) + " just " + text,
-                        filename=guild.name, serverid=guild.id)
+        log.announcement(guild_name=guild.name, announcement_text='Member {} just {}'.format(member, text))
     channel, mes = welcome.get_message(func_name, guild.id)
     if not channel or not mes:
         return False
@@ -78,19 +77,18 @@ def create_bot():
         if message.author.bot:
             return
         if isinstance(message.channel, DMChannel):
-            await log.log("direct message", message.author.name, message.content, "dm")
-            for pic in message.attachments:
-                await log.message(message, "pic", pic["url"])
-            await message_handler.new_message(bot, message)
+            if not await message_handler.new_message(bot, message):
+                log.message(message)
         else:
             if message.content and message.guild.id not in constants.bot_list_servers:
                 await message_handler.new_message(bot, message)
 
         # Commands in the message
         try:
+            # TODO Remove double logging on command used in dms
             await bot.process_commands(message)
         except Forbidden:
-            await log.message(message, 'Forbidden Exception')
+            log.error_on_message(message, error_message='Forbidden Exception')
 
         # Send message to rpggame for exp
         if bot.RPGGAME and (len(message.content) < 2 or (message.content[:2] == '<@') or
@@ -141,11 +139,11 @@ def create_bot():
 
     @bot.event
     async def on_member_ban(guild: Guild, user: User):
-        await log.error(guild.name + " | User " + str(user) + " banned", filename=guild.name, serverid=guild.id)
+        log.announcement(guild_name=guild.name, announcement_text='User {} got banned'.format(user))
 
     @bot.event
     async def on_member_unban(guild: Guild, user: User):
-        await log.error(guild.name + " | User " + str(user) + " unbanned", filename=guild.name, serverid=guild.id)
+        log.announcement(guild_name=guild.name, announcement_text='User {} got unbanned'.format(user))
 
     @bot.event
     async def on_server_join(guild: Guild):

@@ -1,13 +1,13 @@
 from config.constants import TEXT, STAR_EMOJI
+from core.bot import PythonBot
 from database.general import prefix, delete_commands, starboard
 
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
-from discord import Permissions
 
 
 class ConfigCommands(Cog):
-    def __init__(self, my_bot):
+    def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
         print('Config commands cog started')
 
@@ -24,10 +24,10 @@ class ConfigCommands(Cog):
         return {TEXT: 'The prefix for this server is now \'{}\''}
 
     @commands.command(name='prefix', help="Change my prefix", aliases=['setprefix', 'changeprefix'])
-    async def prefix(self, ctx, *args):
-        c = [Permissions.administrator, Permissions.manage_channels]
+    async def prefix(self, ctx: Context, *args):
+        c = ['administrator', 'manage_channels']
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='prefix',
-                                          cannot_be_private=True, checks=c):
+                                          cannot_be_private=True, perm_needed=c):
             return
 
         response = ConfigCommands.command_prefix(ctx.guild.id, args)
