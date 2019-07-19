@@ -124,6 +124,24 @@ class BasicCommands(Cog):
         await sleep(s)
         await self.bot.delete_message(ctx.message)
 
+    @commands.command(name='dice', help="Roll some dice!", aliases=['roll'])
+    async def dice(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='dice'):
+            return
+        text = ' '.join(args)
+        if not re.match('[d\d /*-+]+', text):
+            await self.bot.send_message(ctx.channel, 'Oww I detect some illegal characters...')
+            return
+        for dice in [2, 4, 6, 8, 10, 12, 20, 100]:
+            text = text.replace('d'+str(dice), '*' + str(random.randint(1, dice)))
+        text = text.lstrip(' *')
+        result = eval(text)
+        if not result:
+            m = 'Please give something useful to roll'
+            await self.bot.send_message(ctx.channel, m)
+            return
+        await self.bot.send_message(ctx.channel, ' '.join(args) + ' = ' + str(result))
+
     @staticmethod
     def command_echo(args: [str], attachments: [Attachment], author: User):
         """

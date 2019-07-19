@@ -7,7 +7,7 @@ from secret.secrets import game_name
 
 import asyncio
 from datetime import datetime
-from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel, Embed, Guild, VoiceChannel, User
+from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel, Embed, Guild, VoiceChannel, User, Activity, ActivityType
 
 
 def get_cogs():
@@ -102,6 +102,11 @@ def create_bot():
             if before.activity != after.activity:
                 if isinstance(after.activity, Spotify):
                     activity = Game(name='🎵 {}: {} 🎵'.format(after.activity.artist, after.activity.title))
+                elif isinstance(after.activity, Activity):
+                    name = after.activity.name
+                    if after.activity.details:
+                        name += ' | ' + after.activity.details
+                    activity = Game(name=name)
                 else:
                     activity = after.activity if after.activity else Game(name=game_name)
                 await bot.change_presence(activity=activity, status=Status.do_not_disturb)
