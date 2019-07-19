@@ -36,17 +36,19 @@ BASIC_COMMANDS_EMBED_COLOR = 0x008909
 LOOKUP_COMMANDS_EMBED_COLOR = 0xFF0000
 IMAGE_COMMANDS_EMBED_COLOR = 0x000000
 WELCOME_EMBED_COLOR = 0xFF0000
+MUSIC_EMBED_COLOR = 0x93cc04
 STAR_EMBED_COLOR = 0xf9e000
 STAR_EMOJI = '⭐'
 
 ytdl_options = dict(
     format="bestaudio/best",
     extractaudio=True,
-    audioformat="mp3",
+    audioformat="opus",
     noplaylist=True,
     default_search="auto",
     quiet=True,
-    nocheckcertificate=True
+    nocheckcertificate=True,
+    restrictfilenames=True
 )
 
 ytdl_before = "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5"

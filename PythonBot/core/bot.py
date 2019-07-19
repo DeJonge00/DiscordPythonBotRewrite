@@ -1,6 +1,5 @@
 from config import constants
 from core import logging as log
-from discord.ext.commands.formatter import HelpFormatter
 from database.general import delete_commands, prefix, banned_commands, command_counter
 from secret.secrets import prefix
 
