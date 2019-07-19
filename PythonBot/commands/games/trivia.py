@@ -26,7 +26,7 @@ class Trivia(Cog):
 
     @trivia.command(pass_context=1, aliases=['categories'])
     async def cat(self, ctx):
-        display_cat = "Triva categories are: \n"
+        display_cat = "Trivia categories are: \n"
         for cat in self.categories:
             display_cat += (str(cat['nbr']) + ") " + cat['name'] + ".\n")
         await self.bot.send_message(ctx, display_cat)
@@ -90,7 +90,8 @@ class Trivia(Cog):
         except KeyError as e:
             print(e)
 
-    def get_cats(self):
+    @staticmethod
+    def get_cats():
         categories = json.loads(requests.get(url=CATEGORIES_URL).text)['trivia_categories']
         i = 0
         while i < len(categories):
