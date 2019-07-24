@@ -1,13 +1,14 @@
 from config import constants
 from config.constants import STAR_EMOJI, WELCOME_EMBED_COLOR, member_counter_message
-from core import message_handler, logging as log
+from core import logging as log
+from core.handlers import message_handler, channel_handlers
 from core.bot import PythonBot
 from database.general import bot_information, general, welcome, member_counter
 from secret.secrets import game_name
 
 import asyncio
 from datetime import datetime
-from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel, Embed, Guild, VoiceChannel, User, Activity, ActivityType
+from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel, Embed, Guild, VoiceChannel, User, Activity, ActivityType, VoiceState
 
 
 def get_cogs():
@@ -111,6 +112,15 @@ def create_bot():
                     activity = after.activity if after.activity else Game(name=game_name)
                 await bot.change_presence(activity=activity, status=Status.do_not_disturb)
                 return
+
+    @bot.event
+    async def on_voice_state_update(member: Member, before: VoiceState, after: VoiceState):
+        await channel_handlers.auto_channel(member, before, after)
+
+    @bot.event
+    async def on_guild_channel_delete(channel):
+        if isinstance(channel, VoiceChannel):
+            channel_handlers.deleted_channel(channel)
 
     @bot.event
     async def on_member_join(member: Member):

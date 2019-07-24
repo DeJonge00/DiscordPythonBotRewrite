@@ -123,6 +123,7 @@ The commands marked with <WIP>have not been added to the rewritten version yet
 
 |Name			|Command, aliases and usage					            |Description                                                                                |Permissions needed
 |---			|---										            |---                                                                                        |---
+|autovc         |`autovc` `channel name`                                | Create a voicechannel that multiplies when users join. These extra voice channels will be removed when there is nobody in them. | manage_channels
 |banish      	|`banish` `{user}`                                      |Ban `{user}`                                                                               |kick_members
 |invite <WIP>        |`invite` `{max members}`                               |Fetch/Create an invite. Maximum {max members} members, unlimited if not given
 |nickname <WIP>   	|`nickname,nn` `{user}` `{new_name}`                    |Nickname a person                                                                          |change_nickname, manage_nicknames

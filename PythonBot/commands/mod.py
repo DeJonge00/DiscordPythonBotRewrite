@@ -1,5 +1,6 @@
 from core.bot import PythonBot
 from config.constants import TEXT, KICK_REASON, member_counter_message
+from database.general.auto_voice_channel import set_joiner_channel
 from database.general.general import WELCOME_TABLE, GOODBYE_TABLE
 from database.general.member_counter import set_member_counter_channel, get_member_counter_channel
 from database.general.welcome import set_message
@@ -15,6 +16,28 @@ class ModCommands(Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
         print('Mod commands cog started')
+
+    @staticmethod
+    async def command_autovc(channel: TextChannel, name: str):
+        bot_perms = channel.permissions_for(channel.guild.me)
+        if not bot_perms.manage_channels:
+            return {TEXT: 'I do not have the permissions to set this up'}
+        if not name:
+            name = 'General'
+        name = '▶ ' + name
+
+        new_vc = await channel.guild.create_voice_channel(name)
+        set_joiner_channel(channel.guild.id, new_vc.id)
+        return {TEXT: 'New channel \'{}\' created'.format(name)}
+
+    @commands.command(name='autovc', help="BANHAMMER")
+    async def autovc(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='autovc',
+                                          perm_needed=['manage_channels', 'administrator']):
+            return
+
+        answer = await ModCommands.command_autovc(ctx.channel, ' '.join(args))
+        await self.bot.send_message(ctx.channel, answer.get(TEXT))
 
     @staticmethod
     def command_banish(mod: Member, users: [Member], text: str):
