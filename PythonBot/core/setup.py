@@ -19,7 +19,8 @@ def get_cogs():
         'commands.image',
         'commands.lookup',
         'commands.misc',
-        'commands.mod'
+        'commands.mod',
+        'commands.games.hangman.commands'
     ]
 
 
