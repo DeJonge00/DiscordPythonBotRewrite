@@ -25,10 +25,8 @@ async def auto_channel(member: Member, before: VoiceState, after: VoiceState):
             await member.move_to(new_vc)
         except Forbidden:
             pass
-        return
     if before.channel and before.channel.id in get_created_channels(member.guild.id):
         await check_vc(before.channel)
-        return
 
 
 def deleted_channel(channel: VoiceChannel):
