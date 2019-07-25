@@ -86,14 +86,14 @@ The commands marked with <WIP>have not been added to the rewritten version yet
 |osu            |`osu` `playername`                                     |Search profile data for a popular rhythm game
 
 
-### Hangman <WIP>
+### Hangman
 
 |Name			|Command, aliases and usage					            |Description
 |---			|---										            |---
-|hangman     	|`hm, hangman` `create,new` `{custom,sentence}`         |Create a new hangman game
+|hangman     	|`hm, hangman` `create,new` `{custom,c,random,r}` `{sentence}`         |Create a new hangman game
 |               |`hm, hangman` `{guess}`                                |Guess a letter/sentence in the current hangman game
 
-### Minesweeper <WIP>
+### Minesweeper
 
 |Name			|Command, aliases and usage					            |Description
 |---			|---										            |---

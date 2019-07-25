@@ -20,6 +20,8 @@ class HangmanInstance:
 
     def guess(self, l):
         l = l.lower()
+        if self.word.lower() == l:
+            return WIN
         # Wrong guess
         if (l not in self.word.lower()) and (l not in self.wrong_guesses):
             self.faults += 1
