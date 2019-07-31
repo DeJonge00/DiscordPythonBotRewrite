@@ -23,6 +23,7 @@ class PythonBot(Bot):
         super(PythonBot, self, ).__init__(command_prefix=prefix, pm_help=True)  # , formatter=HelpFormatter)
 
     """ Helper functions """
+
     async def ask_one_from_multiple(self, ctx: Context, group: list, question='', errors: dict = {}):
         """
         Ask a user to select one object from a list by name
@@ -150,6 +151,18 @@ class PythonBot(Bot):
                 return await message.delete()
             except Forbidden:
                 await log.error_on_message(message, 'No permissions to delete message')
+
+    @staticmethod
+    async def add_roles(member: Member, *roles, reason: str = None, atomic: bool = True):
+        m = 'Added role(s) {} to {}'.format(', '.join([r.name for r in roles]), member)
+        log.announcement(member.guild.name, m)
+        return await member.add_roles(*roles, reason=reason, atomic=atomic)
+
+    @staticmethod
+    async def remove_roles(member: Member, *roles, reason: str = None, atomic: bool = True):
+        m = 'Removed role(s) {} from {}'.format(', '.join([r.name for r in roles]), member)
+        log.announcement(member.guild.name, m)
+        return await member.remove_roles(*roles, reason=reason, atomic=atomic)
 
     async def send_message(self, destination, content: str = None, *, file=None, tts: bool = False,
                            embed: Embed = None):

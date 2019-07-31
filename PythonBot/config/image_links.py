@@ -43,7 +43,18 @@ hug_gifs = [
     'https://i.giphy.com/media/xJlOdEYy0r7ZS/200w.gif',
     'https://i.giphy.com/media/od5H3PmEG5EVq/200w.gif',
     'https://i.giphy.com/media/224NKXmu23A8U/giphy.gif',
-    'https://i.giphy.com/media/SllyDum3ydw6Q/giphy.gif'
+    'https://i.giphy.com/media/SllyDum3ydw6Q/giphy.gif',
+    'https://i.imgur.com/izOdwB4.gif',
+    'https://i.imgur.com/M4SbovX.gif',
+    'https://i.imgur.com/IEoiXxt.gif',
+    'https://i.imgur.com/HQhOpnw.gif',
+    'https://i.imgur.com/fM0oxIx.gif',
+    'https://i.imgur.com/1CYSEYy.gif',
+    'https://i.imgur.com/iT9u3jA.gif',
+    'https://i.imgur.com/pMwTydF.gif',
+    'https://i.imgur.com/GsByvJp.gif',
+    'https://i.imgur.com/4Q1tIIG.gif',
+    'https://i.imgur.com/vw9tmGT.gif'
 ]
 
 happy_gifs = [

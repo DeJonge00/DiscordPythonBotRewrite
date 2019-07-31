@@ -1,5 +1,7 @@
 from core.bot import PythonBot
+from core.utils import prep_str
 from config.constants import TEXT, KICK_REASON, member_counter_message
+from database.general import self_assignable_roles
 from database.general.auto_voice_channel import set_joiner_channel
 from database.general.general import WELCOME_TABLE, GOODBYE_TABLE
 from database.general.member_counter import set_member_counter_channel, get_member_counter_channel
@@ -123,7 +125,7 @@ class ModCommands(Cog):
             return {TEXT: "{} message for this server is now: ".format(type) + " ".join(args).format("<username>")}
         return {TEXT: "{} message for this server has been reset".format(type)}
 
-    @commands.command(pass_context=1, help="Sets a goodbye message", aliases=['goodbye'])
+    @commands.command(name='setgoodbye', help="Sets a goodbye message", aliases=['goodbye'])
     async def setgoodbye(self, ctx, *args):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='setgoodbye'):
             return
@@ -131,7 +133,7 @@ class ModCommands(Cog):
         answer = ModCommands.set_welcome(args, GOODBYE_TABLE, 'Goodbye', ctx.guild.id, ctx.channel.id)
         await self.bot.send_message(ctx.channel, content=answer.get(TEXT))
 
-    @commands.command(pass_context=1, help="Sets a welcome message", aliases=['welcome'])
+    @commands.command(name='setwelcome', help="Sets a welcome message", aliases=['welcome'])
     async def setwelcome(self, ctx: Context, *args):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='setwelcome',
                                           perm_needed=['manage_server', 'administrator']):
@@ -139,6 +141,32 @@ class ModCommands(Cog):
 
         answer = ModCommands.set_welcome(args, WELCOME_TABLE, 'Welcome', ctx.guild.id, ctx.channel.id)
         await self.bot.send_message(ctx.channel, content=answer.get(TEXT))
+
+    @commands.command(name='togglerole', help="Toggles a role to be self-assignable or not",
+                      aliases=['toggleassignable', 'sarole'])
+    async def togglerole(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='togglerole',
+                                          perm_needed=['manage_roles', 'administrator']):
+            return
+
+        # Determine role
+        role = prep_str(' '.join(args))
+        if not role:
+            await self.bot.send_message(ctx.channel, 'You have to specify the role you want')
+            return
+        possible_roles = [r for r in ctx.guild.roles if prep_str(r.name).startswith(role)]
+        if not possible_roles:
+            await self.bot.send_message(ctx.channel, 'Thats not a valid role')
+            return
+        if len(possible_roles) == 1:
+            role = possible_roles[0]
+        else:
+            role = await self.bot.ask_one_from_multiple(ctx, possible_roles, 'Which role did you have in mind?')
+            if not role:
+                return
+
+        r = '' if self_assignable_roles.toggle_role(ctx.guild.id, role.id) else 'not '
+        await self.bot.send_message(ctx.channel, 'Role {} is now {}self-assignable'.format(role.name, r))
 
 
 def setup(bot):

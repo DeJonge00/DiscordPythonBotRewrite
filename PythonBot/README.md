@@ -48,8 +48,7 @@ The commands marked with <WIP>have not been added to the rewritten version yet
 |lottery <WIP>    	|`lottery` `{description}`                              |Set up a lottery, ends when creator adds the correct reaction
 |pat         	|`pat` `{user}`                                         |Pat a user, keeps track of pats
 |quote          |`quote`                                                |Fetch a random quote from the internet
-|role <WIP>       	|`role` `config` `{rolename}`                           |Add or remove a role to the list of self-assignable roles
-|role <WIP>          |`role` `add,remove` `{rolename}`                       |Add or reemove the role `{rolename}` from yourself, if it is in the self-assignable roles list
+|role           |`role` `{rolename}`                                    |Add or remove the role `{rolename}` from yourself, if it is in the self-assignable roles list. Give to rolename argument to see a list of roles
 |serverinfo  	|`serverinfo,serverstats`                               |Get the server's information
 |urban       	|`urban,us,urbandictionary` `{query}`                   |Search urbandictionary for `{query}`
 |userinfo    	|`userinfo,user,info` `{user}`                          |Get `{user}`'s information
@@ -127,9 +126,11 @@ The commands marked with <WIP>have not been added to the rewritten version yet
 |banish      	|`banish` `{user}`                                      |Ban `{user}`                                                                               |kick_members
 |invite <WIP>        |`invite` `{max members}`                               |Fetch/Create an invite. Maximum {max members} members, unlimited if not given
 |nickname <WIP>   	|`nickname,nn` `{user}` `{new_name}`                    |Nickname a person                                                                          |change_nickname, manage_nicknames
+|purge       	|`purge` `{amount}` `{user}`                            |Remove `{user}`'s messages (all if user is not given) from the past `{amount}` messages    |manage_messages
 |setwelcome  	|`setwelome` `{message}`                                |Sets a welcome message                                                                     |manage_server
 |setgoodbye  	|`setgoodbye` `{message}`                               |Sets a goodbye message                                                                     |manage_server
-|purge       	|`purge` `{amount}` `{user}`                            |Remove `{user}`'s messages (all if user is not given) from the past `{amount}` messages    |manage_messages
+|togglerole     |`togglerole|sarole|toggleassignable` `{rolename}`      |Add or remove a role to the list of self-assignable roles                                  |manage_roles
+
 
 ### Config
 |Name			        |Command, aliases and usage					            |                                                                                   |Permissions needed
