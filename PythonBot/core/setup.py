@@ -1,62 +1,16 @@
 from config import constants
-from config.constants import STAR_EMOJI, WELCOME_EMBED_COLOR, member_counter_message
+from config.constants import STAR_EMOJI
 from core import logging as log
 from core.handlers import message_handler, channel_handlers
 from core.bot import PythonBot
-from database.general import bot_information, general, welcome, member_counter
+from core.utils import get_cogs, update_member_counter, on_member_message
+from database.general import bot_information, general
 from secret.secrets import game_name
 
 import asyncio
 from datetime import datetime
-from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel, Embed, Guild, VoiceChannel, User, Activity, ActivityType, VoiceState
-
-
-def get_cogs():
-    return [
-        'commands.admin',
-        'commands.commands',
-        'commands.config',
-        'commands.image',
-        'commands.lookup',
-        'commands.misc',
-        'commands.mod',
-        'commands.games.hangman.commands',
-        'commands.games.minesweeper.commands'
-    ]
-
-
-REMOVE_JOIN_MESSAGE = False
-REMOVE_LEAVE_MESSAGE = False
-
-
-async def on_member_message(guild: Guild, member: Member, func_name, text, do_log=True) -> bool:
-    if do_log:
-        log.announcement(guild_name=guild.name, announcement_text='Member {} just {}'.format(member, text))
-    channel, mes = welcome.get_message(func_name, guild.id)
-    if not channel or not mes:
-        return False
-    embed = Embed(colour=WELCOME_EMBED_COLOR)
-    embed.add_field(name="User {}!".format(PythonBot.prep_str_for_print(text)), value=mes.format(member.name))
-    channel = guild.get_channel(channel)
-    if not channel:
-        print('CHANNEL NOT FOUND')
-        return False
-    m = await channel.send(embed=embed)
-    if REMOVE_JOIN_MESSAGE:
-        await asyncio.sleep(30)
-        await m.delete()
-    return True
-
-
-async def update_member_counter(guild: Guild):
-    channel_id = member_counter.get_member_counter_channel(guild.id)
-    if not channel_id:
-        return
-    channel: VoiceChannel = guild.get_channel(channel_id)
-    if not channel:
-        member_counter.delete_member_counter_channel(guild.id)
-        return
-    await channel.edit(name=member_counter_message.format(guild.member_count), reason='User left/joined')
+from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel, Guild, VoiceChannel, User, Activity, \
+    VoiceState
 
 
 def create_bot():

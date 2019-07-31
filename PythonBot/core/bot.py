@@ -1,12 +1,12 @@
 from config import constants
 from core import logging as log
+from core.utils import prep_str, command_allowed_in_channel, command_allowed_in_server
 # from discord.ext.commands.formatter import HelpFormatter
-from database.general import delete_commands, prefix, banned_commands, command_counter
+from database.general import delete_commands, prefix, command_counter
 from secret.secrets import prefix
 
 from discord import Message, TextChannel, DMChannel, Forbidden, Embed, Member
 from discord.ext.commands import Bot, Context
-import re
 
 
 class PythonBot(Bot):
@@ -23,16 +23,6 @@ class PythonBot(Bot):
         super(PythonBot, self, ).__init__(command_prefix=prefix, pm_help=True)  # , formatter=HelpFormatter)
 
     """ Helper functions """
-
-    @staticmethod
-    def prep_str(s):
-        """
-        Strip text of weird characters
-        :param s: The text
-        :return: filtered text
-        """
-        return ''.join([l for l in s if re.match('[a-zA-Z0-9]', l)])
-
     async def ask_one_from_multiple(self, ctx: Context, group: list, question='', errors: dict = {}):
         """
         Ask a user to select one object from a list by name
@@ -103,13 +93,13 @@ class PythonBot(Bot):
             raise ValueError
 
         # Look for users with the given name
-        name = PythonBot.prep_str(' '.join(args)).lower()
+        name = prep_str(' '.join(args)).lower()
         if from_all_members:
-            users = [x for x in self.get_all_members() if PythonBot.prep_str(x.name).lower().startswith(name) or
-                     PythonBot.prep_str(x.display_name).lower().startswith(name)]
+            users = [x for x in self.get_all_members() if prep_str(x.name).lower().startswith(name) or
+                     prep_str(x.display_name).lower().startswith(name)]
         else:
-            users = [x for x in ctx.message.guild.members if PythonBot.prep_str(x.name).lower().startswith(name) or
-                     PythonBot.prep_str(x.display_name).lower().startswith(name)]
+            users = [x for x in ctx.message.guild.members if prep_str(x.name).lower().startswith(name) or
+                     prep_str(x.display_name).lower().startswith(name)]
         users.sort(key=lambda s: len(s.name))
 
         # Check validity of lookup results
@@ -124,10 +114,6 @@ class PythonBot(Bot):
 
         # Give options if multiple users were found
         return await self.ask_one_from_multiple(ctx, users, question='Which user did you mean?')
-
-    @staticmethod
-    def prep_str_for_print(s: str):
-        return s.encode("ascii", "replace").decode("ascii")
 
     async def quit(self):
         self.running = False
@@ -208,31 +194,6 @@ class PythonBot(Bot):
             log.message(m)
         return m
 
-    @staticmethod
-    def command_allowed_in(location_type: str, identifier: int, command_name: str):
-        """
-        Checks whether the issued command is allowed in the issued location
-        :param location_type: either 'server' of 'channel'
-        :param identifier: the id of the server or channel (depending on location_type)
-        :param command_name: the name of the command issued
-        :return: A boolean stating the command is allowed (True) or banned here (False)
-        """
-        return command_name == 'togglecommand' or not (
-                banned_commands.get_banned_command(location_type, identifier, command_name)
-                or banned_commands.get_banned_command(location_type, identifier, 'all'))
-
-    @staticmethod
-    def command_allowed_in_server(server_id: int, command_name: str):
-        split = command_name.split(' ')
-        return PythonBot.command_allowed_in('server', server_id, command_name) and (
-                len(split) <= 1 or PythonBot.command_allowed_in('server', server_id, split[0]))
-
-    @staticmethod
-    def command_allowed_in_channel(channel_id: int, command_name: str):
-        split = command_name.split(' ')
-        return PythonBot.command_allowed_in('channel', channel_id, command_name) and (
-                len(split) <= 1 or PythonBot.command_allowed_in('channel', channel_id, split[0]))
-
     async def pre_command(self, message: Message, channel: (TextChannel, DMChannel), command: str, is_typing=True,
                           delete_message=True,
                           cannot_be_private=False, must_be_private=False, must_be_nsfw=False, owner_check=False,
@@ -281,10 +242,10 @@ class PythonBot(Bot):
                 await channel.send('This command cannot be used outside NSFW channels')
                 await log.message(message, 'Command "{}" used, but must be an NSFW channel'.format(command))
                 return False
-            if not self.command_allowed_in_server(channel.guild.id, command):
+            if not command_allowed_in_server(channel.guild.id, command):
                 await log.message(message, 'Command "{}" used, but is serverbanned'.format(command))
                 return False
-            if not self.command_allowed_in_channel(channel.id, command):
+            if not command_allowed_in_channel(channel.id, command):
                 await log.message(message, 'Command "{}" used, but is channelbanned'.format(command))
                 return False
             if delete_message and delete_commands.get_delete_commands(channel.guild.id):

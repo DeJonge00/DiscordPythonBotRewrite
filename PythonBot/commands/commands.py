@@ -2,7 +2,9 @@ from config import constants, command_text
 from config.constants import TEXT, EMBED, ERROR, BASIC_COMMANDS_EMBED_COLOR as EMBED_COLOR
 from config.structs import englishyfy_numbers
 from core.bot import PythonBot
+from core.utils import on_member_message
 from database.pats import increment_pats
+from database.general.general import GOODBYE_TABLE
 
 from asyncio import sleep
 from datetime import datetime
@@ -315,7 +317,25 @@ class BasicCommands(Cog):
         answer = BasicCommands.command_hype(ctx.guild.emojis)
         await self.bot.send_message(ctx, content=answer.get(TEXT))
 
-    # TODO Kick command
+    @commands.command(pass_context=1, help="Fake kick someone")
+    async def kick(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='kick', delete_message=False):
+            return
+        try:
+            target = await self.bot.get_member_from_message(ctx=ctx, args=args, in_text=True)
+        except ValueError:
+            await self.bot.send_message(ctx.channel, 'Wait... who?')
+            return
+
+        if ctx.message.author == target:
+            m = "You could just leave yourself if you want to go :thinking:"
+            await self.bot.send_message(ctx.message, m)
+            return
+        if not await on_member_message(target.guild, target, GOODBYE_TABLE, 'left', do_log=False):
+            embed = Embed(colour=EMBED_COLOR)
+            embed.add_field(name="User left",
+                            value="\"" + target.display_name + "\" just left. Byebye, you will not be missed!")
+            await self.bot.send_message(ctx.channel, embed=embed)
 
     @staticmethod
     def command_kill(author: Member, target: Member):

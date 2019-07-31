@@ -168,3 +168,22 @@ love_gifs = [
     'https://i.giphy.com/media/j5O4lz9WEtfvG/200w.gif',
     'https://i.giphy.com/media/6zI0KUEik37Jm/200.gif'
 ]
+
+cat = [
+    'https://i.imgur.com/bCfPhtU.jpg',
+    'https://i.imgur.com/IxZkpM9.jpg',
+    'https://i.imgur.com/OD7ZCN2.jpg',
+    'https://i.imgur.com/LQRRsr7.jpg',
+    'https://i.imgur.com/7nJXrlz.jpg',
+    'https://i.imgur.com/FpiS5dP.jpg',
+    'https://i.imgur.com/cVM69M4.jpg',
+    'https://i.imgur.com/j0QKxYy.jpg',
+    'https://i.imgur.com/vBtsJO3.jpg',
+    'https://i.imgur.com/gEyrHbf.jpg',
+    'https://i.imgur.com/IY40684.jpg',
+    'https://i.imgur.com/qb6InV7.jpg',
+    'https://i.imgur.com/mILDhbx.jpg',
+    'https://i.imgur.com/sTdft11.jpg',
+    'https://i.imgur.com/QXRbxaT.jpg',
+    'https://i.imgur.com/dIKUoDs.jpg'
+]
