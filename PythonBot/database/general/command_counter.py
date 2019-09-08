@@ -1,4 +1,4 @@
-from database.general.general import get_table, COMMAND_COUNTER_TABLE
+from database.general.general import get_table, COMMAND_COUNTER_TABLE, DESC
 
 from discord import Message, DMChannel
 
@@ -16,3 +16,8 @@ def command_counter(name: str, message: Message):
         'channel': channel_name,
         'author': message.author.name
     })
+
+
+def get_command_counters(start_time: float):
+    return get_table(COMMAND_COUNTER_TABLE).find({'timestamp': {'$gt': start_time}}, {'_id': 0})\
+        .sort('timestamp', DESC).limit(1000)

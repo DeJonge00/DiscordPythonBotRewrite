@@ -20,6 +20,17 @@ USER_ID = 'userid'
 CHANNEL_ID = 'channelid'
 MESSAGE_ID = 'messageid'
 
+ASC = 1
+DESC = -1
+
 
 def get_table(table):
     return common.get_table(GENERAL_DATABASE, table)
+
+
+def get_server(server_id: int):
+    return get_table(SERVER_TABLE).find_one({'serverid': server_id}, {'_id': 0})
+
+
+def get_server_list():
+    return list(get_table(SERVER_TABLE).find({}, {'_id': 0}).sort('members', DESC).limit(1000))
