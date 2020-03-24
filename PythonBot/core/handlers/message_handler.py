@@ -1,13 +1,11 @@
 from core import logging as log
-from core.get_image_from_folder import get_image_from_folder
 from core.bot import PythonBot
 from config import constants, command_text
-from config.constants import TEXT, EMBED, IMAGE, STAR_EMBED_COLOR, STAR_EMOJI
-from database import general as dbcon
+from config.constants import TEXT, EMBED, IMAGE, ACTION, STAR_EMBED_COLOR, STAR_EMOJI
+from database.general.starboard import get_star_channel, get_star_message, update_star_message
 from secret.secrets import bot_names
 
-import discord
-from discord import Message, Member, Reaction, Forbidden, NoMoreItems
+from discord import Message, Member, Reaction, Forbidden, NoMoreItems, Embed, DMChannel
 
 from datetime import timedelta, datetime
 import random
@@ -19,35 +17,60 @@ def cl(x):
 
 
 async def new_message(bot: PythonBot, message: Message):
-    perms = message.channel.permissions_for(message.guild.me)
-    if not (perms.manage_messages or perms.attach_files):
-        return
+    """
+    Interact with received messages, even if no command was issued.
+    :param bot: The bot (needed to log messages and pre_command).
+    :param message: The message received.
+    :return: Whether a response was send.
+    """
+    is_private = isinstance(message.channel, DMChannel)
 
-    guild_id = message.guild.id
+    if is_private:
+        guild_id = perms = None
+    else:
+        perms = message.channel.permissions_for(message.guild.me)
+        if not (perms.manage_messages or perms.attach_files):
+            return False
+        guild_id = message.guild.id
     author_id = message.author.id
 
     # TODO Maybe prevent prefix from being called even more since it queries the database
-    answer = await react_with_text(bot.pre_command, message, guild_id, author_id) or \
-             await react_with_image(bot.pre_command, message, guild_id) or \
-             await react_with_action(bot.pre_command, message, guild_id, author_id) or \
-             await talk(message.guild.me, bot.pre_command, message, guild_id, await bot.get_prefix(message))
+    answer = await react_with_text(bot.pre_command, message, is_private, guild_id, author_id) or \
+             await react_with_image(bot.pre_command, message, is_private, guild_id) or \
+             await react_with_action(bot.pre_command, message, is_private, guild_id, author_id) or \
+             await talk(bot.user if is_private else message.guild.me, bot.pre_command, message, is_private, guild_id,
+                        await bot.get_prefix(message))
 
     if not answer:
-        return
+        return False
+    if answer.get(ACTION):
+        return True
 
-    content = answer.get(TEXT) if perms.manage_messages else None
-    embed = answer.get(EMBED) if perms.embed_links else None
-    image = answer.get(IMAGE) if perms.attach_files else None
+    content = answer.get(TEXT) if is_private or perms.manage_messages else None
+    embed = answer.get(EMBED) if is_private or perms.embed_links else None
+    image = answer.get(IMAGE) if is_private or perms.attach_files else None
     if content or embed or image:
         await bot.send_message(message.channel, content=content, embed=embed, file=image)
+        return True
+    return False
 
 
-async def react_with_text(pre_command, message: Message, guild_id: int, author_id: int):
-    if guild_id in constants.s_to_ringels_whitelist and author_id == constants.DOGEid and "s" in message.content and \
+async def react_with_text(pre_command, message: Message, is_private: bool, guild_id: int, author_id: int):
+    """
+    React to a message with a text response.
+    :param pre_command: The command to execute before an action is taken.
+    :param message: The message to respond to.
+    :param is_private: Whether the channel the message was received in is a private channel.
+    :param guild_id: The id of the guild the message was send in (possible None if is_private).
+    :param author_id: The id of the author of the message.
+    :return: {TEXT: The text to respond with.} or {} if there is nothing to respond to.
+    """
+    if (is_private or guild_id in constants.s_to_ringels_whitelist) and \
+            author_id == constants.DOGEid and "s" in message.content and \
             await pre_command(message=message, channel=message.channel, command='s_to_ringel_s', delete_message=False):
         return {TEXT: "*" + message.content.replace("s", "ß")}
 
-    if (guild_id not in constants.ayy_lmao_blacklist or author_id == constants.NYAid) and \
+    if (is_private or guild_id not in constants.ayy_lmao_blacklist or author_id == constants.NYAid) and \
             (message.content.lower() == "ayy") and \
             await pre_command(message=message, channel=message.channel, command='ayy', delete_message=False):
         return {TEXT: "Lmao"}
@@ -60,11 +83,11 @@ async def react_with_text(pre_command, message: Message, guild_id: int, author_i
             await pre_command(message=message, channel=message.channel, command='lmao', delete_message=False):
         return {TEXT: 'Ayy'}
 
-    if guild_id not in constants.lenny_blacklist and "lenny" in message.content.split(" ") and \
+    if (is_private or guild_id not in constants.lenny_blacklist) and "lenny" in message.content.split(" ") and \
             await pre_command(message=message, channel=message.channel, command='response_lenny', delete_message=False):
         return {TEXT: "( ͡° ͜ʖ ͡°)"}
 
-    if guild_id not in constants.ded_blacklist and "ded" == message.content:
+    if (is_private or guild_id not in constants.ded_blacklist) and "ded" == message.content:
         ten_mins_ago = datetime.utcnow() - timedelta(minutes=10)
         try:
             history = message.channel.history(limit=2, after=ten_mins_ago)
@@ -75,16 +98,27 @@ async def react_with_text(pre_command, message: Message, guild_id: int, author_i
                                  delete_message=False):
                 return {TEXT: random.choice(command_text.ded)}
 
-    if guild_id not in constants.table_unflip_blacklist and message.content == "(╯°□°）╯︵ ┻━┻" and \
+    if (is_private or guild_id not in constants.table_unflip_blacklist) and message.content == "(╯°□°）╯︵ ┻━┻" and \
             await pre_command(message=message, channel=message.channel, command='tableflip', delete_message=False):
         return {TEXT: "┬─┬﻿ ノ( ゜-゜ノ)"}
+    return {}
 
 
-async def react_with_image(pre_command, message: Message, guild_id: int):
+async def react_with_image(pre_command, message: Message, is_private: bool, guild_id: int):
+    """
+        React to a message with a file response.
+        :param pre_command: The command to execute before an action is taken.
+        :param message: The message to respond to.
+        :param is_private: Whether the channel the message was received in is a private channel.
+        :param guild_id: The id of the guild the message was send in (possible None if is_private).
+        :param author_id: The id of the author of the message.
+        :return: {IMAGE: The file to respond with.} or {} if there is nothing to respond to.
+        """
     # TODO add or replace images
-    if guild_id not in constants.praise_the_sun_blacklist and message.content == "\\o/" and \
+    if (is_private or guild_id not in constants.praise_the_sun_blacklist) and message.content == "\\o/" and \
             await pre_command(message=message, channel=message.channel, command='\\o/', delete_message=True):
         return {}  # {IMAGE: get_image_from_folder("sun")}
+    return {}
 
 
 async def change_nickname_with(pre_command, message, new_name):
@@ -95,9 +129,18 @@ async def change_nickname_with(pre_command, message, new_name):
     print("Changed nickname of " + message.author.display_name)
 
 
-async def react_with_action(pre_command, message: Message, guild_id: int, author_id: int):
+async def react_with_action(pre_command, message: Message, is_private: bool, guild_id: int, author_id: int):
+    """
+    React to a message with a text response.
+    :param pre_command: The command to execute before an action is taken.
+    :param message: The message to respond to.
+    :param is_private: Whether the channel the message was received in is a private channel.
+    :param guild_id: The id of the guild the message was send in (possible None if is_private).
+    :param author_id: The id of the author of the message.
+    :return: {ACTION: True} if an action was taken or {} if there is nothing to respond to.
+    """
     # Change nickname
-    if guild_id in constants.auto_name_change_whitelist and \
+    if (is_private or guild_id in constants.auto_name_change_whitelist) and \
             author_id in [constants.NYAid, constants.LOLIid, constants.WIZZid] and \
             message.author.permissions_in(message.channel).change_nickname:
         if guild_id in constants.auto_name_change_whitelist:
@@ -106,12 +149,12 @@ async def react_with_action(pre_command, message: Message, guild_id: int, author
                     if (message.content.split(" ")[0] == "i", message.content.split(" ")[1]) == ("i", "am"):
                         new_name = message.content.partition(' ')[2].partition(' ')[2]
                         await change_nickname_with(pre_command, message, new_name)
-                        return {}
+                        return {ACTION: True}
                 if len(message.content.split(" ")) > 1:
                     if message.content.split(" ")[0] in ["i'm", "im"]:
                         new_name = message.content.partition(' ')[2]
                         await change_nickname_with(pre_command, message, new_name)
-                        return {}
+                        return {ACTION: True}
             except Forbidden:
                 pass
 
@@ -119,13 +162,23 @@ async def react_with_action(pre_command, message: Message, guild_id: int, author
     # TODO Find replacing emoji or delete command
     if message.author.id in [constants.TRISTANid, constants.CHURROid] and "pls" in message.content.lower().split(" "):
         await message.add_reaction(":pepederp:302888052508852226")
-        return {}
+        return {ACTION: True}
+    return {}
 
 
-async def talk(me: Member, pre_command, message: Message, guild_id: int, prefix):
+async def talk(me: Member, pre_command, message: Message, is_private: bool, guild_id: int, prefix):
+    """
+    React to a message that talks to me using a name from the secrets file.
+    :param pre_command: The command to execute before an action is taken.
+    :param message: The message to respond to.
+    :param is_private: Whether the channel the message was received in is a private channel.
+    :param guild_id: The id of the guild the message was send in (possible None if is_private).
+    :param author_id: The id of the author of the message.
+    :return: {TEXT: The test to respond with.} or {} if there is nothing to respond to.
+    """
     if not (len(message.content) < 2 or (message.content[:2] == '<@') or (
             message.content[0].isalpha() and message.content[1].isalpha())) or \
-            guild_id in constants.bot_talk_blacklist:
+            (not is_private and guild_id in constants.bot_talk_blacklist):
         return {}
 
     if (me in message.mentions or (len(set(message.content.lower().translate(str.maketrans('', '', string.punctuation))
@@ -141,20 +194,12 @@ async def talk(me: Member, pre_command, message: Message, guild_id: int, prefix)
         if message.content[len(message.content) - 1] == "?":
             return {TEXT: random.choice(command_text.qa)}
         return {TEXT: random.choice(command_text.response)}
-
-
-async def edit(message):
-    if not message.author.bot:
-        await log.message(message, "edited")
-
-
-async def deleted(message):
-    await log.message(message, "deleted")
+    return {}
 
 
 def construct_starboard_embed(message: Message, stars: int):
     m = 'A message received {} stars in {}'.format(stars, message.channel.mention)
-    e = discord.Embed(colour=STAR_EMBED_COLOR)
+    e = Embed(colour=STAR_EMBED_COLOR)
     e.set_author(name=message.author.display_name, icon_url=message.author.avatar_url)
     if message.content:
         e.add_field(name='Message contents', value=message.content)
@@ -165,21 +210,20 @@ def construct_starboard_embed(message: Message, stars: int):
 
 
 async def handle_star_reaction(bot: PythonBot, reaction: Reaction):
-    channel_id = dbcon.get_star_channel(reaction.message.guild.id)
+    channel_id = get_star_channel(reaction.message.guild.id)
     if not channel_id:
         return
     channel = await bot.fetch_channel(channel_id)
 
     stars = sum([x.count for x in reaction.message.reactions if x.emoji == STAR_EMOJI])
-    embed_id = dbcon.get_star_message(reaction.message.id)
+    embed_id = get_star_message(reaction.message.id)
     m, e = construct_starboard_embed(reaction.message, stars)
 
     if embed_id:
         message = await channel.fetch_message(embed_id)
         await message.edit(content=m, embed=e)
-        await log.log('{} | {}'.format(channel.guild, channel), bot.user.name, "Updated starboard embed",
-                      channel.guild.name)
+        log.message(message, "Updated starboard embed")
         return
 
     i = (await bot.send_message(channel, content=m, embed=e)).id
-    dbcon.update_star_message(reaction.message.id, i)
+    update_star_message(reaction.message.id, i)

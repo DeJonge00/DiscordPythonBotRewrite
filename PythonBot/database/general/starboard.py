@@ -15,7 +15,6 @@ def delete_star_channel(server_id: int):
 def get_star_channel(server_id: int):
     r = get_table(STARBOARD_CHANNEL_TABLE).find_one({SERVER_ID: server_id})
     if not r:
-        print("Starboard channel not specified for server")
         return None
     return int(r.get(CHANNEL_ID)) if r else None
 

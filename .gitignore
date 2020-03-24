@@ -241,10 +241,7 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 
-*/pics/*
-*/picsC\#/*
 */secrets.py
-*/secret/*
 secrets.py
 **/__pycache__/*
 *.pyc

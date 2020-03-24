@@ -43,7 +43,18 @@ hug_gifs = [
     'https://i.giphy.com/media/xJlOdEYy0r7ZS/200w.gif',
     'https://i.giphy.com/media/od5H3PmEG5EVq/200w.gif',
     'https://i.giphy.com/media/224NKXmu23A8U/giphy.gif',
-    'https://i.giphy.com/media/SllyDum3ydw6Q/giphy.gif'
+    'https://i.giphy.com/media/SllyDum3ydw6Q/giphy.gif',
+    'https://i.imgur.com/izOdwB4.gif',
+    'https://i.imgur.com/M4SbovX.gif',
+    'https://i.imgur.com/IEoiXxt.gif',
+    'https://i.imgur.com/HQhOpnw.gif',
+    'https://i.imgur.com/fM0oxIx.gif',
+    'https://i.imgur.com/1CYSEYy.gif',
+    'https://i.imgur.com/iT9u3jA.gif',
+    'https://i.imgur.com/pMwTydF.gif',
+    'https://i.imgur.com/GsByvJp.gif',
+    'https://i.imgur.com/4Q1tIIG.gif',
+    'https://i.imgur.com/vw9tmGT.gif'
 ]
 
 happy_gifs = [
@@ -167,4 +178,23 @@ cute_gifs = [
 love_gifs = [
     'https://i.giphy.com/media/j5O4lz9WEtfvG/200w.gif',
     'https://i.giphy.com/media/6zI0KUEik37Jm/200.gif'
+]
+
+cat = [
+    'https://i.imgur.com/bCfPhtU.jpg',
+    'https://i.imgur.com/IxZkpM9.jpg',
+    'https://i.imgur.com/OD7ZCN2.jpg',
+    'https://i.imgur.com/LQRRsr7.jpg',
+    'https://i.imgur.com/7nJXrlz.jpg',
+    'https://i.imgur.com/FpiS5dP.jpg',
+    'https://i.imgur.com/cVM69M4.jpg',
+    'https://i.imgur.com/j0QKxYy.jpg',
+    'https://i.imgur.com/vBtsJO3.jpg',
+    'https://i.imgur.com/gEyrHbf.jpg',
+    'https://i.imgur.com/IY40684.jpg',
+    'https://i.imgur.com/qb6InV7.jpg',
+    'https://i.imgur.com/mILDhbx.jpg',
+    'https://i.imgur.com/sTdft11.jpg',
+    'https://i.imgur.com/QXRbxaT.jpg',
+    'https://i.imgur.com/dIKUoDs.jpg'
 ]
