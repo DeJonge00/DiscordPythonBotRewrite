@@ -9,59 +9,8 @@ from secret.secrets import game_name
 
 import asyncio
 from datetime import datetime
-<<<<<<< HEAD
-from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel, Embed, Guild, VoiceChannel, User
-
-
-def get_cogs():
-    return [
-        'commands.admin',
-        'commands.commands',
-        'commands.games.trivia',
-        'commands.config',
-        'commands.image',
-        'commands.lookup',
-        'commands.misc',
-        'commands.mod'
-    ]
-
-
-REMOVE_JOIN_MESSAGE = False
-REMOVE_LEAVE_MESSAGE = False
-
-
-async def on_member_message(guild: Guild, member: Member, func_name, text, do_log=True) -> bool:
-    if do_log:
-        await log.error(guild.name + " | Member " + str(member) + " just " + text,
-                        filename=guild.name, serverid=guild.id)
-    channel, mes = welcome.get_message(func_name, guild.id)
-    if not channel or not mes:
-        return False
-    embed = Embed(colour=WELCOME_EMBED_COLOR)
-    embed.add_field(name="User {}!".format(PythonBot.prep_str_for_print(text)), value=mes.format(member.name))
-    channel = guild.get_channel(channel)
-    if not channel:
-        print('CHANNEL NOT FOUND')
-        return False
-    m = await channel.send(embed=embed)
-    if REMOVE_JOIN_MESSAGE:
-        await asyncio.sleep(30)
-        await m.delete()
-    return True
-
-
-async def update_member_counter(guild: Guild):
-    channel_id = member_counter.get_member_counter_channel(guild.id)
-    if not channel_id:
-        return
-    channel: VoiceChannel = guild.get_channel(channel_id)
-    if not channel:
-        return
-    await channel.edit(name=member_counter_message.format(guild.member_count))
-=======
 from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel, Guild, VoiceChannel, User, Activity, \
     VoiceState
->>>>>>> 2e23b85083aa2dd5fd1b2f13928f29274c46bab5
 
 
 def create_bot():
