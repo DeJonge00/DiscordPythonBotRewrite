@@ -43,7 +43,7 @@ class ImageCommands(Cog):
         return {EMBED: embed}
 
     async def send_picture_template_command(self, message: Message, channel: TextChannel, command: str,
-                                            pic_links: list = None, pic_folder: str = None):
+                                            pic_links: list):
         if not await self.bot.pre_command(message=message, channel=channel, command=command, is_typing=False):
             return
 
@@ -59,12 +59,12 @@ class ImageCommands(Cog):
                 return
             await channel.trigger_typing()
             self.image_timers[command][channel.id] = datetime.utcnow()
-        if pic_links and not (pic_folder and randint(0, 1) <= 0):
-            answer = ImageCommands.embedded_pic(command, self.bot.user.avatar_url, pic_links)
-            await self.bot.send_message(channel, embed=answer.get(EMBED))
-        # TODO Decide whether to keep images on the server
-        # elif pic_folder:
-        #     await send_random.file(self.bot, channel, pic_folder)
+        answer = ImageCommands.embedded_pic(command, self.bot.user.avatar_url, pic_links)
+        await self.bot.send_message(channel, embed=answer.get(EMBED))
+
+    @commands.command(name='cat', help="Take a look at my beautiful cats!")
+    async def cat(self, ctx: Context):
+        await self.send_picture_template_command(ctx.message, ctx.channel, 'cat', pic_links=image_links.cat)
 
     @commands.command(name='cute', help="For if you need cute anime girls!")
     async def cute(self, ctx: Context):

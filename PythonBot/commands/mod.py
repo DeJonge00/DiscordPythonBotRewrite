@@ -1,9 +1,13 @@
 from core.bot import PythonBot
+from core.utils import prep_str
 from config.constants import TEXT, KICK_REASON, member_counter_message
+from database.general import self_assignable_roles
+from database.general.auto_voice_channel import set_joiner_channel
 from database.general.general import WELCOME_TABLE, GOODBYE_TABLE
+from database.general.member_counter import set_member_counter_channel, get_member_counter_channel
 from database.general.welcome import set_message
 
-from discord import Member, TextChannel, PermissionOverwrite
+from discord import Member, TextChannel, PermissionOverwrite, Forbidden
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
@@ -14,6 +18,28 @@ class ModCommands(Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
         print('Mod commands cog started')
+
+    @staticmethod
+    async def command_autovc(channel: TextChannel, name: str):
+        bot_perms = channel.permissions_for(channel.guild.me)
+        if not bot_perms.manage_channels:
+            return {TEXT: 'I do not have the permissions to set this up'}
+        if not name:
+            name = 'General'
+        name = '▶ ' + name
+
+        new_vc = await channel.guild.create_voice_channel(name)
+        set_joiner_channel(channel.guild.id, new_vc.id)
+        return {TEXT: 'New channel \'{}\' created'.format(name)}
+
+    @commands.command(name='autovc', help="BANHAMMER")
+    async def autovc(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='autovc',
+                                          perm_needed=['manage_channels', 'administrator']):
+            return
+
+        answer = await ModCommands.command_autovc(ctx.channel, ' '.join(args))
+        await self.bot.send_message(ctx.channel, answer.get(TEXT))
 
     @staticmethod
     def command_banish(mod: Member, users: [Member], text: str):
@@ -40,22 +66,39 @@ class ModCommands(Cog):
         for user in ctx.message.mentions:
             await user.kick(reason=answer.get(KICK_REASON))
 
+        m = 'Banished users {} successfully'.format(', '.join(ctx.message.mentions))
+        await self.bot.send_message(ctx.channel, m)
+
     @staticmethod
-    async def command_membercount(user: Member, channel: TextChannel):
+    async def command_membercount(user: Member, channel: TextChannel, args: [str]):
         if not channel.permissions_for(user).manage_channels:
             return {TEXT: 'I need permission to manage channels'}
         name = member_counter_message.format(channel.guild.member_count)
-        permissions = {channel.guild.default_role: PermissionOverwrite(connect=False, read_messages=True)}
-        channel = await channel.guild.create_voice_channel(name=name, position=0, overwrites=permissions)
+        permissions = {channel.guild.default_role: PermissionOverwrite(connect=False, read_messages=True),
+                       user.roles[-1]: PermissionOverwrite(manage_channels=True, connect=True)}
+
+        old_channel_id = get_member_counter_channel(guild_id=channel.guild.id)
+        if old_channel_id:
+            try:
+                await channel.guild.get_channel(old_channel_id).delete()
+            except Forbidden:
+                pass
+        if len(args) >= 1 and args[0].lower() in ['voicechannel', 'voice', 'vc', 'v']:
+            channel = await channel.guild.create_voice_channel(name=name, position=0, overwrites=permissions)
+        elif len(args) >= 1 and args[0].lower() in ['textchannel', 'text', 't']:
+            channel = await channel.guild.create_text_channel(name=name, position=0, overwrites=permissions)
+        else:
+            channel = await channel.guild.create_category(name=name, overwrites=permissions)
+        set_member_counter_channel(channel.guild.id, channel.id)
         return {TEXT: 'Channel \'{}\' created'.format(name)}
 
     @commands.command(name='membercount', help="Count the people in this server for everyone to see",
                       aliases=['membercounter'])
-    async def membercount(self, ctx: Context):
+    async def membercount(self, ctx: Context, *args):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='purge', is_typing=False,
                                           perm_needed=['administrator', 'manage_channels']):
             return
-        answer = await ModCommands.command_membercount(ctx.guild.me, ctx.channel)
+        answer = await ModCommands.command_membercount(ctx.guild.me, ctx.channel, args)
         await self.bot.send_message(ctx.channel, answer.get(TEXT))
 
     @commands.command(name='purge', help="Remove a weird chat")
@@ -82,7 +125,7 @@ class ModCommands(Cog):
             return {TEXT: "{} message for this server is now: ".format(type) + " ".join(args).format("<username>")}
         return {TEXT: "{} message for this server has been reset".format(type)}
 
-    @commands.command(pass_context=1, help="Sets a goodbye message", aliases=['goodbye'])
+    @commands.command(name='setgoodbye', help="Sets a goodbye message", aliases=['goodbye'])
     async def setgoodbye(self, ctx, *args):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='setgoodbye'):
             return
@@ -90,7 +133,7 @@ class ModCommands(Cog):
         answer = ModCommands.set_welcome(args, GOODBYE_TABLE, 'Goodbye', ctx.guild.id, ctx.channel.id)
         await self.bot.send_message(ctx.channel, content=answer.get(TEXT))
 
-    @commands.command(pass_context=1, help="Sets a welcome message", aliases=['welcome'])
+    @commands.command(name='setwelcome', help="Sets a welcome message", aliases=['welcome'])
     async def setwelcome(self, ctx: Context, *args):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='setwelcome',
                                           perm_needed=['manage_server', 'administrator']):
@@ -98,6 +141,32 @@ class ModCommands(Cog):
 
         answer = ModCommands.set_welcome(args, WELCOME_TABLE, 'Welcome', ctx.guild.id, ctx.channel.id)
         await self.bot.send_message(ctx.channel, content=answer.get(TEXT))
+
+    @commands.command(name='togglerole', help="Toggles a role to be self-assignable or not",
+                      aliases=['toggleassignable', 'sarole'])
+    async def togglerole(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='togglerole',
+                                          perm_needed=['manage_roles', 'administrator']):
+            return
+
+        # Determine role
+        role = prep_str(' '.join(args))
+        if not role:
+            await self.bot.send_message(ctx.channel, 'You have to specify the role you want')
+            return
+        possible_roles = [r for r in ctx.guild.roles if prep_str(r.name).startswith(role)]
+        if not possible_roles:
+            await self.bot.send_message(ctx.channel, 'Thats not a valid role')
+            return
+        if len(possible_roles) == 1:
+            role = possible_roles[0]
+        else:
+            role = await self.bot.ask_one_from_multiple(ctx, possible_roles, 'Which role did you have in mind?')
+            if not role:
+                return
+
+        r = '' if self_assignable_roles.toggle_role(ctx.guild.id, role.id) else 'not '
+        await self.bot.send_message(ctx.channel, 'Role {} is now {}self-assignable'.format(role.name, r))
 
 
 def setup(bot):

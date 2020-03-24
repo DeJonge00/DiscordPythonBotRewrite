@@ -1,12 +1,15 @@
 from config import constants
-from config.constants import STAR_EMOJI, WELCOME_EMBED_COLOR, member_counter_message
-from core import message_handler, logging as log
+from config.constants import STAR_EMOJI
+from core import logging as log
+from core.handlers import message_handler, channel_handlers
 from core.bot import PythonBot
-from database.general import bot_information, general, welcome, member_counter
+from core.utils import get_cogs, update_member_counter, on_member_message
+from database.general import bot_information, general
 from secret.secrets import game_name
 
 import asyncio
 from datetime import datetime
+<<<<<<< HEAD
 from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel, Embed, Guild, VoiceChannel, User
 
 
@@ -55,6 +58,10 @@ async def update_member_counter(guild: Guild):
     if not channel:
         return
     await channel.edit(name=member_counter_message.format(guild.member_count))
+=======
+from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel, Guild, VoiceChannel, User, Activity, \
+    VoiceState
+>>>>>>> 2e23b85083aa2dd5fd1b2f13928f29274c46bab5
 
 
 def create_bot():
@@ -79,19 +86,18 @@ def create_bot():
         if message.author.bot:
             return
         if isinstance(message.channel, DMChannel):
-            await log.log("direct message", message.author.name, message.content, "dm")
-            for pic in message.attachments:
-                await log.message(message, "pic", pic["url"])
-            await message_handler.new_message(bot, message)
+            if not await message_handler.new_message(bot, message):
+                log.message(message)
         else:
             if message.content and message.guild.id not in constants.bot_list_servers:
                 await message_handler.new_message(bot, message)
 
         # Commands in the message
         try:
+            # TODO Remove double logging on command used in dms
             await bot.process_commands(message)
         except Forbidden:
-            await log.message(message, 'Forbidden Exception')
+            log.error_on_message(message, error_message='Forbidden Exception')
 
         # Send message to rpggame for exp
         if bot.RPGGAME and (len(message.content) < 2 or (message.content[:2] == '<@') or
@@ -104,10 +110,24 @@ def create_bot():
             if before.activity != after.activity:
                 if isinstance(after.activity, Spotify):
                     activity = Game(name='🎵 {}: {} 🎵'.format(after.activity.artist, after.activity.title))
+                elif isinstance(after.activity, Activity):
+                    name = after.activity.name
+                    if after.activity.details:
+                        name += ' | ' + after.activity.details
+                    activity = Game(name=name)
                 else:
                     activity = after.activity if after.activity else Game(name=game_name)
                 await bot.change_presence(activity=activity, status=Status.do_not_disturb)
                 return
+
+    @bot.event
+    async def on_voice_state_update(member: Member, before: VoiceState, after: VoiceState):
+        await channel_handlers.auto_channel(member, before, after)
+
+    @bot.event
+    async def on_guild_channel_delete(channel):
+        if isinstance(channel, VoiceChannel):
+            channel_handlers.deleted_channel(channel)
 
     @bot.event
     async def on_member_join(member: Member):
@@ -142,20 +162,20 @@ def create_bot():
 
     @bot.event
     async def on_member_ban(guild: Guild, user: User):
-        await log.error(guild.name + " | User " + str(user) + " banned", filename=guild.name, serverid=guild.id)
+        log.announcement(guild_name=guild.name, announcement_text='User {} got banned'.format(user))
 
     @bot.event
     async def on_member_unban(guild: Guild, user: User):
-        await log.error(guild.name + " | User " + str(user) + " unbanned", filename=guild.name, serverid=guild.id)
+        log.announcement(guild_name=guild.name, announcement_text='User {} got unbanned'.format(user))
 
     @bot.event
-    async def on_server_join(guild: Guild):
+    async def on_guild_join(guild: Guild):
         channel = bot.get_guild(constants.PRIVATESERVERid).get_channel(constants.SNOWFLAKE_GENERAL)
         m = "I joined a new server named '{}' with {} members, senpai!".format(guild.name, guild.member_count)
         await bot.send_message(channel, m)
 
     @bot.event
-    async def on_server_remove(guild: Guild):
+    async def on_guild_remove(guild: Guild):
         channel = bot.get_guild(constants.PRIVATESERVERid).get_channel(constants.SNOWFLAKE_GENERAL)
         m = "A server named '{}' ({} members) just removed me from service :(".format(guild.name, guild.member_count)
         await bot.send_message(channel, m)

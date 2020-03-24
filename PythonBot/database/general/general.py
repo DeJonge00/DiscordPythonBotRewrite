@@ -1,5 +1,4 @@
 import database.common as common
-from discord import Message, Guild, TextChannel, DMChannel
 
 GENERAL_DATABASE = 'general'
 WELCOME_TABLE = 'welcome'
@@ -14,6 +13,7 @@ STARBARD_MESSAGES_TABLE = 'starmessages'
 SERVER_TABLE = 'servers'
 CHANNEL_TABLE = 'channels'
 MEMBER_COUTER_VOICECHANNEL_TABLE = 'membercountervc'
+AUTO_VOICE_CHANNEL_TABLE = 'auto_voice_channel'
 
 SERVER_ID = 'serverid'
 USER_ID = 'userid'

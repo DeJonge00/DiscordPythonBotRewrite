@@ -1,14 +1,12 @@
 from config import constants
 from core import logging as log
-from discord.ext.commands.formatter import HelpFormatter
-from database.general import delete_commands, prefix, banned_commands, command_counter
+from core.utils import prep_str, command_allowed_in_channel, command_allowed_in_server
+# from discord.ext.commands.formatter import HelpFormatter
+from database.general import delete_commands, prefix, command_counter
 from secret.secrets import prefix
 
-from datetime import datetime
 from discord import Message, TextChannel, DMChannel, Forbidden, Embed, Member
-from discord.abc import GuildChannel
 from discord.ext.commands import Bot, Context
-import re
 
 
 class PythonBot(Bot):
@@ -26,15 +24,6 @@ class PythonBot(Bot):
 
     """ Helper functions """
 
-    @staticmethod
-    def prep_str(s):
-        """
-        Strip text of weird characters
-        :param s: The text
-        :return: filtered text
-        """
-        return ''.join([l for l in s if re.match('[a-zA-Z0-9]', l)])
-
     async def ask_one_from_multiple(self, ctx: Context, group: list, question='', errors: dict = {}):
         """
         Ask a user to select one object from a list by name
@@ -44,17 +33,19 @@ class PythonBot(Bot):
         :param errors: The possible error messages
         :return:
         """
+        is_private = isinstance(ctx.channel, DMChannel)
+
         m = question
         for x in range(min(len(group), 10)):
             m += '\n{}) {}'.format(x + 1, str(group[x]))
-        m = await self.send_message(ctx, m)
+        m = await self.send_message(ctx.channel, m)
 
         def check(message: Message):
             return message.author is ctx.message.author and message.channel is ctx.channel
 
         r = await self.wait_for(event='message', timeout=60, check=check)
 
-        if delete_commands.get_delete_commands(ctx.guild.id):
+        if is_private or delete_commands.get_delete_commands(ctx.guild.id):
             await self.delete_message(m)
             if r:
                 await self.delete_message(r)
@@ -62,14 +53,14 @@ class PythonBot(Bot):
         if not r:
             if errors:
                 error = errors.get('no_reaction') if errors.get('no_reaction') else 'Or not...'
-                await self.send_message(ctx, error)
+                await self.send_message(ctx.channel, error)
             raise ValueError
         try:
             num = int(r.content) - 1
             if not (0 <= num < min(10, len(group))):
                 raise ValueError
         except ValueError:
-            await self.send_message(ctx, 'That was not a valid number')
+            await self.send_message(ctx.channel, 'That was not a valid number')
             raise
         return group[num]
 
@@ -103,13 +94,13 @@ class PythonBot(Bot):
             raise ValueError
 
         # Look for users with the given name
-        name = PythonBot.prep_str(' '.join(args)).lower()
+        name = prep_str(' '.join(args)).lower()
         if from_all_members:
-            users = [x for x in self.get_all_members() if PythonBot.prep_str(x.name).lower().startswith(name) or
-                     PythonBot.prep_str(x.display_name).lower().startswith(name)]
+            users = [x for x in self.get_all_members() if prep_str(x.name).lower().startswith(name) or
+                     prep_str(x.display_name).lower().startswith(name)]
         else:
-            users = [x for x in ctx.message.guild.members if PythonBot.prep_str(x.name).lower().startswith(name) or
-                     PythonBot.prep_str(x.display_name).lower().startswith(name)]
+            users = [x for x in ctx.message.guild.members if prep_str(x.name).lower().startswith(name) or
+                     prep_str(x.display_name).lower().startswith(name)]
         users.sort(key=lambda s: len(s.name))
 
         # Check validity of lookup results
@@ -124,10 +115,6 @@ class PythonBot(Bot):
 
         # Give options if multiple users were found
         return await self.ask_one_from_multiple(ctx, users, question='Which user did you mean?')
-
-    @staticmethod
-    def prep_str_for_print(s: str):
-        return s.encode("ascii", "replace").decode("ascii")
 
     async def quit(self):
         self.running = False
@@ -163,12 +150,22 @@ class PythonBot(Bot):
             try:
                 return await message.delete()
             except Forbidden:
-                m = '{} | {} | No permissions to delete message \'{}\''
-                m = m.format(message.guild.name, message.channel.name, message.content)
-                await log.error(m, filename=message.guild.name)
+                await log.error_on_message(message, 'No permissions to delete message')
+
+    @staticmethod
+    async def add_roles(member: Member, *roles, reason: str = None, atomic: bool = True):
+        m = 'Added role(s) {} to {}'.format(', '.join([r.name for r in roles]), member)
+        log.announcement(member.guild.name, m)
+        return await member.add_roles(*roles, reason=reason, atomic=atomic)
+
+    @staticmethod
+    async def remove_roles(member: Member, *roles, reason: str = None, atomic: bool = True):
+        m = 'Removed role(s) {} from {}'.format(', '.join([r.name for r in roles]), member)
+        log.announcement(member.guild.name, m)
+        return await member.remove_roles(*roles, reason=reason, atomic=atomic)
 
     async def send_message(self, destination, content: str = None, *, file=None, tts: bool = False,
-                           embed: Embed = None) -> Message:
+                           embed: Embed = None):
         """
         Function that allows extra checks to be done before sending a message.
         :param destination: The destination the message should be send to
@@ -180,64 +177,35 @@ class PythonBot(Bot):
         """
 
         if isinstance(destination, Context):
-            destination = destination.channel
+            destination: TextChannel = destination.channel
 
-        try:
-            try:
-                guild = destination.guild
-            except AttributeError:
-                guild = None
-
-            if content:
-                await log.message_content(content, destination, guild, self.user, datetime.now(), [],
-                                          "send message:")
-            if file:
-                await log.message_content(content, destination, guild, self.user, datetime.now(), [],
-                                          "pic")
-            if embed:
-                # TODO Adjust logging for embedded messages
-                await log.log("send a message", str(self.user), 'embedded message',
-                              str(guild) if guild else str(destination))
-            return await destination.send(content=content, tts=tts, embed=embed)
-        except Forbidden:
-            if embed:
+        # Exceptions
+        if not isinstance(destination, DMChannel):
+            perms = destination.permissions_for(destination.guild.me)
+            if not perms.send_messages:
+                log.error_before_message(destination=destination, author=self.user.name, content=content,
+                                         error_message='No permissions to send message')
+                return
+            if embed and not perms.embed_links:
+                log.error_before_message(destination=destination, author=self.user.name, content='<Embedded message>',
+                                         error_message='No permissions to send embedded messages')
                 m = 'Sorry, it seems I cannot send embedded messages in this channel...'
-                await self.send_message(destination, content=m)
-            elif file:
+                return await self.send_message(destination, content=m)
+            if file and not perms.attach_files:
+                log.error_before_message(destination=destination, author=self.user.name, content='<File attached>',
+                                         error_message='No permissions to send files')
                 m = 'Sorry, it seems I cannot send files in this channel...'
-                await self.send_message(destination, content=m)
-            else:
-                m = '{} | {} | No permissions to send message \'{}\''
-                if isinstance(destination, TextChannel):
-                    m = m.format(destination.guild.name, str(destination), content)
-                else:
-                    m = m.format('direct message', str(destination), content)
-                await log.error(m, filename=str(destination))
+                return await self.send_message(destination, content=m)
 
-    @staticmethod
-    def command_allowed_in(location_type: str, identifier: int, command_name: str):
-        """
-        Checks whether the issued command is allowed in the issued location
-        :param location_type: either 'server' of 'channel'
-        :param identifier: the id of the server or channel (depending on location_type)
-        :param command_name: the name of the command issued
-        :return: A boolean stating the command is allowed (True) or banned here (False)
-        """
-        return command_name == 'togglecommand' or not (
-                    banned_commands.get_banned_command(location_type, identifier, command_name)
-                    or banned_commands.get_banned_command(location_type, identifier, 'all'))
-
-    @staticmethod
-    def command_allowed_in_server(server_id: int, command_name: str):
-        split = command_name.split(' ')
-        return PythonBot.command_allowed_in('server', server_id, command_name) and (
-                len(split) <= 1 or PythonBot.command_allowed_in('server', server_id, split[0]))
-
-    @staticmethod
-    def command_allowed_in_channel(channel_id: int, command_name: str):
-        split = command_name.split(' ')
-        return PythonBot.command_allowed_in('channel', channel_id, command_name) and (
-                len(split) <= 1 or PythonBot.command_allowed_in('channel', channel_id, split[0]))
+        # Send and log message
+        m = await destination.send(content=content, tts=tts, embed=embed)
+        if content:
+            log.message(m)
+        if file:
+            log.message(m)
+        if embed:
+            log.message(m)
+        return m
 
     async def pre_command(self, message: Message, channel: (TextChannel, DMChannel), command: str, is_typing=True,
                           delete_message=True,
@@ -287,17 +255,17 @@ class PythonBot(Bot):
                 await channel.send('This command cannot be used outside NSFW channels')
                 await log.message(message, 'Command "{}" used, but must be an NSFW channel'.format(command))
                 return False
-            if not self.command_allowed_in_server(channel.guild.id, command):
+            if not command_allowed_in_server(channel.guild.id, command):
                 await log.message(message, 'Command "{}" used, but is serverbanned'.format(command))
                 return False
-            if not self.command_allowed_in_channel(channel.id, command):
+            if not command_allowed_in_channel(channel.id, command):
                 await log.message(message, 'Command "{}" used, but is channelbanned'.format(command))
                 return False
             if delete_message and delete_commands.get_delete_commands(channel.guild.id):
                 await self.delete_message(message)
 
         # Log and send the message
-        await log.message(message, 'Command "{}" used'.format(command))
+        log.message(message, type='Command \'{}\' used'.format(command))
         if is_typing:
             await channel.trigger_typing()
         command_counter.command_counter(command, message)

@@ -6,6 +6,7 @@ EMBED = 'embed_message'
 IMAGE = 'image'
 ERROR = 'error_message'
 KICK_REASON = 'kick_message'
+ACTION = 'action_taken'
 
 member_counter_message = 'Members: {}'
 
@@ -36,6 +37,7 @@ LOOKUP_COMMANDS_EMBED_COLOR = 0xFF0000
 IMAGE_COMMANDS_EMBED_COLOR = 0x000000
 WELCOME_EMBED_COLOR = 0xFF0000
 STAR_EMBED_COLOR = 0xf9e000
+HANGMAN_EMBED_COLOR = 0x007a01
 STAR_EMOJI = '⭐'
 
 ytdl_options = dict(

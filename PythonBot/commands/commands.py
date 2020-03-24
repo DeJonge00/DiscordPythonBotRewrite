@@ -2,7 +2,10 @@ from config import constants, command_text
 from config.constants import TEXT, EMBED, ERROR, BASIC_COMMANDS_EMBED_COLOR as EMBED_COLOR
 from config.structs import englishyfy_numbers
 from core.bot import PythonBot
+from core.utils import on_member_message, prep_str
 from database.pats import increment_pats
+from database.general.general import GOODBYE_TABLE
+from database.general import self_assignable_roles
 
 from asyncio import sleep
 from datetime import datetime
@@ -123,6 +126,24 @@ class BasicCommands(Cog):
             s = 1
         await sleep(s)
         await self.bot.delete_message(ctx.message)
+
+    @commands.command(name='dice', help="Roll some dice!", aliases=['roll'])
+    async def dice(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='dice'):
+            return
+        text = ' '.join(args)
+        if not re.match('[d\d /*-+]+', text):
+            await self.bot.send_message(ctx.channel, 'Oww I detect some illegal characters...')
+            return
+        for dice in [2, 4, 6, 8, 10, 12, 20, 100]:
+            text = text.replace('d' + str(dice), '*' + str(random.randint(1, dice)))
+        text = text.lstrip(' *')
+        result = eval(text)
+        if not result:
+            m = 'Please give something useful to roll'
+            await self.bot.send_message(ctx.channel, m)
+            return
+        await self.bot.send_message(ctx.channel, ' '.join(args) + ' = ' + str(result))
 
     @staticmethod
     def command_echo(args: [str], attachments: [Attachment], author: User):
@@ -297,7 +318,26 @@ class BasicCommands(Cog):
         answer = BasicCommands.command_hype(ctx.guild.emojis)
         await self.bot.send_message(ctx, content=answer.get(TEXT))
 
-    # TODO Kick command
+    @commands.command(pass_context=1, help="Fake kick someone")
+    async def kick(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='kick',
+                                          delete_message=False):
+            return
+        try:
+            target = await self.bot.get_member_from_message(ctx=ctx, args=args, in_text=True)
+        except ValueError:
+            await self.bot.send_message(ctx.channel, 'Wait... who?')
+            return
+
+        if ctx.message.author == target:
+            m = "You could just leave yourself if you want to go :thinking:"
+            await self.bot.send_message(ctx.message, m)
+            return
+        if not await on_member_message(target.guild, target, GOODBYE_TABLE, 'left', do_log=False):
+            embed = Embed(colour=EMBED_COLOR)
+            embed.add_field(name="User left",
+                            value="\"" + target.display_name + "\" just left. Byebye, you will not be missed!")
+            await self.bot.send_message(ctx.channel, embed=embed)
 
     @staticmethod
     def command_kill(author: Member, target: Member):
@@ -445,7 +485,54 @@ class BasicCommands(Cog):
 
     # TODO Replace >countdown with a >remindme (not spammy, but same functionality)
 
-    # TODO Role comman + possible structure change (toggle instead of add/remove)
+    @commands.command(name='role', help="Get a random quote!")
+    async def role(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='role'):
+            return
+
+        perms = ctx.channel.permissions_for(ctx.guild.me)
+        if not perms.manage_roles:
+            await self.bot.send_message(ctx.channel, 'I don\'t have permission to assign roles here')
+            return
+
+        # Determine role
+        role = prep_str(' '.join(args))
+        s_a_roles = self_assignable_roles.get_roles(ctx.guild.id)
+        if not role:
+            if s_a_roles:
+                nr, sar, m = 10, s_a_roles, 'These are the available roles for this server:\n'
+                while len(sar) > nr:
+                    m += '\n'.join([ctx.guild.get_role(r).name for r in sar[:nr]])
+                    await self.bot.send_message(ctx.channel, m)
+                    sar = sar[nr:]
+                m += '\n'.join([ctx.guild.get_role(r).name for r in sar])
+            else:
+                m = 'There are no self-assignable roles in this guild...'
+            await self.bot.send_message(ctx.channel, m)
+            return
+        possible_roles = [r for r in ctx.guild.roles if prep_str(r.name.lower()).startswith(role.lower())]
+        if not possible_roles:
+            await self.bot.send_message(ctx.channel, 'That\'s not a valid role')
+            return
+        if len(possible_roles) == 1:
+            role = possible_roles[0]
+        else:
+            role = await self.bot.ask_one_from_multiple(ctx, possible_roles, 'Which role did you have in mind?')
+            if not role:
+                return
+
+        # Check whether role is self-assignable
+        if role.id not in s_a_roles:
+            await self.bot.send_message(ctx.channel, 'This role is not self-assignable')
+            return
+
+        # Add or remove role from ctx.author
+        if role in ctx.author.roles:
+            await self.bot.remove_roles(ctx.author, role, reason='Self-assignable role')
+            await self.bot.send_message(ctx.channel, 'I removed the {} role from you'.format(role.name))
+            return
+        await self.bot.add_roles(ctx.author, role, reason='Self-assignable role')
+        await self.bot.send_message(ctx.channel, 'I added the {} role to you'.format(role.name))
 
     @commands.command(name='serverinfo', help="Get the guild's information!",
                       aliases=['serverstats', 'guildstats', 'guildinfo'])

@@ -13,8 +13,9 @@ class MiscCommands(Cog):
     async def inviteme(self, ctx: Context):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='inviteme'):
             return
-        await self.bot.send_message(ctx.channel, "Here is a link to invite me:\nhttps://discordapp.com/api/oauth2/aut"
-                                                 "horize?client_id=244410964693221377&permissions=472951872&scope=bot")
+        url = "https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=506588243".format(
+            self.bot.user.id)
+        await self.bot.send_message(ctx.channel, "Here is a link to invite me:\n" + url)
 
     @commands.command(name='helpserver', help="Join my masters discord server for anything")
     async def helpserver(self, ctx: Context):
