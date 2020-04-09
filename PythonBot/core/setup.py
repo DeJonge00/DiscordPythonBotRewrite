@@ -15,8 +15,6 @@ from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel
 
 def create_bot():
     bot = PythonBot()
-    # from commands.basic import BasicCommands
-    # bot.add_cog(BasicCommands(bot))
     for cog in get_cogs():
         bot.load_extension(cog)
 
