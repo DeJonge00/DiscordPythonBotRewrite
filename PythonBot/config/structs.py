@@ -1,4 +1,4 @@
-from discord import Permissions
+# from discord import Permissions
 
 englishyfy_numbers = {
     '0': 'zero',

@@ -21,7 +21,8 @@ def get_cogs():
         'commands.misc',
         'commands.mod',
         'commands.games.hangman.commands',
-        'commands.games.minesweeper.commands'
+        'commands.games.minesweeper.commands',
+        'core.listeners'
     ]
 
 

@@ -3,6 +3,7 @@ import random
 
 import discord
 from discord.ext import commands
+from discord.ext.commands.context import Context
 
 from api.rpg import constants as rpgc
 from api.rpg.objects import rpgplayer as rpgp, rpgweapon as rpgw, rpgarmor as rpga
@@ -20,7 +21,7 @@ class RPGGameActivities:
         print('RPGGameActivities started')
 
     async def send_shop_help_message(self, url: str, message: discord.Message):
-        prefix = await self.bot._get_prefix(message)
+        prefix = await self.bot.get_prefix(message)
         embed = discord.Embed(colour=SHOP_EMBED_COLOR)
         embed.set_author(name="Shop commands", icon_url=url)
         embed.add_field(name="Items",
@@ -38,18 +39,18 @@ class RPGGameActivities:
 
     # {prefix}shop
     @commands.group(pass_context=1, help="Shop for valuable items!")
-    async def shop(self, ctx):
-        prefix = await self.bot._get_prefix(ctx.message)
+    async def shop(self, ctx: Context):
+        prefix = await self.bot.get_prefix(ctx.message)
         if ctx.invoked_subcommand is None and (
                 ctx.message.content in ['{}shop help'.format(prefix), '{}shop'.format(prefix)]):
-            if not await self.bot.pre_command(message=ctx.message, command='shop help'):
+            if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='shop help'):
                 return
             await self.send_shop_help_message(ctx.message.author.avatar_url, ctx.message)
 
     # {prefix}shop armor
     @shop.command(pass_context=1, aliases=["a", "armour"], help="Buy a shiny new suit of armor!")
-    async def armor(self, ctx, *args):
-        if not await self.bot.pre_command(message=ctx.message, command='shop armor'):
+    async def armor(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='shop armor'):
             return
         player = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name,
                                           ctx.message.author.avatar_url)
@@ -98,8 +99,8 @@ class RPGGameActivities:
 
     # {prefix}shop item
     @shop.command(pass_context=1, aliases=["i", "buy", "items"], help="Special knowledge on enemy weakpoints")
-    async def item(self, ctx, *args):
-        if not await self.bot.pre_command(message=ctx.message, command='shop item'):
+    async def item(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='shop item'):
             return
         player = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name,
                                           ctx.message.author.avatar_url)
@@ -162,8 +163,8 @@ class RPGGameActivities:
 
     # {prefix}shop weapon
     @shop.command(pass_context=1, aliases=["w", "weapons"], help="Buy a shiny new weapon!")
-    async def weapon(self, ctx, *args):
-        if not await self.bot.pre_command(message=ctx.message, command='shop weapon'):
+    async def weapon(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='shop weapon'):
             return
         player = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name,
                                           ctx.message.author.avatar_url)
@@ -212,8 +213,8 @@ class RPGGameActivities:
 
     # {prefix}train
     @commands.command(pass_context=1, aliases=["training"], help="Train your skills!")
-    async def train(self, ctx, *args):
-        if not await self.bot.pre_command(message=ctx.message, command='train'):
+    async def train(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='train'):
             return
         if len(args) <= 0:
             embed = discord.Embed(colour=SHOP_EMBED_COLOR)
@@ -265,8 +266,8 @@ class RPGGameActivities:
 
     # {prefix}work
     @commands.command(pass_context=1, aliases=["Work"], help="Work for some spending money!")
-    async def work(self, ctx, *args):
-        if not await self.bot.pre_command(message=ctx.message, command='work'):
+    async def work(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='work'):
             return
         try:
             time = int(args[0])

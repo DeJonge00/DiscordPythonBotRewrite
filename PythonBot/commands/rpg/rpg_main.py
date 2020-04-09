@@ -1,26 +1,29 @@
+import datetime
 import logging
+import math
 import os
 import os.path
 import random
 import traceback
-
-import datetime
-import discord
-import math
-import requests
-from PIL import Image, ImageFont, ImageDraw
-from discord.ext import commands
 from io import BytesIO
 
-from config import constants
-from database.rpg import rpg_main as db_rpg, channels as db_rpg_channels, player as db_rpg_player
-from commands.rpg import rpggameactivities
+import discord
+import requests
+from PIL import Image, ImageFont, ImageDraw
+from discord import Message, Reaction
+from discord.ext import commands
+from discord.ext.commands.context import Context
+
 from api.rpg import constants as rpgc
 from api.rpg.objects.rpgcharacter import RPGCharacter
 from api.rpg.objects.rpgmonster import RPGMonster
 from api.rpg.objects.rpgpet import RPGPet
-from api.rpg.objects.rpgplayer import RPGPlayer, BUSY_DESC_NONE, BUSY_DESC_WANDERING, BUSY_DESC_BOSSRAID, BUSY_DESC_WORKING, \
+from api.rpg.objects.rpgplayer import RPGPlayer, BUSY_DESC_NONE, BUSY_DESC_WANDERING, BUSY_DESC_BOSSRAID, \
+    BUSY_DESC_WORKING, \
     BUSY_DESC_ADVENTURE, BUSY_DESC_TRAINING, minadvtime, maxadvtime, minwandertime, maxwandertime
+from commands.rpg import rpggameactivities
+from config import constants
+from database.rpg import rpg_main as db_rpg, channels as db_rpg_channels, player as db_rpg_player
 from secret.secrets import font_path
 
 RPG_EMBED_COLOR = 0x710075
@@ -31,9 +34,10 @@ logging.basicConfig(filename='logs/1rpg_main_errors.log', level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
-class RPGGame:
+class RPGGame(commands.Cog):
     def __init__(self, my_bot):
         self.bot = my_bot
+        self.bot.rpggame = self
         self.top_lists = {}
         self.logger = logging.getLogger(__name__)
         self.game_init()
@@ -336,19 +340,19 @@ class RPGGame:
         logging.basicConfig(level=logging.DEBUG)
         print("RPGGame loop started!")
 
-    async def do_adventure(self, user_id: str, name: str, pic_url: str, busy: dict):
+    async def do_adventure(self, user_id: int, name: str, pic_url: str, busy: dict):
         if random.randint(0, 4) <= 0:
             await self.adventure_encounter(db_rpg_player.get_player(user_id, name, pic_url),
                                            self.bot.get_channel(busy.get('channel')))
             return
         await self.do_wander(user_id, name, pic_url, busy)
 
-    async def do_wander(self, user_id: str, name: str, pic_url: str, busy: dict):
+    async def do_wander(self, user_id: int, name: str, pic_url: str, busy: dict):
         if random.randint(0, 14) <= 0:
             await self.adventure_secret(db_rpg_player.get_player(user_id, name, pic_url),
                                         self.bot.get_channel(busy.get('channel')))
 
-    async def do_busy_per_person(self, name, userid, pic_url, busy, health):
+    async def do_busy_per_person(self, name: str, userid: int, pic_url: str, busy, health):
         if busy.get('description') == BUSY_DESC_ADVENTURE:
             await self.do_adventure(userid, name, pic_url, busy)
         if busy.get('description') == BUSY_DESC_WANDERING:
@@ -432,7 +436,7 @@ class RPGGame:
         db_rpg.do_health_regen()
 
     @staticmethod
-    def handle(message: discord.Message):
+    def handle(message: Message):
         data = db_rpg_player.get_player(message.author.id, message.author.display_name, message.author.avatar_url)
         if data.role not in [x[0] for x in rpgc.names.get("role")]:
             return
@@ -444,8 +448,8 @@ class RPGGame:
         db_rpg_player.add_stats(message.author.id, 'money', int(i))
         db_rpg_player.add_stats(message.author.id, 'exp', 1)
 
-    async def send_help_message(self, ctx):
-        prefix = await self.bot._get_prefix(ctx.message)
+    async def send_help_message(self, ctx: Context):
+        prefix = await self.bot.get_prefix(ctx.message)
         await self.bot.say(
             "Your '{}rpg' has been heard, you will be send the commands list for the rpg game".format(
                 prefix))
@@ -540,26 +544,27 @@ class RPGGame:
     # RPG intro/help
     @commands.group(pass_context=1, aliases=["Rpg", "b&d", "B&d", "bnd", "Bnd"],
                     help="Get send an overview of the rpg game's commands")
-    async def rpg(self, ctx):
+    async def rpg(self, ctx: Context):
         if ctx.invoked_subcommand is None and ctx.message.content == '{}rpg'.format(
-                await self.bot._get_prefix(ctx.message)):
+                await self.bot.get_prefix(ctx.message)):
             if not await self.bot.pre_command(message=ctx.message, command='rpg help'):
                 return
             await self.send_help_message(ctx)
 
     # {prefix}rpg adventure #
     @rpg.command(pass_context=1, help="RPG game help message!", aliases=["Help"])
-    async def help(self, ctx):
+    async def help(self, ctx: Context):
         if not await self.bot.pre_command(message=ctx.message, command='rpg help'):
             return
         await self.send_help_message(ctx)
 
     # {prefix}rpg adventure #
     @rpg.command(pass_context=1, aliases=["Adventure", "a", "A"], help="Go on an adventure!")
-    async def adventure(self, ctx, *args):
+    async def adventure(self, ctx: Context, *args):
         if not await self.bot.pre_command(message=ctx.message, command='rpg adventure'):
             return
-        data = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name, ctx.message.author.avatar_url)
+        data = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name,
+                                        ctx.message.author.avatar_url)
         if not await self.check_role(data.role, ctx.message):
             return
 
@@ -590,11 +595,11 @@ class RPGGame:
 
     # {prefix}rpg battle <user>
     @rpg.command(pass_context=1, aliases=["Battle", "b", "B"], help="Battle a fellow discord ally to a deadly fight!")
-    async def battle(self, ctx, *args):
-        if not await self.bot.pre_command(message=ctx.message, command='rpg battle'):
+    async def battle(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='rpg battle'):
             return
         attacker = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name,
-                                     ctx.message.author.avatar_url)
+                                            ctx.message.author.avatar_url)
         if not await self.check_role(attacker.role, ctx.message):
             return
         try:
@@ -614,8 +619,8 @@ class RPGGame:
     # {prefix}rpg info [weapon|w|armor|a] <user>
     @rpg.command(pass_context=1, aliases=["Info", "I", 'i', 'stats', "Stats", 'status', "Status"],
                  help="Show the character's status information!")
-    async def info(self, ctx, *args):
-        if not await self.bot.pre_command(message=ctx.message, command='rpg info'):
+    async def info(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='rpg info'):
             return
 
         try:
@@ -749,11 +754,13 @@ class RPGGame:
 
     # {prefix}rpg join
     @rpg.command(pass_context=1, aliases=["Join", "J", "j"], help="Join a raid to kill a boss!")
-    async def join(self, ctx):
-        if not await self.bot.pre_command(message=ctx.message, command='rpg join', cannot_be_private=True):
+    async def join(self, ctx: Context):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='rpg join',
+                                          cannot_be_private=True):
             return
 
-        data = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name, ctx.message.author.avatar_url)
+        data = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name,
+                                        ctx.message.author.avatar_url)
         if not await self.check_role(data.role, ctx.message):
             return
 
@@ -777,9 +784,9 @@ class RPGGame:
 
     # {prefix}rpg king
     @rpg.command(pass_context=1, aliases=["King", "k", "K"], help="The great king's game!")
-    async def king(self, ctx, *args):
+    async def king(self, ctx: Context, *args):
         kingname = "Neko Overlord Ruling with an Iron Paw"
-        if not await self.bot.pre_command(message=ctx.message, command='rpg king'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='rpg king'):
             return
         if ctx.message.channel.is_private:
             await self.bot.say("This command cannot work in a private channel")
@@ -793,7 +800,8 @@ class RPGGame:
                                                                    ctx.message.server.get_member(
                                                                        str(king)).display_name))
             return
-        data = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name, ctx.message.author.avatar_url)
+        data = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name,
+                                        ctx.message.author.avatar_url)
         if data.busydescription != BUSY_DESC_NONE:
             await self.bot.say("Please finish what you are doing before a fight")
             return
@@ -855,8 +863,8 @@ class RPGGame:
     # {prefix}rpg levelup
     @rpg.command(pass_context=1, aliases=["Levelup", "lvlup", "Lvlup", "lvl", "Lvl"],
                  help="Choose the rreward for leveling up!")
-    async def levelup(self, ctx, *args):
-        if not await self.bot.pre_command(message=ctx.message, command='rpg levelup'):
+    async def levelup(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='rpg levelup'):
             return
 
         data = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.name, ctx.message.author.avatar_url)
@@ -870,13 +878,13 @@ class RPGGame:
         if len(args) <= 0:
             while data.get_level() > data.level:
                 m = await self.bot.say("Available rewards are:\n1)\t+80 hp\n2)\t+1 minute busytime\n3)\t+30 damage")
-                r = await self.bot.wait_for_message(timeout=60, author=ctx.message.author, channel=ctx.message.channel)
+                r = await self.bot.wait_for_message(timeout=60, author=ctx.message.author, channel=ctx.channel)
                 await self.bot.delete_message(m)
                 if not r:
                     return
                 try:
                     num = int(r.content)
-                    if await self.add_levelup(data, ctx.message.channel, num):
+                    if await self.add_levelup(data, ctx.channel, num):
                         db_rpg_player.add_stats(data.userid, 'level', 1)
                         data.level += 1
                     await self.bot.delete_message(r)
@@ -884,15 +892,16 @@ class RPGGame:
                     return
             return
         try:
-            if await self.add_levelup(data, ctx.message.channel, int(args[0])):
+            if await self.add_levelup(data, ctx.channel, int(args[0])):
                 db_rpg_player.add_stats(data.userid, 'level', 1)
         except ValueError:
             await self.bot.say("Thats not even a number...")
 
     # {prefix}rpg party
     @rpg.command(pass_context=1, aliases=["Party", "p", "P"], help="All players gathered to kill the boss")
-    async def party(self, ctx):
-        if not await self.bot.pre_command(message=ctx.message, command='rpg party', cannot_be_private=True):
+    async def party(self, ctx: Context):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='rpg party',
+                                          cannot_be_private=True):
             return
         party = db_rpg.get_boss_parties().get(ctx.message.server.id, [])
         if len(party) <= 0:
@@ -911,10 +920,11 @@ class RPGGame:
     # {prefix}rpg role
     @rpg.command(pass_context=1, aliases=["Role", "r", "R", "class", "Class", "c", "C"],
                  help="Switch your role on the battlefield")
-    async def role(self, ctx, *args):
-        if not await self.bot.pre_command(message=ctx.message, command='rpg role'):
+    async def role(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='rpg role'):
             return
-        data = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name, ctx.message.author.avatar_url)
+        data = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name,
+                                        ctx.message.author.avatar_url)
         if len(args) <= 0:
             embed = discord.Embed(colour=RPG_EMBED_COLOR)
             embed.set_author(name="You can be anything you want, as long as it is one of these:",
@@ -982,7 +992,7 @@ class RPGGame:
         embed.add_field(name="Ranks and names", value=result)
         return embed
 
-    async def handle_reaction(self, reaction: discord.Reaction):
+    async def handle_reaction(self, reaction: Reaction):
         if reaction.message.id in [x[0] for x in self.top_lists.values()]:
             _, page, group = self.top_lists.get(reaction.message.server.id)
             if reaction.emoji == '\N{LEFTWARDS BLACK ARROW}':
@@ -1001,8 +1011,8 @@ class RPGGame:
 
     # {prefix}rpg top <exp|money|bosstier> <amount>
     @rpg.command(pass_context=1, aliases=["Top", "T", 't'], help="Show the people with the most experience!")
-    async def top(self, ctx, *args):
-        if not await self.bot.pre_command(message=ctx.message, command='rpg top'):
+    async def top(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.message.channel, command='rpg top'):
             return
         if len(args) > 0:
             if len(args) > 1:
@@ -1028,17 +1038,18 @@ class RPGGame:
             await self.bot.say("There are only {} pages...".format(str(e)))
             return
         m = await self.bot.send_message(ctx.message.channel, embed=embed)
-        await self.bot.add_reaction(m, '\N{LEFTWARDS BLACK ARROW}')
-        await self.bot.add_reaction(m, "\N{BLACK RIGHTWARDS ARROW}")
-        await self.bot.add_reaction(m, "\N{BROKEN HEART}")
-        self.top_lists[ctx.message.server.id] = (m.id, n, group)
+        await m.add_reaction('\N{LEFTWARDS BLACK ARROW}')
+        await m.add_reaction("\N{BLACK RIGHTWARDS ARROW}")
+        await m.add_reaction("\N{BROKEN HEART}")
+        self.top_lists[ctx.guild.id] = (m.id, n, group)
 
     # {prefix}rpg wander #
     @rpg.command(pass_context=1, aliases=["Wander", "w", "W"], help="Wander in the beautiful country")
-    async def wander(self, ctx, *args):
-        if not await self.bot.pre_command(message=ctx.message, command='rpg wander'):
+    async def wander(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.message.channel, command='rpg wander'):
             return
-        data = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name, ctx.message.author.avatar_url)
+        data = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name,
+                                        ctx.message.author.avatar_url)
         if not await self.check_role(data.role, ctx.message):
             return
         if len(args) > 0:
@@ -1064,8 +1075,8 @@ class RPGGame:
 
     # DB commands
     @rpg.command(pass_context=1, help="Set rpg channel!")
-    async def setchannel(self, ctx):
-        if not await self.bot.pre_command(message=ctx.message, command='rpg setchannel'):
+    async def setchannel(self, ctx: Context):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.message.channel, command='rpg setchannel'):
             return
         perms = ctx.message.channel.permissions_for(ctx.message.author)
         if not (ctx.message.author.id == constants.NYAid or perms.manage_server or perms.administrator):
@@ -1076,8 +1087,9 @@ class RPGGame:
 
     # money for devs (testing purpose ONLY)
     @rpg.command(pass_context=1, hidden=True, help="Dev money")
-    async def cashme(self, ctx):
-        if not await self.bot.pre_command(message=ctx.message, command='rpg cashme', is_typing=False):
+    async def cashme(self, ctx: Context):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.message.channel, command='rpg cashme',
+                                          is_typing=False):
             return
         if not (ctx.message.author.id == constants.NYAid or ctx.message.author.id == constants.KAPPAid):
             await self.bot.say("Hahahaha, no")
@@ -1086,8 +1098,9 @@ class RPGGame:
         db_rpg_player.set_stat(ctx.message.author.id, 'money', 99999999)
 
     @rpg.command(pass_context=1, hidden=True, help='Dev exp')
-    async def xpme(self, ctx):
-        if not await self.bot.pre_command(message=ctx.message, command='rpg xpme', is_typing=False):
+    async def xpme(self, ctx: Context):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.message.channel, command='rpg xpme',
+                                          is_typing=False):
             return
         if not (ctx.message.author.id == constants.NYAid or ctx.message.author.id == constants.KAPPAid):
             await self.bot.say("Hahahaha, no")
@@ -1096,8 +1109,9 @@ class RPGGame:
         db_rpg_player.set_stat(ctx.message.author.id, 'exp', 99999999)
 
     @rpg.command(pass_context=1, hidden=True, aliases=['tbf'])
-    async def triggerbossfights(self, ctx):
-        if not await self.bot.pre_command(message=ctx.message, command='rpg triggerbossfights', is_typing=False):
+    async def triggerbossfights(self, ctx: Context):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel,
+                                          command='rpg triggerbossfights', is_typing=False):
             return
         if not (ctx.message.author.id == constants.NYAid or ctx.message.author.id == constants.KAPPAid):
             await self.bot.say("Hahahaha, no")
@@ -1106,21 +1120,22 @@ class RPGGame:
         await self.bot.rpggame.boss_battle()
 
     @rpg.command(pass_context=1, hidden=True)
-    async def addpet(self, ctx, num: int):
-        if not await self.bot.pre_command(message=ctx.message, command='rpg addpet'):
+    async def addpet(self, ctx: Context, num: int):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='rpg addpet'):
             return
         if not (ctx.message.author.id == constants.NYAid or ctx.message.author.id == constants.KAPPAid):
             await self.bot.say("Hahahaha, no")
             return
-        data = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name, ctx.message.author.avatar_url)
+        data = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name,
+                                        ctx.message.author.avatar_url)
         for _ in range(num):
             data.add_pet(RPGPet())
         db_rpg_player.update_player(data)
         await self.bot.say('{} cats added'.format(num))
 
     @rpg.command(pass_context=1, hidden=True)
-    async def clearpets(self, ctx):
-        if not await self.bot.pre_command(message=ctx.message, command='rpg clearpets'):
+    async def clearpets(self, ctx: Context):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='rpg clearpets'):
             return
         if not (ctx.message.author.id == constants.NYAid or ctx.message.author.id == constants.KAPPAid):
             await self.bot.say("Hahahaha, no")
@@ -1130,8 +1145,8 @@ class RPGGame:
         await self.bot.say('Slaughtering pets complete')
 
     @rpg.command(pass_context=1, aliases=["Pets", "Pet", 'pet'])
-    async def pets(self, ctx, *args):
-        if not await self.bot.pre_command(message=ctx.message, command='rpg pets'):
+    async def pets(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='rpg pets'):
             return
 
         # Get specified player
@@ -1187,8 +1202,8 @@ class RPGGame:
         await self.bot.say(embed=embed)
 
     @rpg.command(pass_context=1, hidden=True, aliases=['resetbusy'])
-    async def clearbusy(self, ctx, *args):
-        if not await self.bot.pre_command(message=ctx.message, command='rpg clearbusy'):
+    async def clearbusy(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='rpg clearbusy'):
             return
         if not (ctx.message.author.id == constants.NYAid or ctx.message.author.id == constants.KAPPAid):
             await self.bot.say("Hahahaha, no")
@@ -1200,3 +1215,7 @@ class RPGGame:
 
         db_rpg_player.reset_busy(user.id)
         await self.bot.say('Busy status of player"{}" reset'.format(user.display_name))
+
+
+def setup(bot):
+    bot.add_cog(RPGGame(bot))
