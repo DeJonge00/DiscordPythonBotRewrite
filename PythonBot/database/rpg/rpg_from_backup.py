@@ -1,5 +1,5 @@
-from rpggame import rpgplayer
-from database import rpg
+from api.rpg.objects import rpgplayer
+from database.rpg import player
 import json
 
 if __name__ == '__main__':
@@ -7,4 +7,4 @@ if __name__ == '__main__':
         data = json.load(f)
     for p in data:
         p['userid'] = str(p.get('userid'))
-        rpg.update_player(rpgplayer.dict_to_player(p))
+        player.update_player(rpgplayer.dict_to_player(p))

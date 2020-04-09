@@ -1,8 +1,8 @@
 import pymongo
 
 from database.common import get_table as get_database_and_table
-from rpggame.rpgplayer import RPGPlayer, dict_to_player, BUSY_DESC_BOSSRAID, BUSY_DESC_NONE
-import rpggame.rpgconstants as rpgc
+from api.rpg.objects.rpgplayer import dict_to_player, BUSY_DESC_BOSSRAID, BUSY_DESC_NONE
+import api.rpg.constants as rpgc
 
 RPG_DATABASE = 'rpg'
 CHANNEL_ID = 'channelid'

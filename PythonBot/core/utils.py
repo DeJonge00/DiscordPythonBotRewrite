@@ -14,7 +14,7 @@ REMOVE_LEAVE_MESSAGE = False
 def get_cogs():
     return [
         'commands.admin',
-        'commands.commands',
+        'commands.basic',
         'commands.config',
         'commands.image',
         'commands.lookup',

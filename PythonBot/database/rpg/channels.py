@@ -1,4 +1,4 @@
-from database.rpg import get_table, RPG_CHANNEL_TABLE, SERVER_ID, CHANNEL_ID
+from database.rpg.rpg_main import get_table, RPG_CHANNEL_TABLE, SERVER_ID, CHANNEL_ID
 
 
 def set_rpg_channel(server_id: str, channel_id: str):

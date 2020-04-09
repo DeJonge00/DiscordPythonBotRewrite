@@ -6,8 +6,8 @@ from core.bot import PythonBot
 from core.utils import get_cogs, update_member_counter, on_member_message
 from database.general import bot_information, general
 from secret.secrets import game_name
+from commands.rpg.rpg_main import RPGGame
 
-import asyncio
 from datetime import datetime
 from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel, Guild, VoiceChannel, User, Activity, \
     VoiceState
@@ -15,6 +15,8 @@ from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel
 
 def create_bot():
     bot = PythonBot()
+    # from commands.basic import BasicCommands
+    # bot.add_cog(BasicCommands(bot))
     for cog in get_cogs():
         bot.load_extension(cog)
 
@@ -51,7 +53,7 @@ def create_bot():
         # Send message to rpggame for exp
         if bot.RPGGAME and (len(message.content) < 2 or (message.content[:2] == '<@') or
                             (message.content[0].isalpha() and message.content[1].isalpha())):
-            bot.rpggame.handle(message)
+            RPGGame.handle(message)
 
     @bot.event
     async def on_member_update(before: Member, after: Member):

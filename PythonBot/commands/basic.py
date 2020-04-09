@@ -1,22 +1,23 @@
+import hashlib
+import random
+import re
+from asyncio import sleep
+from datetime import datetime
+
+import requests
+import wikipedia
+from discord import Embed, Attachment, User, Emoji, Member, Spotify
+from discord.ext import commands
+from discord.ext.commands import Cog, Context
+
 from config import constants, command_text
 from config.constants import TEXT, EMBED, ERROR, BASIC_COMMANDS_EMBED_COLOR as EMBED_COLOR
 from config.structs import englishyfy_numbers
 from core.bot import PythonBot
-from core.utils import on_member_message, prep_str
-from database.pats import increment_pats
-from database.general.general import GOODBYE_TABLE
+from core.utils import on_member_message, prep_str, prep_str_for_print
 from database.general import self_assignable_roles
-
-from asyncio import sleep
-from datetime import datetime
-from discord import Embed, Attachment, User, Emoji, Member, Spotify
-from discord.ext import commands
-from discord.ext.commands import Cog, Context
-import hashlib
-import random
-import re
-import requests
-import wikipedia
+from database.general.general import GOODBYE_TABLE
+from database.pats import increment_pats
 
 
 # Mod commands
@@ -135,10 +136,16 @@ class BasicCommands(Cog):
         if not re.match('[d\d /*-+]+', text):
             await self.bot.send_message(ctx.channel, 'Oww I detect some illegal characters...')
             return
+        # TODO Replace number-list with regex numbers, then take randint below that number
         for dice in [2, 4, 6, 8, 10, 12, 20, 100]:
             text = text.replace('d' + str(dice), '*' + str(random.randint(1, dice)))
         text = text.lstrip(' *')
-        result = eval(text)
+        try:
+            result = eval(text)
+        except SyntaxError:
+            await self.bot.send_message(ctx.channel,
+                                        "The available dice are 2, 4, 6, 8, 10, 12, 20 and 100. Please try again")
+            return
         if not result:
             m = 'Please give something useful to roll'
             await self.bot.send_message(ctx.channel, m)
@@ -581,7 +588,7 @@ class BasicCommands(Cog):
         # Print more secrets
         if ctx.message.author.id in [constants.NYAid, constants.KAPPAid]:
             for c in guild.channels:
-                print(self.bot.prep_str_for_print(c.name))
+                print(prep_str_for_print(c.name))
 
     @staticmethod
     def command_urban(args: [str]):

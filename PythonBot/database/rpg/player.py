@@ -1,4 +1,5 @@
-from database.rpg import get_table, RPG_PLAYER_TABLE, USER_ID
+from api.rpg.objects.rpgplayer import RPGPlayer, dict_to_player
+from database.rpg.rpg_main import get_table, RPG_PLAYER_TABLE, USER_ID, BUSY_DESC_NONE
 
 
 def get_player(player_id: str, player_name: str, picture_url: str):

@@ -1,5 +1,5 @@
 import unittest
-from commands.commands import BasicCommands as bc
+from commands.basic import BasicCommands as bc
 from config.constants import TEXT, EMBED
 from tests.objects import get_test_attachment, get_test_user, get_test_emoji
 
