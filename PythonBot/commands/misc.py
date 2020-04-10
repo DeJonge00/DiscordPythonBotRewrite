@@ -29,6 +29,13 @@ class MiscCommands(Cog):
             return
         await self.bot.send_message(ctx.channel, "A link to the past:\nhttps://discord.gg/KBxRd7x")
 
+    @commands.command(name='vote', help='Voting for me helps me help other servers too! Some features are '
+                                        'even multi-server compatible!')
+    async def vote(self, ctx: Context):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='vote'):
+            return
+        await self.bot.send_message(ctx.channel, "Vote for me here:\nhttps://top.gg/bot/244410964693221377")
+
 
 def setup(bot):
     bot.add_cog(MiscCommands(bot))

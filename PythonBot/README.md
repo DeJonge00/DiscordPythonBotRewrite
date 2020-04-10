@@ -60,11 +60,11 @@ The commands marked with <WIP>have not been added to the rewritten version yet
 |---			|---										            |---
 |fps <WIP>        	|`fps,60`                                               |Send a high-fps gif
 |biribiri <WIP>   	|`biribiri,biri`                                        |Send pics of the only best girl
-|cat <WIP>        	|`cat`                                                  |Pictures of my cats
+|cat        	|`cat`                                                  |Pictures of my cats
 |cuddle      	|`cuddle`                                               |Send a cuddly gif
 |cute           |`cute`                                                 |For when you need a cute anime girl gif
 |ded <WIP>        	|`ded`                                                  |Ded chat reminder (image)
-|heresy <WIP>     	|`heresy`                                               |Send images worthy of the emperor (warhammer 40k)
+|heresy     	|`heresy`                                               |Send images worthy of the emperor (warhammer 40k)
 |happy          |`happy`                                                |Send a happy gif
 |lewd           |`lewd`                                                 |Send anti-lewd gif
 |love           |`love`                                                 |Send a confession of love through a gif
@@ -116,7 +116,7 @@ The commands marked with <WIP>have not been added to the rewritten version yet
 |---			|---										            |---
 |inviteme    	|`inviteme`                                             |Invite me to your own server
 |helpserver  	|`helpserver`                                           |Join my masters discord server if questions need answering
-|vote <WIP>          |`vote`                                                 |Vote for me! This makes me more popular, which results in more attention from my master...
+|vote           |`vote`                                                 |Vote for me! This makes me more popular, which results in more attention from my master...
 
 ### Mod
 
@@ -125,11 +125,12 @@ The commands marked with <WIP>have not been added to the rewritten version yet
 |autovc         |`autovc` `channel name`                                | Create a voicechannel that multiplies when users join. These extra voice channels will be removed when there is nobody in them. | manage_channels
 |banish      	|`banish` `{user}`                                      |Ban `{user}`                                                                               |kick_members
 |invite <WIP>        |`invite` `{max members}`                               |Fetch/Create an invite. Maximum {max members} members, unlimited if not given
+|membercount    |`membercount,membercounter`                            |Create a locked channel in the channel list, which will be updated with the amount of members currently in the server | manage_channels
 |nickname <WIP>   	|`nickname,nn` `{user}` `{new_name}`                    |Nickname a person                                                                          |change_nickname, manage_nicknames
 |purge       	|`purge` `{amount}` `{user}`                            |Remove `{user}`'s messages (all if user is not given) from the past `{amount}` messages    |manage_messages
 |setwelcome  	|`setwelome` `{message}`                                |Sets a welcome message                                                                     |manage_server
 |setgoodbye  	|`setgoodbye` `{message}`                               |Sets a goodbye message                                                                     |manage_server
-|togglerole     |`togglerole|sarole|toggleassignable` `{rolename}`      |Add or remove a role to the list of self-assignable roles                                  |manage_roles
+|togglerole     |`togglerole,sarole,toggleassignable` `{rolename}`      |Add or remove a role to the list of self-assignable roles                                  |manage_roles
 
 
 ### Config
@@ -139,7 +140,7 @@ The commands marked with <WIP>have not been added to the rewritten version yet
 |togglecommand          |`togglecommand,tc` `server,channel` `{command name}`   |Toggles whether the command `{command name}` can be used in the current `server,channel`. Use command name `all` to disable all commands. All commands are enabled by default      |manage_channels, manage_messages
 |prefix                 |`prefix` `{prefix text}`                               |Changes the prefix to `{prefix text}`, ignoring trailing spaces
 
-### MusicPlayer <WIP>
+### MusicPlayer
 
 |Name			|Command, aliases and usage					            |Description
 |---			|---										            |---
@@ -158,7 +159,7 @@ The commands marked with <WIP>have not been added to the rewritten version yet
 |               |`music,m` `play,p` `{songname,url}`                    |Add a song to the queue
 |join           |`music,m` `join,j`                                     |Let Biri join a voice channel
 
-### RPGGame <WIP>
+### RPGGame
 
 |Name			|Command, aliases and usage					            |Description
 |---			|---										            |---

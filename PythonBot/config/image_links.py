@@ -158,8 +158,6 @@ otters = [
     'https://78.media.tumblr.com/854afc01e95e30627dd7fa1a7c608a79/tumblr_pct2czv48w1vims6ho1_1280.jpg',
     'https://78.media.tumblr.com/8efd3159c045a4b0e24f23a38bcc5d6f/tumblr_pdchy4UP491vims6ho1_540.jpg'
     'https://i.ytimg.com/vi/7Nz0dLHMHOo/maxresdefault.jpg',
-    'https://static.boredpanda.com/blog/wp-content/uploads/2015/11/benedict-cumberbatch-otter-lookalike-doppelganger-'
-    '3.png',
     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbRHm_uRzWah2JAJcn5iqCnkx7c6vg9275agP6CEG8TuoSjxLn',
     'https://i.redd.it/71wfgbtwukh11.jpg'
 ]
@@ -197,4 +195,15 @@ cat = [
     'https://i.imgur.com/sTdft11.jpg',
     'https://i.imgur.com/QXRbxaT.jpg',
     'https://i.imgur.com/dIKUoDs.jpg'
+]
+
+heresy = [
+    'https://media.makeameme.org/created/delete-this-heresy.jpg',
+    'https://i.pinimg.com/originals/78/d9/6a/78d96a35cacb54441ac43043ce24d98f.jpg',
+    'https://i.kym-cdn.com/entries/icons/original/000/014/962/HeresyStamp.png',
+    'https://media1.tenor.com/images/702117beaa47d17049d4b0393095d766/tenor.gif?itemid=10271501',
+    'https://i.pinimg.com/originals/2f/0a/d3/2f0ad37626462bc2a653697898fa354c.jpg',
+    'https://i.pinimg.com/originals/2e/01/89/2e0189b406b426f20a62bd0247e4f1a2.jpg',
+    'https://media.giphy.com/media/Okow4CWdYmac/giphy.gif',
+    'https://i.redd.it/a0mtrzcnayz31.jpg'
 ]
