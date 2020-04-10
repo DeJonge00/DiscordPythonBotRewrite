@@ -1,13 +1,18 @@
-from core.bot import PythonBot
-from config.constants import TEXT, EMBED, LOOKUP_COMMANDS_EMBED_COLOR as EMBED_COLOR
-from secret.secrets import osu_api_key
+import logging
+import re
 
+import requests
 from discord import TextChannel, Embed
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
-import re
-import requests
+from config.constants import TEXT, EMBED, LOOKUP_COMMANDS_EMBED_COLOR as EMBED_COLOR
+from core.bot import PythonBot
+from secret.secrets import LOG_LEVEL
+from secret.secrets import osu_api_key
+
+logging.basicConfig(filename='logs/lookup_commands.log', level=LOG_LEVEL,
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
 class LookupCommands(Cog):

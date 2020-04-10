@@ -1,9 +1,10 @@
+from datetime import datetime
+from os import remove, path
+
+from discord import VoiceClient, Embed
+
 from commands.music.song import Song
 from core import logging as log
-
-from discord import VoiceClient, Embed, TextChannel
-
-from os import remove, path
 
 
 class VoiceState:
@@ -15,6 +16,7 @@ class VoiceState:
         self.skip_votes = []
         self.guild_name = guild_name
         self.running = True
+        self.last_song_start = datetime.now()
 
     def get_queue_display(self):
         """
@@ -102,6 +104,7 @@ class VoiceState:
         self.skip_votes = []
         try:
             self.state.play(song.stream_object, after=self.finalize_song)
+            self.last_song_start = datetime.now()
         except FileNotFoundError:
             return self.play_next()
         self.remove_song_from_queue()

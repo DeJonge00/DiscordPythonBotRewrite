@@ -3,19 +3,22 @@ import random
 
 import discord
 from discord.ext import commands
+from discord.ext.commands import Cog
 from discord.ext.commands.context import Context
 
 from api.rpg import constants as rpgc
 from api.rpg.objects import rpgplayer as rpgp, rpgweapon as rpgw, rpgarmor as rpga
+from core.bot import PythonBot
 from database.rpg import player as db_rpg_player
 
 money_sign = "¥"
 SHOP_EMBED_COLOR = 0x00969b
 
 
-class RPGGameActivities:
-    def __init__(self, bot):
+class RPGGameActivities(Cog):
+    def __init__(self, bot: PythonBot):
         self.bot = bot
+        self.bot.rpgshop = self
         self.weapons = {}
         self.armors = {}
         print('RPGGameActivities started')
@@ -35,7 +38,7 @@ class RPGGameActivities:
                         inline=False)
         embed.add_field(name="Restock", value="Weapons and armors refresh every hour".format(prefix),
                         inline=False)
-        await self.bot.say(embed=embed)
+        await self.bot.send_message(message.channel, embed=embed)
 
     # {prefix}shop
     @commands.group(pass_context=1, help="Shop for valuable items!")
@@ -57,7 +60,8 @@ class RPGGameActivities:
         if not await self.bot.rpggame.check_role(player.role, ctx.message):
             return
         if player.role == rpgc.names.get("role")[-1][0]:
-            await self.bot.say("{}, A cat cannot possibly wear human armor...".format(ctx.message.author.mention))
+            c = "{}, A cat cannot possibly wear human armor...".format(ctx.message.author.mention)
+            await self.bot.send_message(destination=ctx.channel, content=c)
             return
         if len(args) <= 0:
             embed = discord.Embed(colour=SHOP_EMBED_COLOR)
@@ -77,25 +81,28 @@ class RPGGameActivities:
                 if a.money != 0:
                     t += ", money: {}%".format(a.money)
                 embed.add_field(name=str(i) + ") " + a.name, value=t, inline=False)
-            await self.bot.say(embed=embed)
+            await self.bot.send_message(destination=ctx.channel, embed=embed)
             return
         try:
             armor = self.armors.get(int(args[0]))
         except ValueError:
-            await self.bot.say("That is not an armor sold in this part of the country")
+            c = "That is not an armor sold in this part of the country"
+            await self.bot.send_message(destination=ctx.channel, content=c)
             return
         if armor is None:
-            await self.bot.say("That is not an armor sold in this part of the country")
+            c = "That is not an armor sold in this part of the country"
+            await self.bot.send_message(destination=ctx.channel, content=c)
             return
         pa = player.armor
         if not player.buy_armor(armor):
-            await self.bot.say("You do not have the money to buy the {}".format(armor.name))
+            c = "You do not have the money to buy the {}".format(armor.name)
+            await self.bot.send_message(destination=ctx.channel, content=c)
             return
         t = "You have acquired the {} for {}{}".format(armor.name, money_sign, armor.cost)
         if pa.cost > 3:
             t += "\nYou sold your old armor for {}{}".format(money_sign, int(math.floor(0.25 * pa.cost)))
         db_rpg_player.update_player(player)
-        await self.bot.say(t)
+        await self.bot.send_message(destination=ctx.channel, content=t)
 
     # {prefix}shop item
     @shop.command(pass_context=1, aliases=["i", "buy", "items"], help="Special knowledge on enemy weakpoints")
@@ -117,7 +124,7 @@ class RPGGameActivities:
                     x = i.benefit.get(e)
                     t += "\n{}{}{}".format(e, x[0], x[1])
                 embed.add_field(name=i.name, value=t, inline=False)
-            await self.bot.say(embed=embed)
+            await self.bot.send_message(destination=ctx.channel, embed=embed)
             return
         item = args[0].lower()
         if item in ["h", "hp"]:
@@ -129,14 +136,15 @@ class RPGGameActivities:
         elif item in ["c", "crit"]:
             item = "critical"
         if item in ['maxhealth', 'health'] and player.role == rpgc.names.get("role")[-1][0]:
-            await self.bot.say("{}, this stuff does not work on animals...".format(ctx.message.author.mention))
+            c = "{}, this stuff does not work on animals...".format(ctx.message.author.mention)
+            await self.bot.send_message(destination=ctx.channel, content=c)
             return
         if item == "health" and player.health == player.maxhealth:
-            await self.bot.say("You're already full HP")
+            await self.bot.send_message(destination=ctx.channel, content="You're already full HP")
             return
         item = rpgc.shopitems.get(item)
         if not item:
-            await self.bot.say("Thats not an item sold here")
+            await self.bot.send_message(destination=ctx.channel, content="That's not an item sold here")
             return
         try:
             a = int(args[1])
@@ -151,15 +159,16 @@ class RPGGameActivities:
         except IndexError:
             a = 1
         if a < 0:
-            await self.bot.say("Lmao, that sounds intelligent")
+            await self.bot.send_message(destination=ctx.channel, content="Lmao, that sounds intelligent")
             return
         if player.buy_item(item, amount=a):
-            await self.bot.say(
-                "{} bought {} {} for {}{}".format(ctx.message.author.mention, a, item.name, money_sign, a * item.cost))
+            c = "{} bought {} {} for {}{}".format(ctx.message.author.mention, a, item.name, money_sign, a * item.cost)
+            await self.bot.send_message(destination=ctx.channel, content=c)
             db_rpg_player.update_player(player)
         else:
-            await self.bot.say("{} does not have enough money to buy {} {}\nThe maximum you can afford is {}".format(
-                ctx.message.author.mention, a, item.name, math.floor(player.money / item.cost)))
+            c = "{} does not have enough money to buy {} {}\nThe maximum you can afford is {}".format(
+                ctx.message.author.mention, a, item.name, math.floor(player.money / item.cost))
+            await self.bot.send_message(destination=ctx.channel, content=c)
 
     # {prefix}shop weapon
     @shop.command(pass_context=1, aliases=["w", "weapons"], help="Buy a shiny new weapon!")
@@ -171,7 +180,8 @@ class RPGGameActivities:
         if not await self.bot.rpggame.check_role(player.role, ctx.message):
             return
         if player.role == rpgc.names.get("role")[-1][0]:
-            await self.bot.say("{}, how would you even use a weapon as a cat?".format(ctx.message.author.mention))
+            c = "{}, how would you even use a weapon as a cat?".format(ctx.message.author.mention)
+            await self.bot.send_message(destination=ctx.channel, content=c)
             return
         if len(args) <= 0:
             embed = discord.Embed(colour=SHOP_EMBED_COLOR)
@@ -191,25 +201,28 @@ class RPGGameActivities:
                 if w.critical != 0:
                     t += ", critical + {}".format(w.critical)
                 embed.add_field(name=str(i) + ") " + w.name, value=t, inline=False)
-            await self.bot.say(embed=embed)
+            await self.bot.send_message(destination=ctx.channel, embed=embed)
             return
         try:
             weapon = self.weapons.get(int(args[0]))
         except ValueError:
-            await self.bot.say("That is not a weapon sold in this part of the country")
+            c = "That is not a weapon sold in this part of the country"
+            await self.bot.send_message(destination=ctx.channel, content=c)
             return
         if weapon is None:
-            await self.bot.say("That is not an armor sold in this part of the country")
+            c = "That is not an armor sold in this part of the country"
+            await self.bot.send_message(destination=ctx.channel, content=c)
             return
         pw = player.weapon
         if not player.buy_weapon(weapon):
-            await self.bot.say("You do not have the money to buy the {}".format(weapon.name))
+            c = "You do not have the money to buy the {}".format(weapon.name)
+            await self.bot.send_message(destination=ctx.channel, content=c)
             return
         t = "You have acquired the {} for {}{}".format(weapon.name, money_sign, weapon.cost)
         if pw.cost > 3:
             t += "\nYou sold your old weapon for {}{}".format(money_sign, int(math.floor(0.25 * pw.cost)))
         db_rpg_player.update_player(player)
-        await self.bot.say(t)
+        await self.bot.send_message(destination=ctx.channel, content=t)
 
     # {prefix}train
     @commands.command(pass_context=1, aliases=["training"], help="Train your skills!")
@@ -221,7 +234,7 @@ class RPGGameActivities:
             embed.set_author(name="Available Training", icon_url=ctx.message.author.avatar_url)
             for i in rpgc.trainingitems.values():
                 embed.add_field(name=i.name, value="Minutes per statpoint: {}".format(i.cost), inline=False)
-            await self.bot.say(embed=embed)
+            await self.bot.send_message(destination=ctx.channel, embed=embed)
             return
         training = args[0]
         if training in ['ws', 'weapon']:
@@ -242,27 +255,29 @@ class RPGGameActivities:
         if not await self.bot.rpggame.check_role(player.role, ctx.message):
             return
         if player.role == rpgc.names.get("role")[-1][0] and training.name == 'maxhealth':
-            await self.bot.say("{}, awww. So cute. A cat trying to fight a dummy".format(ctx.message.author.mention))
+            c = "{}, awww. So cute. A cat trying to fight a dummy".format(ctx.message.author.mention)
+            await self.bot.send_message(destination=ctx.channel, content=c)
             return
         if player.busydescription != rpgp.BUSY_DESC_NONE:
-            await self.bot.say("Please make sure you finish your other shit first")
+            c = "Please make sure you finish your other shit first"
+            await self.bot.send_message(destination=ctx.channel, content=c)
             return
         c = ctx.message.channel
         if c.is_private:
             c = ctx.message.author
         time = math.ceil(a * training.cost)
         if not (rpgp.mintrainingtime <= time <= int(rpgp.maxtrainingtime + (0.5 * player.extratime))):
-            await self.bot.say(
-                "You can train between {} and {} points".format(math.ceil(rpgp.mintrainingtime / training.cost),
-                                                                math.floor(int(rpgp.maxtrainingtime + (
-                                                                        0.5 * player.extratime)) / training.cost)))
+            await self.bot.send_message(destination=ctx.channel, content=
+            "You can train between {} and {} points".format(math.ceil(rpgp.mintrainingtime / training.cost),
+                                                            math.floor(int(rpgp.maxtrainingtime + (
+                                                                    0.5 * player.extratime)) / training.cost)))
             return
         player.set_busy(rpgp.BUSY_DESC_TRAINING, time, c.id)
         player.buy_training(training, amount=a)
         db_rpg_player.update_player(player)
-        await self.bot.say(
-            "{}, you are now training your {} for {} minutes".format(ctx.message.author.mention, training.name,
-                                                                     int(math.ceil(a * training.cost))))
+        await self.bot.send_message(destination=ctx.channel, content=
+        "{}, you are now training your {} for {} minutes".format(ctx.message.author.mention, training.name,
+                                                                 int(math.ceil(a * training.cost))))
 
     # {prefix}work
     @commands.command(pass_context=1, aliases=["Work"], help="Work for some spending money!")
@@ -279,11 +294,12 @@ class RPGGameActivities:
         if not await self.bot.rpggame.check_role(player.role, ctx.message):
             return
         if player.role == rpgc.names.get("role")[-1][0]:
-            await self.bot.say(
-                "{}, I'm sorry, but we need someone with more... height...".format(ctx.message.author.mention))
+            await self.bot.send_message(destination=ctx.channel, content=
+            "{}, I'm sorry, but we need someone with more... height...".format(ctx.message.author.mention))
             return
         if player.busydescription != rpgp.BUSY_DESC_NONE:
-            await self.bot.say("Please make sure you finish your other shit first")
+            c = "Please make sure you finish your other shit first"
+            await self.bot.send_message(destination=ctx.channel, content=c)
             return
         c = ctx.message.channel
         if c.is_private:
@@ -291,8 +307,9 @@ class RPGGameActivities:
 
         # Set busy time
         if not (rpgp.minworkingtime <= time <= (rpgp.maxworkingtime + player.extratime)):
-            await self.bot.say("You can work between {} and {} minutes".format(rpgp.minworkingtime, (
-                    rpgp.maxworkingtime + player.extratime)))
+            c = "You can work between {} and {} minutes".format(rpgp.minworkingtime,
+                                                                (rpgp.maxworkingtime + player.extratime))
+            await self.bot.send_message(destination=ctx.channel, content=c)
             return
 
         db_rpg_player.set_busy(player.userid, math.ceil(time), c.id, rpgp.BUSY_DESC_WORKING)
@@ -315,4 +332,9 @@ class RPGGameActivities:
             'chopping wood',
             'mining valuable ore'
         ])
-        await self.bot.say("{}, you are now {} for {} minutes".format(ctx.message.author.mention, work, time))
+        c = "{}, you are now {} for {} minutes".format(ctx.message.author.mention, work, time)
+        await self.bot.send_message(destination=ctx.channel, content=c)
+
+
+def setup(bot):
+    bot.add_cog(RPGGameActivities(bot))

@@ -1,15 +1,20 @@
-from core import logging as log
-from core.bot import PythonBot
-from config import constants, command_text
-from config.constants import TEXT, EMBED, IMAGE, ACTION, STAR_EMBED_COLOR, STAR_EMOJI
-from database.general.starboard import get_star_channel, get_star_message, update_star_message
-from secret.secrets import bot_names
+import logging
+import random
+import string
+from datetime import timedelta, datetime
 
 from discord import Message, Member, Reaction, Forbidden, NoMoreItems, Embed, DMChannel
 
-from datetime import timedelta, datetime
-import random
-import string
+from config import constants, command_text
+from config.constants import TEXT, EMBED, IMAGE, ACTION, STAR_EMBED_COLOR, STAR_EMOJI
+from core import logging as log
+from core.bot import PythonBot
+from database.general.starboard import get_star_channel, get_star_message, update_star_message
+from secret.secrets import LOG_LEVEL
+from secret.secrets import bot_names
+
+logging.basicConfig(filename='logs/message_handlers.log', level=LOG_LEVEL,
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
 def cl(x):

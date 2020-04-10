@@ -1,7 +1,13 @@
-from database.general.auto_voice_channel import get_joiner_channels, get_created_channels, set_created_channel, \
-    set_joiner_channel
+import logging
 
 from discord import Member, VoiceChannel, VoiceState, Forbidden
+
+from database.general.auto_voice_channel import get_joiner_channels, get_created_channels, set_created_channel, \
+    set_joiner_channel
+from secret.secrets import LOG_LEVEL
+
+logging.basicConfig(filename='logs/channel_handlers.log', level=LOG_LEVEL,
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
 async def new_voice_channel(joiner: VoiceChannel):

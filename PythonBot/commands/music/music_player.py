@@ -1,10 +1,16 @@
-from core.bot import PythonBot
-from commands.music.song import Song
-from commands.music.voice_state import VoiceState
+import logging
+import re
+from datetime import datetime
 
 from discord import Message, TextChannel
 
-import re
+from commands.music.song import Song
+from commands.music.voice_state import VoiceState
+from core.bot import PythonBot
+from secret.secrets import LOG_LEVEL
+
+logging.basicConfig(filename='logs/music_player.log', level=LOG_LEVEL,
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
 class MusicPlayer:
@@ -12,6 +18,11 @@ class MusicPlayer:
         self.bot = mybot
         self.states: {int: (VoiceState, TextChannel)} = {}
         self.running = True
+
+    async def music_loop(self, time: datetime):
+        for s, _ in self.states.values():
+            if s.state.is_connected() and not s.state.is_playing() and ((time - s.last_song_start).seconds > (10 * 60)):
+                await s.disconnect()
 
     async def check_connected(self, m: Message):
         """
@@ -118,5 +129,3 @@ class MusicPlayer:
         await state.disconnect()
         del self.states[channel.guild.id]
         await self.bot.send_message(channel, "Baibai o/")
-
-

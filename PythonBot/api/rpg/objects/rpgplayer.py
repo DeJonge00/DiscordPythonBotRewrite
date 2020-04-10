@@ -31,7 +31,7 @@ maxworkingtime = 120
 
 
 class RPGPlayer(rpgcharacter.RPGCharacter):
-    def __init__(self, userid: str, username: str,
+    def __init__(self, userid: int, username: str,
                  picture_url='https://i.pinimg.com/originals/97/7b/b8/977bb8f6f1fc78778f3225ed83b1b4ba.jpg', exp=0,
                  level=0, money=0, role=DEFAULT_ROLE, weapon=RPGWeapon(),
                  armor=RPGArmor(), pets: [RPGPet] = [], health=rpgcharacter.DEFAULT_HEALTH,
@@ -68,7 +68,7 @@ class RPGPlayer(rpgcharacter.RPGCharacter):
     def add_exp(self, n: int):
         if self.get_health() <= 0:
             return
-        lvl = self.get_level()
+        # lvl = self.get_level()
         self.exp += n
 
     def add_health(self, n: int, death=True, element=rpgc.element_none):

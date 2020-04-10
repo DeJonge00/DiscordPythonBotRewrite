@@ -1,9 +1,15 @@
-from config.constants import TEXT, STAR_EMOJI
-from core.bot import PythonBot
-from database.general import prefix, delete_commands, starboard
+import logging
 
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
+
+from config.constants import TEXT, STAR_EMOJI
+from core.bot import PythonBot
+from database.general import prefix, delete_commands, starboard
+from secret.secrets import LOG_LEVEL
+
+logging.basicConfig(filename='logs/config_commands.log', level=LOG_LEVEL,
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
 class ConfigCommands(Cog):

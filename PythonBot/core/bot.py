@@ -1,12 +1,19 @@
+import asyncio
+import logging
+from datetime import datetime
+
+from discord import Message, TextChannel, DMChannel, Forbidden, Embed, Member, User, Permissions
+from discord.ext.commands import Bot, Context
+
 from config import constants
 from core import logging as log
 from core.utils import prep_str, command_allowed_in_channel, command_allowed_in_server
 # from discord.ext.commands.formatter import HelpFormatter
 from database.general import delete_commands, prefix, command_counter
-from secret.secrets import prefix
+from secret.secrets import prefix, LOG_LEVEL
 
-from discord import Message, TextChannel, DMChannel, Forbidden, Embed, Member
-from discord.ext.commands import Bot, Context
+logging.basicConfig(filename='logs/1rpg_main_errors.log', level=LOG_LEVEL,
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
 class PythonBot(Bot):
@@ -123,7 +130,7 @@ class PythonBot(Bot):
         if self.RPGGAME:
             self.rpggame.quit()
         if self.MUSIC:
-            await self.musicplayer.quit()
+            await self.music_player.quit()
 
     """ Overwiting functions """
 
@@ -164,11 +171,16 @@ class PythonBot(Bot):
         :return:
         """
 
+        if isinstance(destination, User):
+            if not destination.dm_channel:
+                await destination.create_dm()
+            destination: DMChannel = destination.dm_channel
+
         if isinstance(destination, Context):
             destination: TextChannel = destination.channel
 
         # Exceptions
-        if not isinstance(destination, DMChannel):
+        if not (isinstance(destination, DMChannel) or isinstance(destination, User) or isinstance(destination, Member)):
             perms = destination.permissions_for(destination.guild.me)
             if not perms.send_messages:
                 log.error_before_message(destination=destination, author=self.user.name, content=content,
@@ -186,7 +198,7 @@ class PythonBot(Bot):
                 return await self.send_message(destination, content=m)
 
         # Send and log message
-        m = await destination.send(content=content, tts=tts, embed=embed)
+        m = await destination.send(content=content, tts=tts, file=file, embed=embed)
         if content:
             log.message(m)
         if file:
@@ -194,6 +206,24 @@ class PythonBot(Bot):
         if embed:
             log.message(m)
         return m
+
+    async def edit_message(self, message: Message, content=None, embed=None, suppress=False, delete_after=None):
+        destination = message.channel
+        if message.author is not destination.guild.me:
+            log.error_before_message(destination=destination, author=self.user.name, content=content,
+                                     error_message='Trying to edit a message that isn\'t my own')
+
+        if not (isinstance(destination, DMChannel) or isinstance(destination, User) or isinstance(destination, Member)):
+            perms: Permissions = destination.permissions_for(destination.guild.me)
+            if not perms.send_messages:
+                log.error_before_message(destination=destination, author=self.user.name, content=content,
+                                         error_message='No permissions to send message')
+                return
+            if embed and not perms.embed_links:
+                log.error_before_message(destination=destination, author=self.user.name, content='<Embedded message>',
+                                         error_message='No permissions to send embedded messages')
+                return
+        return await message.edit(content=content, embed=embed, suppress=suppress, delete_after=delete_after)
 
     async def pre_command(self, message: Message, channel: (TextChannel, DMChannel), command: str, is_typing=True,
                           delete_message=True,
@@ -258,3 +288,18 @@ class PythonBot(Bot):
             await channel.trigger_typing()
         command_counter.command_counter(command, message)
         return True
+
+    async def time_loop(self):
+        print('Time-loop started')
+        await self.wait_until_ready()
+        while self.running:
+            time = datetime.utcnow()
+
+            if self.RPGGAME:
+                await self.rpggame.game_tick(time)
+            if self.MUSIC:
+                await self.music_player.music_loop(time)
+
+            end_time = datetime.utcnow()
+            await asyncio.sleep(60 - end_time.second)
+        print("Time-loop stopped")

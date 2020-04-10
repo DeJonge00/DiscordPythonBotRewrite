@@ -1,14 +1,19 @@
-from core.bot import PythonBot
-from config import image_links
-from config.constants import IMAGE_COMMANDS_EMBED_COLOR as EMBED_COLOR, image_spam_protection_removal, EMBED
+import asyncio
+import logging
+from datetime import datetime
+from random import choice
 
 from discord import Embed, Message, TextChannel
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
-import asyncio
-from datetime import datetime
-from random import randint, choice
+from config import image_links
+from config.constants import IMAGE_COMMANDS_EMBED_COLOR as EMBED_COLOR, image_spam_protection_removal, EMBED
+from core.bot import PythonBot
+from secret.secrets import LOG_LEVEL
+
+logging.basicConfig(filename='logs/image_commands.log', level=LOG_LEVEL,
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
 class ImageCommands(Cog):

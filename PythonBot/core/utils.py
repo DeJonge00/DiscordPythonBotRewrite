@@ -1,11 +1,16 @@
-from database.general import banned_commands, welcome, member_counter
-from config.constants import WELCOME_EMBED_COLOR, member_counter_message
-from core import logging as log
+import asyncio
+import logging
+import re
 
 from discord import Guild, Member, Embed, VoiceChannel
 
-import asyncio
-import re
+from config.constants import WELCOME_EMBED_COLOR, member_counter_message
+from core import logging as log
+from database.general import banned_commands, welcome, member_counter
+from secret.secrets import LOG_LEVEL
+
+logging.basicConfig(filename='logs/utils.log', level=LOG_LEVEL,
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 REMOVE_JOIN_MESSAGE = False
 REMOVE_LEAVE_MESSAGE = False

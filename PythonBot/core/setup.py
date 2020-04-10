@@ -1,16 +1,15 @@
-from config import constants
-from config.constants import STAR_EMOJI
-from core import logging as log
-from core.handlers import message_handler, channel_handlers
-from core.bot import PythonBot
-from core.utils import get_cogs, update_member_counter, on_member_message
-from database.general import bot_information, general
-from secret.secrets import game_name
-from commands.rpg.rpg_main import RPGGame
-
+import logging
 from datetime import datetime
-from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel, Guild, VoiceChannel, User, Activity, \
-    VoiceState
+
+from discord import Status, Game
+
+from core.bot import PythonBot
+from core.utils import get_cogs
+from database.general import bot_information
+from secret.secrets import game_name, LOG_LEVEL
+
+logging.basicConfig(filename='logs/setup.log', level=LOG_LEVEL,
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
 def create_bot():
@@ -19,6 +18,8 @@ def create_bot():
         bot.load_extension(cog)
     if bot.RPGGAME:
         bot.load_extension('commands.rpg.rpg_main')
+        bot.load_extension('commands.rpg.rpggameactivities')
+        bot.loop.create_task(bot.time_loop())
     if bot.MUSIC:
         bot.load_extension('commands.music.music')
 
@@ -33,4 +34,5 @@ def create_bot():
         await bot.change_presence(activity=Game(name=game_name), status=Status.do_not_disturb)
 
         bot_information.update_server_list(bot.guilds)
+
     return bot

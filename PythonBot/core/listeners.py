@@ -6,14 +6,14 @@ from core import logging as log
 from core.handlers import message_handler, channel_handlers
 from core.utils import update_member_counter, on_member_message
 from database.general import general
-from secret.secrets import game_name
+from secret.secrets import game_name, LOG_LEVEL
 from commands.rpg.rpg_main import RPGGame
 
 from discord.ext.commands import Cog
 from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel, Guild, VoiceChannel, User, Activity, \
     VoiceState
 
-logging.basicConfig(filename='logs/1rpg_main_errors.log', level=logging.DEBUG,
+logging.basicConfig(filename='logs/listeners.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
@@ -35,11 +35,13 @@ class Listeners(Cog):
                 await message_handler.new_message(self.bot, message)
 
         # Commands in the message
-        try:
-            # TODO Remove double logging on command used in dms
-            await self.bot.process_commands(message)
-        except Forbidden:
-            log.error_on_message(message, error_message='Forbidden Exception')
+        # Get handled automatically somewhere else?
+        # try:
+        #     # TODO Remove double logging on command used in dms
+        #     # await self.bot.process_commands(message)
+        #     pass
+        # except Forbidden:
+        #     log.error_on_message(message, error_message='Forbidden Exception')
 
         # Send message to rpggame for exp
         if self.bot.RPGGAME and (len(message.content) < 2 or (message.content[:2] == '<@') or

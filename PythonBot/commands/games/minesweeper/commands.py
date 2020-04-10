@@ -1,12 +1,14 @@
-from commands.games.minesweeper.game_instance import MinesweeperInstance, LOSS
-from core.bot import PythonBot
+import logging
 
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
-from os import remove
-from random import randint
-import re
+from commands.games.minesweeper.game_instance import MinesweeperInstance, LOSS
+from core.bot import PythonBot
+from secret.secrets import LOG_LEVEL
+
+logging.basicConfig(filename='logs/minesweeper.log', level=LOG_LEVEL,
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
 # Normal commands
@@ -69,7 +71,7 @@ class Minesweeper(Cog):
             await self.bot.send_message(ctx.channel, 'Those arent whole numbers...')
             return
 
-        result = game.guess(x-1, y-1)
+        result = game.guess(x - 1, y - 1)
         if result == LOSS:
             del self.games[ctx.channel.id]
         await self.bot.send_message(ctx.channel, str(game))

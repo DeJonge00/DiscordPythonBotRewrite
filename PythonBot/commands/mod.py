@@ -1,17 +1,22 @@
-from core.bot import PythonBot
-from core.utils import prep_str
-from config.constants import TEXT, KICK_REASON, member_counter_message
-from database.general import self_assignable_roles
-from database.general.auto_voice_channel import set_joiner_channel
-from database.general.general import WELCOME_TABLE, GOODBYE_TABLE
-from database.general.member_counter import set_member_counter_channel, get_member_counter_channel
-from database.general.welcome import set_message
+import logging
+import re
 
 from discord import Member, TextChannel, PermissionOverwrite, Forbidden
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
-import re
+from config.constants import TEXT, KICK_REASON, member_counter_message
+from core.bot import PythonBot
+from core.utils import prep_str
+from database.general import self_assignable_roles
+from database.general.auto_voice_channel import set_joiner_channel
+from database.general.general import WELCOME_TABLE, GOODBYE_TABLE
+from database.general.member_counter import set_member_counter_channel, get_member_counter_channel
+from database.general.welcome import set_message
+from secret.secrets import LOG_LEVEL
+
+logging.basicConfig(filename='logs/mod_commands.log', level=LOG_LEVEL,
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
 class ModCommands(Cog):

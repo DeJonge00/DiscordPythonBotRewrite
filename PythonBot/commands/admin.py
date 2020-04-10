@@ -1,14 +1,19 @@
-from core.setup import get_cogs
-from core.bot import PythonBot
+import logging
+from io import BytesIO
+from os import remove
 
+import requests
+from PIL import Image
 from discord import HTTPException
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
-from io import BytesIO
-from os import remove
-from PIL import Image
-import requests
+from core.bot import PythonBot
+from core.setup import get_cogs
+from secret.secrets import LOG_LEVEL
+
+logging.basicConfig(filename='logs/admin_commands.log', level=LOG_LEVEL,
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
 # Mod commands

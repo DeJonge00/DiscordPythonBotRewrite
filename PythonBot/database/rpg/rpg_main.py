@@ -19,7 +19,7 @@ def get_table(table):
 
 
 def get_busy_players():
-    return [(x.get('stats').get('name'), x.get('userid'), x.get('picture_url'), x.get('busy'), x.get('stats')
+    return [(x.get('stats').get('name'), int(x.get('userid')), x.get('picture_url'), x.get('busy'), x.get('stats')
              .get('health')) for x in get_table(RPG_PLAYER_TABLE).find({"$or": [{'busy.time': {'$lt': 0}},
                                                                                 {'busy.description': {
                                                                                     '$not': {'$eq': 0}}}]})]
@@ -43,7 +43,7 @@ def do_health_regen():
             else:
                 percentage = 0.05 if player.role == rpgc.names.get('role')[4][0] else 0.03
             health = min(player.get_max_health(), int(player.get_health() + player.get_max_health() * percentage))
-            t.update({USER_ID: player.userid}, {'$set': {'stats.health': health}})
+            t.update({USER_ID: str(player.userid)}, {'$set': {'stats.health': health}})
 
 
 def get_top_players(group: str, start: int, amount: int):

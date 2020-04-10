@@ -1,7 +1,13 @@
-from core.bot import PythonBot
+import logging
 
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
+
+from core.bot import PythonBot
+from secret.secrets import LOG_LEVEL
+
+logging.basicConfig(filename='logs/misc_commands.log', level=LOG_LEVEL,
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
 class MiscCommands(Cog):

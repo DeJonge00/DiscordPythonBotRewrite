@@ -1,15 +1,18 @@
-from core.bot import PythonBot
-from config.constants import MUSIC_EMBED_COLOR as EMBED_COLOR, NYAid
-from commands.music.music_player import MusicPlayer
-from commands.music.song import Song
-from secret.secrets import prefix
+import logging
+from math import ceil
 
 from discord import Embed
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 from discord.opus import is_loaded
 
-from math import ceil
+from commands.music.music_player import MusicPlayer
+from config.constants import MUSIC_EMBED_COLOR as EMBED_COLOR, NYAid
+from core.bot import PythonBot
+from secret.secrets import LOG_LEVEL, prefix
+
+logging.basicConfig(filename='logs/music.log', level=LOG_LEVEL,
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
 class MusicCommands(Cog):

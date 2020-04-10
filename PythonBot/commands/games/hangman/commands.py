@@ -1,14 +1,19 @@
-from config.constants import TEXT, EMBED
 from config.command_text import hangmanwords
-from core.bot import PythonBot
-from commands.games.hangman.game_instance import HangmanInstance, MAX_FAULTS, WIN, GAME_OVER, RIGHT, WRONG
+import logging
+import random
+import string
 
-from discord import TextChannel, Member, Embed, DMChannel
+from discord import TextChannel, Member, DMChannel
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
-import random
-import string
+from commands.games.hangman.game_instance import HangmanInstance, MAX_FAULTS, WIN, GAME_OVER, RIGHT, WRONG
+from config.command_text import hangmanwords
+from core.bot import PythonBot
+from secret.secrets import LOG_LEVEL
+
+logging.basicConfig(filename='logs/hangman.log', level=LOG_LEVEL,
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 CUSTOM_WORD = 'custom'
 RANDOM_WORD = 'random'
@@ -105,7 +110,8 @@ class Hangman(Cog):
         if not c:
             c = await member.create_dm()
         await self.bot.send_message(c, "Hi there!\nWhat would you like the sentence for the hangman game to be?")
-        m = await self.bot.wait_for('message', check=lambda m: m.author.id == member.id and m.channel.id == c.id, timeout=60)
+        m = await self.bot.wait_for('message', check=lambda m: m.author.id == member.id and m.channel.id == c.id,
+                                    timeout=60)
         return m.content if m else None
 
     async def new_custom_game(self, ctx: Context, *args):
