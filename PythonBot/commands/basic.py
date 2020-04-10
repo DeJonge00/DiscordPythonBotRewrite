@@ -4,10 +4,13 @@ import random
 import re
 from asyncio import sleep
 from datetime import datetime
+from parser import ParserError
+
+from dateutil.parser import parse
 
 import requests
 import wikipedia
-from discord import Embed, Attachment, User, Emoji, Member, Spotify
+from discord import Embed, Attachment, User, Emoji, Member, Spotify, Message
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
@@ -495,9 +498,31 @@ class BasicCommands(Cog):
             m += '\n- {}'.format(r.get('quoteAuthor'))
         await self.bot.send_message(ctx, m)
 
-    # TODO Replace >countdown with a >remindme (not spammy, but same functionality)
+    @commands.command(name='remindme', help='Let me remind you of something by sending you a message')
+    async def remindme(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='remindme'):
+            return
+        # Parse time or date
+        try:
+            dt = parse(' '.join(args))
+        except ParserError:
+            await self.bot.send_message(ctx.channel, "I'm afraid I do not recognize the format")
+            return
+        m = await self.bot.send_message(ctx.channel, "What can I remind you of on {}?".format(dt))
 
-    @commands.command(name='role', help="Get a random quote!")
+        # Parse what to be reminded of
+        def check(r: Message):
+            return m.channel is r.channel and r.author.id is ctx.message.author.id
+
+        r = await self.bot.wait_for('message', check=check, timeout=60)
+        await self.bot.delete_message(m)
+        if not r:
+            return
+        # TODO Actually save what needs to be reminded and remind them (m.content)
+        await self.bot.send_message(ctx.channel, 'This command is not finished, but thanks for testing it')
+        #'Owkey, thy will be done')
+
+    @commands.command(name='role', help="Add or remove a self-assignable role to or from yourself!")
     async def role(self, ctx: Context, *args):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='role'):
             return
@@ -540,10 +565,10 @@ class BasicCommands(Cog):
 
         # Add or remove role from ctx.author
         if role in ctx.author.roles:
-            await self.bot.remove_roles(ctx.author, role, reason='Self-assignable role')
+            await ctx.author.remove_roles(role, reason='Self-assignable role')
             await self.bot.send_message(ctx.channel, 'I removed the {} role from you'.format(role.name))
             return
-        await self.bot.add_roles(ctx.author, role, reason='Self-assignable role')
+        await ctx.author.add_roles(role, reason='Self-assignable role')
         await self.bot.send_message(ctx.channel, 'I added the {} role to you'.format(role.name))
 
     @commands.command(name='serverinfo', help="Get the guild's information!",

@@ -370,8 +370,8 @@ class RPGGame(commands.Cog):
 
     async def game_tick(self, time):
         try:
-            if time.minute % 5 == 0:
-                print(time.strftime("%H:%M:%S"))
+            # if time.minute % 5 == 0:
+            #     print(time.strftime("%H:%M:%S"))
             if time.minute == 55:
                 await self.do_boss_raids_warning()
             if time.minute == 0:

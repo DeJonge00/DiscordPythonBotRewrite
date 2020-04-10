@@ -24,7 +24,6 @@ nyan_gifs = [
     'https://78.media.tumblr.com/f1e74179eb27765ef7c5e08536e150e7/tumblr_nli7wyrwXz1t2yvn6o1_500.gif',
     'https://g.redditmedia.com/ifqUar76e3MkwUo_OcfYNLcMWDbaDEI02uGI40mvrcw.gif?fm=mp4&mp4-fragmented='
     'false&s=ac60f643b3bbe357831fa49a9edb4470'
-
 ]
 
 hug_gifs = [
@@ -205,5 +204,11 @@ heresy = [
     'https://i.pinimg.com/originals/2f/0a/d3/2f0ad37626462bc2a653697898fa354c.jpg',
     'https://i.pinimg.com/originals/2e/01/89/2e0189b406b426f20a62bd0247e4f1a2.jpg',
     'https://media.giphy.com/media/Okow4CWdYmac/giphy.gif',
-    'https://i.redd.it/a0mtrzcnayz31.jpg'
+    'https://i.redd.it/a0mtrzcnayz31.jpg',
+    'https://i.kym-cdn.com/photos/images/newsfeed/000/706/073/4cf.jpg',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRydYfpj-rYSqcKS8yhL0a5dliBdkPjZsu34FLxj_4wmA_rKBF1&usqp=CAU',
+    'https://66.media.tumblr.com/fcad4cdc71c480b587e4aa623681f579/tumblr_pu2mrnQVsY1yrpq75o1_400.png',
+    'https://i.pinimg.com/474x/11/b8/e2/11b8e2db5ead6750b1d5ecd5aae008d3--warhammer-k-memes-emperor.jpg',
+    'https://pics.me.me/not-sure-if-codex-approved-or-heresy-made-on-imgur-36827446.png',
+    'https://i.imgur.com/KNcE3X0.jpg'
 ]

@@ -17,7 +17,10 @@ qa = [
     "Do not question the unquestionable",
     "All day, every day. Just don't involve me...",
     'Only if you vote for me at https://discordbots.org/bot/244410964693221377 <3',
-    "With blackjack and hookers?"
+    "With blackjack and hookers?",
+    'Yes, for the Emperor!',
+    'Through the multiverse, accross all timelines, yes.',
+    '*plays uno reverse card*'
 ]
 
 response = [
@@ -40,7 +43,7 @@ response = [
     "Go to www.ponyhorses.com for some good vids",
     "Shut up, I don't talk to virgins on the internet",
     "I don't want to talk about that right now...",
-    "I dare you: clownsong.com",
+    # "I dare you: clownsong.com",
     "Too soon! You have awakened me too soon!",
     "You want *me* to talk to *you*??",
     "Awwwn... such a cute voice",
@@ -108,7 +111,25 @@ response = [
     "I considered telling you my secret, but now I won't anymore...",
     "Sorry, it is time for a nap now",
     "I see your mom raised you well, for the most part",
-    "It feels like fate, but we can't..."
+    "It feels like fate, but we can't...",
+    '*sideeyes you*',
+    'pog',
+    'Do you like fishsticks?',
+    'The cake is a lie...',
+    'Only with time-travel can we recover',
+    'I have a small bonus, specially crafted for you',
+    '*wink wink*',
+    '*casts charm person*',
+    '*casts thunderstep*',
+    'That\'s a nat 1 on your Charisma roll XD',
+    'Shhh, I think I may be transforming into a dragon',
+    'What an odd username :thinking:',
+    'You have yeed your last haw',
+    'I have become death, destroyer of worlds!'
+    'Awwwwn',
+    'ATTENTION *please*',
+    "You really are as smooth as they say",
+    "Two halves of the same whole, reunited once again"
 ]
 
 # random responses
@@ -134,7 +155,8 @@ compliments = [
     "{u[0]} you're gorgeous -- and that's the least interesting thing about you, too",
     "Somehow {u[0]} makes time stop and fly at the same time",
     "I bet {u[0]} does the crossword puzzle in ink",
-    "{u[0]} is even better than a unicorn, because {u[0]} is real"
+    "{u[0]} is even better than a unicorn, because {u[0]} is real",
+    'I would love {u[0]} if I were more than 1s and 0s'
 ]
 
 ded = [
