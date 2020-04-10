@@ -11,6 +11,7 @@ from core.utils import prep_str, command_allowed_in_channel, command_allowed_in_
 # from discord.ext.commands.formatter import HelpFormatter
 from database.general import delete_commands, prefix, command_counter
 from secret.secrets import prefix, LOG_LEVEL
+from core.custom_help_command import CustomHelpCommand
 
 logging.basicConfig(filename='logs/1rpg_main_errors.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
@@ -27,7 +28,7 @@ class PythonBot(Bot):
         self.API = api
         self.EMBED_LIST = embed_list
         # TODO Add custom help formatter
-        super(PythonBot, self, ).__init__(command_prefix=prefix, pm_help=True)  # , formatter=HelpFormatter)
+        super(PythonBot, self).__init__(command_prefix=prefix, help_command=CustomHelpCommand(self))
 
     """ Helper functions """
 

@@ -129,7 +129,9 @@ response = [
     'Awwwwn',
     'ATTENTION *please*',
     "You really are as smooth as they say",
-    "Two halves of the same whole, reunited once again"
+    "Two halves of the same whole, reunited once again",
+    "Level 6, here I come",
+    "A long, long time ago, in a galaxy far, far away"
 ]
 
 # random responses
