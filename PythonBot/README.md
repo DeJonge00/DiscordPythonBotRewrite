@@ -35,6 +35,8 @@ The commands marked with <WIP>have not been added to the rewritten version yet
 |cookie         |`cookie`                                               |Click the cookie, let's see how far we come. For teh greater good!
 |countdown      |`countdown` `{seconds}`                                |Ping on times until the seconds run out (dms only for spam reasons)
 |delete      	|`del,delete,d` `{seconds}` `{normal message}`          |Make biri delete your message after `{seconds}` seconds
+|dice           |`dice,roll` `{number}d{number}k{number}`               |Roll some dice. State the amount of dice (optional), the type of dice, and how many you keep (optional, for example 4d6k3 means roll 4 d6 and keep the highest 3) Examples: d6, 2d4, 4d6k3, 1d4+2d6.
+|               |`dice,roll` `stats`                                    |Rolls 4d6k3 6 times, the default rolling for stats in Dnd 5E.
 |echo        	|`echo` `{text}`                                        |Biri repeats `{text}` (Images can only be echoed if toggledeletecommands is set to false)
 |embed          |`embed` `{text or single attachment}`                  |Send an embed of {text} or an {attachment}
 |emoji       	|`emoji` `{emoji}`                                      |Send a big version of `{emoji}`

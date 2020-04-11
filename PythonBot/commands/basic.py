@@ -6,10 +6,9 @@ from asyncio import sleep
 from datetime import datetime
 from parser import ParserError
 
-from dateutil.parser import parse
-
 import requests
 import wikipedia
+from dateutil.parser import parse
 from discord import Embed, Attachment, User, Emoji, Member, Spotify, Message
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
@@ -140,25 +139,41 @@ class BasicCommands(Cog):
     async def dice(self, ctx: Context, *args):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='dice'):
             return
-        text = ' '.join(args)
-        if not re.match('[d\d /*-+]+', text):
-            await self.bot.send_message(ctx.channel, 'Oww I detect some illegal characters...')
-            return
-        # TODO Replace number-list with regex numbers, then take randint below that number
-        for dice in [2, 4, 6, 8, 10, 12, 20, 100]:
-            text = text.replace('d' + str(dice), '*' + str(random.randint(1, dice)))
-        text = text.lstrip(' *')
-        try:
-            result = eval(text)
-        except SyntaxError:
-            await self.bot.send_message(ctx.channel,
-                                        "The available dice are 2, 4, 6, 8, 10, 12, 20 and 100. Please try again")
-            return
-        if not result:
-            m = 'Please give something useful to roll'
-            await self.bot.send_message(ctx.channel, m)
-            return
-        await self.bot.send_message(ctx.channel, ' '.join(args) + ' = ' + str(result))
+
+        if args[0] in ['stats', 'new', 'statistics', 'abilities']:
+            input = '4d6k3, 4d6k3, 4d6k3, 4d6k3, 4d6k3, 4d6k3'
+        else:
+            input = ' '.join(args)
+            if not re.match('[dk\d /*-+,]+', input):
+                await self.bot.send_message(ctx.channel, 'Oww I detect some illegal characters...')
+                return
+
+        results_text = []
+        results_evaluated = []
+        for text in input.split(','):
+            text = text.replace(' ', '')
+            to_eval = text
+            for m in re.findall('(\d*d\d+k?\d*)', text):
+                s = m.split('d')
+                amount, dice = int(s[0]) if len(s) > 1 else 1, s[-1]
+                s = dice.split('k')
+                dice, keep = int(s[0]), int(s[-1]) if len(s) > 1 else int(s[0])
+                numbers = [random.randint(1, dice) for _ in range(amount)]
+                numbers.sort(reverse=True)
+                numbers_text = ['`{}`'.format(n) if idx < keep else '~~`{}`~~'.format(n) for idx, n in
+                                enumerate(numbers)]
+                numbers = [str(n) if idx < keep else '0' for idx, n in enumerate(numbers)]
+                text = text.replace(m, '(' + '+'.join(numbers_text) + ')', 1)
+                to_eval = to_eval.replace(m, '+'.join([str(n) for n in numbers]), 1)
+            results_text.append(text)
+            try:
+                results_evaluated.append(str(eval(to_eval)))
+            except SyntaxError:
+                m = 'Please check your syntax and try again'
+                await self.bot.send_message(ctx.channel, m)
+                return
+        await self.bot.send_message(ctx.channel,
+                                    'You rolled: ' + ','.join(results_text) + ' = ' + ', '.join(results_evaluated))
 
     @staticmethod
     def command_echo(args: [str], attachments: [Attachment], author: User):
@@ -520,7 +535,7 @@ class BasicCommands(Cog):
             return
         # TODO Actually save what needs to be reminded and remind them (m.content)
         await self.bot.send_message(ctx.channel, 'This command is not finished, but thanks for testing it')
-        #'Owkey, thy will be done')
+        # 'Owkey, thy will be done')
 
     @commands.command(name='role', help="Add or remove a self-assignable role to or from yourself!")
     async def role(self, ctx: Context, *args):
