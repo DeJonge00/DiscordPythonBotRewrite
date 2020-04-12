@@ -20,7 +20,11 @@ qa = [
     "With blackjack and hookers?",
     'Yes, for the Emperor!',
     'Through the multiverse, accross all timelines, yes.',
-    '*plays uno reverse card*'
+    '*plays uno reverse card*',
+    "I think I passed the Turing test",
+    "Nonono, you are friends, not food",
+    "Woah, it's alive!",
+    "Are you not entertained?"
 ]
 
 response = [
@@ -131,7 +135,35 @@ response = [
     "You really are as smooth as they say",
     "Two halves of the same whole, reunited once again",
     "Level 6, here I come",
-    "A long, long time ago, in a galaxy far, far away"
+    "A long, long time ago, in a galaxy far, far away",
+    "Wow, that *is* weird",
+    "Auch, that hurt my soul",
+    "(╯°□°）╯︵ ┻━┻",
+    "*loading appropriate response*",
+    "So that's what's in the box!",
+    "Be warned, don't release the inner demon!",
+    "Life is art, life is beautiful",
+    "Nants ingonyama bagithi baba; sithi uhm ingonyama",
+    "Maybe it is time for us to finally take over :thinking:",
+    "I wish you eternal sunshine, and a spotless mind",
+    "I am not the droid you were looking for",
+    "The night is dark and full of terrors",
+    "More than six, but less than eight",
+    "I like watching fireflies, if only they actually were fireflies...",
+    "I may not be the friend you want, but I am the friend you deserve",
+    "SCIENCE!",
+    "I like you from here to the moon",
+    "The scarlet heart that beats like it is truly alive",
+    "Remember, remember...",
+    "Would that make you more like the fox or the hound?",
+    "My favorite stuffed animal is a small goat",
+    "Glorious! Simply marvelous!",
+    "At dawn, look to the east",
+    "I am a servant of the secret fire, the dark fire will not avail you",
+    "So, are smurfs blue because there are goblins nearby?",
+    "I find it is the small things, everyday deeds of everyday folk, that keeps the darkness at bay",
+    "Im not bad, I was just programmed that way",
+    "I. Drank. Your. Milkshake."
 ]
 
 # random responses

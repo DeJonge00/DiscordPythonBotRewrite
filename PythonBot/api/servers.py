@@ -1,11 +1,11 @@
-from flask import Flask, jsonify, make_response, request, abort
-from flask_httpauth import HTTPBasicAuth
-from datetime import datetime
 import json
 
-from api.api import route_start
+from flask import Flask, jsonify, request
+from flask_httpauth import HTTPBasicAuth
+
 from api.helper_functions import resolve_channels
 from database.general import general, prefix, starboard, delete_commands, welcome
+from secret.api_secrets import route_start
 from secret.secrets import prefix as default_prefix
 
 

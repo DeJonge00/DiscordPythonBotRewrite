@@ -1,10 +1,10 @@
+import requests
 from flask import Flask, jsonify, request
 from flask_httpauth import HTTPBasicAuth
-import requests
 
-from api.api import route_start, discord_url
 from api.helper_functions import resolve_channels
 from database.general import general
+from secret.api_secrets import route_start, discord_url
 
 
 def init_users(api: Flask, auth: HTTPBasicAuth):

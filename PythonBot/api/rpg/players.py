@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, abort
 from flask_httpauth import HTTPBasicAuth
 
-from api.api import route_start
+from secret.api_secrets import route_start
 from api.helper_functions import page_from_query
 from database.rpg import rpg_main
 

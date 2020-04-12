@@ -1,10 +1,10 @@
-from flask import Flask, jsonify, make_response, request, abort
-from flask_cors import CORS
-from flask_httpauth import HTTPBasicAuth
 import re
 
-from api.api import route_start
+from flask import Flask, jsonify, request
+from flask_httpauth import HTTPBasicAuth
+
 from database.dnd import dnd, dndclass, dndsubclass, dndrace, dndsubrace, dndbackground, dndsource
+from secret.api_secrets import route_start
 
 
 def init_dnd(api: Flask, auth: HTTPBasicAuth):
