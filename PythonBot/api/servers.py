@@ -31,7 +31,6 @@ def init_servers(api: Flask, auth: HTTPBasicAuth):
     @api.route(route_start + '/servers/<int:server_id>/config', methods=['GET'])
     @auth.login_required
     def get_server_config(server_id: int):
-        server_id = str(server_id)
         welcome = general.get_table(general.WELCOME_TABLE).find_one({general.SERVER_ID: server_id}, {'_id': 0})
         if welcome:
             welcome = {
@@ -77,5 +76,5 @@ def init_servers(api: Flask, auth: HTTPBasicAuth):
             welcome.set_message(general.GOODBYE_TABLE, server_id, g.get('id'), g.get('text'))
         if config_data.get('delete_commands'):
             b = True if config_data.get('delete_commands') == 'true' else False
-            delete_commands.set_delete_commands(str(server_id), b)
+            delete_commands.set_delete_commands(server_id, b)
         return jsonify({'Status': 'Success'})

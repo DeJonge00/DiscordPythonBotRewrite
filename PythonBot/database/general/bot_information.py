@@ -27,13 +27,9 @@ def channel_as_dict(c: TextChannel):
 
 
 def update_server_list(servers: [Guild]):
-    print('Updating server list')
     server_table = get_table(SERVER_TABLE)
     channel_table = get_table(CHANNEL_TABLE)
-    print(len(servers))
     for s in servers:
         server_table.replace_one({SERVER_ID: str(s.id)}, server_as_dict(s), upsert=True)
-        print(len(s.channels))
         for c in s.channels:
             channel_table.replace_one({CHANNEL_ID: str(c.id)}, channel_as_dict(c), upsert=True)
-    print('Server list updated')
