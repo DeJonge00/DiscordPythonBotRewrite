@@ -12,3 +12,7 @@ def init_commands(api: Flask, auth: HTTPBasicAuth):
     def get_command_counters():
         t = datetime.now().timestamp() - (24 * 60 * 60)  # Limit to 2 weeks of data
         return jsonify(list(get_command_counters(t)))
+
+    @api.route(route_start + '/health', methods=['GET'])
+    def are_u_ok():
+        return "I'm ok"
