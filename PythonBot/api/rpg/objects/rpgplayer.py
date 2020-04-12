@@ -140,7 +140,7 @@ class RPGPlayer(rpgcharacter.RPGCharacter):
     def add_bosstier(self):
         self.bosstier += 1
 
-    def set_busy(self, action: int, time: int, channel: str):
+    def set_busy(self, action: int, time: int, channel: int):
         self.busytime = time
         self.busychannel = channel
         self.busydescription = action
@@ -241,5 +241,6 @@ def dict_to_player(player: dict):
         kingtimer=player.get('kingtimer'),
         extratime=player.get('extratime')
     )
-    player.set_busy(action=busy.get('description'), time=busy.get('time'), channel=busy.get('channel'))
+    bc = 0 if busy.get('channel') == '' else int(busy.get('channel'))
+    player.set_busy(action=busy.get('description'), time=busy.get('time'), channel=bc)
     return player
