@@ -10,6 +10,8 @@ from secret.secrets import prefix as default_prefix
 
 
 def init_servers(api: Flask, auth: HTTPBasicAuth):
+    print('Adding servers paths')
+
     @api.route(route_start + '/servers', methods=['GET'])
     @auth.login_required
     def get_server_list():

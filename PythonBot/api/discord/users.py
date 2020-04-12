@@ -8,6 +8,8 @@ from secret.api_secrets import route_start, discord_url
 
 
 def init_users(api: Flask, auth: HTTPBasicAuth):
+    print('Adding users paths')
+
     # ----- /discord/users/@me -----
     @api.route(route_start + '/discord/users/@me', methods=['GET'])
     @auth.login_required

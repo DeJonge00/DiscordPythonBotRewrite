@@ -11,8 +11,8 @@ def server_as_dict(s: Guild):
         'bots': len([x for x in s.members if x.bot]),
         'icon': str(s.icon_url),
         'channels': {
-            'text': [c.id for c in s.channels if isinstance(c, TextChannel) == 'text'],
-            'voice': [c.id for c in s.channels if isinstance(c, DMChannel) == 'voice']
+            'text': [str(c.id) for c in s.channels if isinstance(c, TextChannel)],
+            'voice': [str(c.id) for c in s.channels if isinstance(c, DMChannel)]
         }
     }
 
@@ -21,15 +21,19 @@ def channel_as_dict(c: TextChannel):
     channel_type = 'text' if isinstance(c, TextChannel) else 'voice'
     return {
         'name': c.name,
-        CHANNEL_ID: c.id,
+        CHANNEL_ID: str(c.id),
         'type': channel_type
     }
 
 
 def update_server_list(servers: [Guild]):
+    print('Updating server list')
     server_table = get_table(SERVER_TABLE)
     channel_table = get_table(CHANNEL_TABLE)
+    print(len(servers))
     for s in servers:
-        server_table.replace_one({SERVER_ID: s.id}, server_as_dict(s), upsert=True)
+        server_table.replace_one({SERVER_ID: str(s.id)}, server_as_dict(s), upsert=True)
+        print(len(s.channels))
         for c in s.channels:
-            channel_table.replace_one({CHANNEL_ID: c.id}, channel_as_dict(c), upsert=True)
+            channel_table.replace_one({CHANNEL_ID: str(c.id)}, channel_as_dict(c), upsert=True)
+    print('Server list updated')

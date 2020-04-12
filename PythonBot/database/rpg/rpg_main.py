@@ -59,14 +59,14 @@ def get_boss_parties():
     return res
 
 
-def set_king(user_id: str, server_id: str):
-    get_table(RPG_KING_TABLE).update({SERVER_ID: server_id}, {'$set': {USER_ID: user_id}}, upsert=True)
+def set_king(user_id: int, server_id: int):
+    get_table(RPG_KING_TABLE).update({SERVER_ID: str(server_id)}, {'$set': {USER_ID: str(user_id)}}, upsert=True)
 
 
-def get_king(server_id: str):
-    r = get_table(RPG_KING_TABLE).find_one({SERVER_ID: server_id})
+def get_king(server_id: int):
+    r = get_table(RPG_KING_TABLE).find_one({SERVER_ID: str(server_id)})
     return r if r else None
 
 
-def is_king(user_id: str):
-    return bool(get_table(RPG_KING_TABLE).find_one({USER_ID: user_id}))
+def is_king(user_id: int):
+    return bool(get_table(RPG_KING_TABLE).find_one({USER_ID: str(user_id)}))

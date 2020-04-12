@@ -8,6 +8,8 @@ from secret.api_secrets import route_start
 
 
 def init_dnd(api: Flask, auth: HTTPBasicAuth):
+    print('Adding dnd paths')
+
     # ----- /rpg/dnd
     def get_source_from_qp():
         try:

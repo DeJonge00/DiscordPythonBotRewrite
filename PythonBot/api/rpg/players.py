@@ -10,6 +10,8 @@ DESC = -1
 
 
 def init_rpg_players(api: Flask, auth: HTTPBasicAuth):
+    print('Adding dnd players paths')
+
     @api.route(route_start + '/rpg/players', methods=['GET'])
     @auth.login_required
     def get_rpg_players():

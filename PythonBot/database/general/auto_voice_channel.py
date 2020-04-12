@@ -7,13 +7,13 @@ CREATED = 'created'
 def set_channel(channel_type: str, guild_id: int, channel_id: int, status: bool):
     table = get_table(AUTO_VOICE_CHANNEL_TABLE)
     if status:
-        table.update_one({SERVER_ID: guild_id}, {'$set': {str(channel_id): channel_type}}, upsert=True)
+        table.update_one({SERVER_ID: str(guild_id)}, {'$set': {str(channel_id): channel_type}}, upsert=True)
         return
-    table.update_one({SERVER_ID: guild_id}, {'$unset': {str(channel_id): None}}, upsert=True)
+    table.update_one({SERVER_ID: str(guild_id)}, {'$unset': {str(channel_id): None}}, upsert=True)
 
 
 def get_channel(channel_type: str, guild_id: int):
-    r = get_table(AUTO_VOICE_CHANNEL_TABLE).find_one({SERVER_ID: guild_id})
+    r = get_table(AUTO_VOICE_CHANNEL_TABLE).find_one({SERVER_ID: str(guild_id)})
     return [int(k) for k, v in r.items() if v == channel_type] if r else []
 
 

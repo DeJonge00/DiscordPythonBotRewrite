@@ -15,14 +15,14 @@ def reset_busy(user_id: int):
     set_busy(user_id, 0, '', BUSY_DESC_NONE)
 
 
-def set_busy(user_id: int, time: int, channel: str, description: str):
+def set_busy(user_id: int, time: int, channel_id: int, description: str):
     get_table(RPG_PLAYER_TABLE).update(
         {USER_ID: str(user_id)},
         {'$set':
             {'busy':
                 {
                     'time': time,
-                    'channel': channel,
+                    'channel': str(channel_id),
                     'description': description
                 }}})
 

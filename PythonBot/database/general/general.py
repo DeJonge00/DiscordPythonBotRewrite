@@ -29,7 +29,7 @@ def get_table(table):
 
 
 def get_server(server_id: int):
-    return get_table(SERVER_TABLE).find_one({'serverid': server_id}, {'_id': 0})
+    return get_table(SERVER_TABLE).find_one({SERVER_ID: str(server_id)}, {'_id': 0})
 
 
 def get_server_list():
