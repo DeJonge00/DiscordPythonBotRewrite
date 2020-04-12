@@ -1,0 +1,27 @@
+version: "3"
+services:
+  pythonbot:
+    build:
+      context: ./PythonBot
+    volumes:
+      - ./PythonBot:/usr/src/PythonBot
+
+  pythonbot_api:
+    build:
+      context: ./PythonBot
+    volumes:
+      - ./PythonBot:/usr/src/PythonBot
+    ports:
+      - 5000:5000
+    entrypoint: python -u run_api.py
+
+  mongodb:
+    image: mongo:latest
+    environment:
+      - "MONGO_INITDB_ROOT_USERNAME=undef"
+      - "MONGO_INITDB_ROOT_PASSWORD=undef"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
