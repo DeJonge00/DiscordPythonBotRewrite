@@ -11,3 +11,4 @@ PyNaCl
 urbandictionary
 pymongo
 flask
+flask-httpauth
