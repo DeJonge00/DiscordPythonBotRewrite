@@ -92,7 +92,8 @@ async def update_member_counter(guild: Guild):
     channel_id = member_counter.get_member_counter_channel(guild.id)
     if not channel_id:
         return
-    channel: VoiceChannel = guild.get_channel(channel_id)
+    # channel: VoiceChannel
+    channel = guild.get_channel(channel_id)
     if not channel:
         member_counter.delete_member_counter_channel(guild.id)
         return

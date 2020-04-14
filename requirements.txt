@@ -1,0 +1,15 @@
+setuptools
+requests
+discord
+pillow
+wikipedia
+urbanpyctionary
+youtube-dl
+pymysql
+opuslib
+PyNaCl
+urbandictionary
+pymongo
+flask
+flask-httpauth
+python-dateutil
