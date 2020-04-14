@@ -12,18 +12,18 @@ The response message `Hahaha, no.` indicates that you lack the permissions to us
 \
 Biribiri is still in development, comments and improvements are welcome (`{prefix}helpserver` or message `Nya#2698` to contact me)
 
-The commands marked with <WIP>have not been added to the rewritten version yet
+The commands marked with the |WIP| tag have not been added to the rewritten version yet
 
 ### Reactions to messages
 
-|Message                                |Reaction
-|---                                    |---
-|`\o/`                                  |Praise the sun! (can be disabled by using `togglecommand server \\o/` or `togglecommand channel \\o/`)
-|`ded` (After a period of no messages)  |Cry about a ded chat (can be disabled by using `togglecommand server response_ded` or `togglecommand channel response_ded`)
-|`(╯°□°）╯︵ ┻━┻`                        | `┬─┬ ノ( ゜-゜ノ)` (can be disabled by using `togglecommand server tableflip` or `togglecommand channel tableflip`)
-|`ayy`                                  |`lmao` (can be disabled by using `togglecommand server ayy` or `togglecommand channel ayy`)
-|`lenny`                                |`( ͡° ͜ʖ ͡°)` (can be disabled by using `togglecommand server response_lenny` or `togglecommand channel response_lenny`)
-|Mentions, `biri` or `biribiri`         |I will talk to your lonely self (can be disabled by using `togglecommand server talk` or `togglecommand channel talk`)
+|Message                                |Reaction                           |Reaction disable command
+|---                                    |---                                |---
+|`\o/`                                  |Praise the sun!                    |`togglecommand server \\o/` or `togglecommand channel \\o/`
+|`ded` (After a period of no messages)  |Cry about a ded chat               |`togglecommand server response_ded` or `togglecommand channel response_ded`
+|`(╯°□°）╯︵ ┻━┻`                        | `┬─┬ ノ( ゜-゜ノ)`                 |`togglecommand server tableflip` or `togglecommand channel tableflip`
+|`ayy`                                  |`lmao`                             |`togglecommand server ayy` or `togglecommand channel ayy`
+|`lenny`                                |`( ͡° ͜ʖ ͡°)`                      |`togglecommand server response_lenny` or `togglecommand channel response_lenny`
+|Mentions, `biri` or `biribiri`         |I will talk to your lonely self    |`togglecommand server talk` or `togglecommand channel talk`
 
 ### Basic commands
 
@@ -47,7 +47,7 @@ The commands marked with <WIP>have not been added to the rewritten version yet
 |kick        	|`kick` `{user}`                                        |Fake kick someone
 |kill        	|`kill` `{user}`                                        |Wish someone a happy death (is a bit explicit)
 |lenny       	|`lenny` `{message}`                                    |Send `{message}` ( ͡° ͜ʖ ͡°)
-|lottery <WIP>    	|`lottery` `{description}`                              |Set up a lottery, ends when creator adds the correct reaction
+|lottery |WIP|    	|`lottery` `{description}`                              |Set up a lottery, ends when creator adds the correct reaction
 |pat         	|`pat` `{user}`                                         |Pat a user, keeps track of pats
 |quote          |`quote`                                                |Fetch a random quote from the internet
 |role           |`role` `{rolename}`                                    |Add or remove the role `{rolename}` from yourself, if it is in the self-assignable roles list. Give to rolename argument to see a list of roles
@@ -60,17 +60,17 @@ The commands marked with <WIP>have not been added to the rewritten version yet
 
 |Name			|Command, aliases and usage					            |Description
 |---			|---										            |---
-|fps <WIP>        	|`fps,60`                                               |Send a high-fps gif
-|biribiri <WIP>   	|`biribiri,biri`                                        |Send pics of the only best girl
+|fps |WIP|        	|`fps,60`                                               |Send a high-fps gif
+|biribiri |WIP|   	|`biribiri,biri`                                        |Send pics of the only best girl
 |cat        	|`cat`                                                  |Pictures of my cats
 |cuddle      	|`cuddle`                                               |Send a cuddly gif
 |cute           |`cute`                                                 |For when you need a cute anime girl gif
-|ded <WIP>        	|`ded`                                                  |Ded chat reminder (image)
+|ded |WIP|        	|`ded`                                                  |Ded chat reminder (image)
 |heresy     	|`heresy`                                               |Send images worthy of the emperor (warhammer 40k)
 |happy          |`happy`                                                |Send a happy gif
 |lewd           |`lewd`                                                 |Send anti-lewd gif
 |love           |`love`                                                 |Send a confession of love through a gif
-|nonazi <WIP>     	|`nonazi`                                               |Try to persuade Lizzy with anti-nazi-propaganda!
+|nonazi |WIP|     	|`nonazi`                                               |Try to persuade Lizzy with anti-nazi-propaganda!
 |nyan           |`nyan`                                                 |Send an anime happy catgirl gif
 |otter          |`otter`                                                |Send a cute otter picture
 |plsno          |`plsno`                                                |Send a gif that expresses 'pls no'
@@ -126,9 +126,9 @@ The commands marked with <WIP>have not been added to the rewritten version yet
 |---			|---										            |---                                                                                        |---
 |autovc         |`autovc` `channel name`                                | Create a voicechannel that multiplies when users join. These extra voice channels will be removed when there is nobody in them. | manage_channels
 |banish      	|`banish` `{user}`                                      |Ban `{user}`                                                                               |kick_members
-|invite <WIP>        |`invite` `{max members}`                               |Fetch/Create an invite. Maximum {max members} members, unlimited if not given
+|invite |WIP|        |`invite` `{max members}`                               |Fetch/Create an invite. Maximum {max members} members, unlimited if not given
 |membercount    |`membercount,membercounter`                            |Create a locked channel in the channel list, which will be updated with the amount of members currently in the server | manage_channels
-|nickname <WIP>   	|`nickname,nn` `{user}` `{new_name}`                    |Nickname a person                                                                          |change_nickname, manage_nicknames
+|nickname |WIP|   	|`nickname,nn` `{user}` `{new_name}`                    |Nickname a person                                                                          |change_nickname, manage_nicknames
 |purge       	|`purge` `{amount}` `{user}`                            |Remove `{user}`'s messages (all if user is not given) from the past `{amount}` messages    |manage_messages
 |setwelcome  	|`setwelome` `{message}`                                |Sets a welcome message                                                                     |manage_server
 |setgoodbye  	|`setgoodbye` `{message}`                               |Sets a goodbye message                                                                     |manage_server

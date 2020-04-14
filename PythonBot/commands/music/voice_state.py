@@ -9,10 +9,13 @@ from core import logging as log
 
 class VoiceState:
     def __init__(self, state: VoiceClient, guild_name: str):
-        self.queue: [Song] = []
-        self.current: Song = None
+        # self.queue: [Song]
+        self.queue = []
+        # self.current: Song
+        self.current = None
         self.repeat = False
-        self.state: VoiceClient = state
+        # self.state: VoiceClient
+        self.state = state
         self.skip_votes = []
         self.guild_name = guild_name
         self.running = True

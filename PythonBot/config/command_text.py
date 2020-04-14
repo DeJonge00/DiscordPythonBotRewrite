@@ -24,7 +24,10 @@ qa = [
     "I think I passed the Turing test",
     "Nonono, you are friends, not food",
     "Woah, it's alive!",
-    "Are you not entertained?"
+    "Are you not entertained?",
+    "Life.. eh.. finds a way,"
+    "You want the moon? Just say the word and I'll throw a lasso around it and pull it down",
+    "I'm not worthy"
 ]
 
 response = [
@@ -163,7 +166,10 @@ response = [
     "So, are smurfs blue because there are goblins nearby?",
     "I find it is the small things, everyday deeds of everyday folk, that keeps the darkness at bay",
     "Im not bad, I was just programmed that way",
-    "I. Drank. Your. Milkshake."
+    "I. Drank. Your. Milkshake.",
+    "The horror! The horror!",
+    "My precious!",
+    "La di da, la di da"
 ]
 
 # random responses

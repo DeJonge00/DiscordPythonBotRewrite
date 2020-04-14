@@ -175,10 +175,10 @@ class PythonBot(Bot):
         if isinstance(destination, User):
             if not destination.dm_channel:
                 await destination.create_dm()
-            destination: DMChannel = destination.dm_channel
+            destination = destination.dm_channel
 
         if isinstance(destination, Context):
-            destination: TextChannel = destination.channel
+            destination = destination.channel
 
         # Exceptions
         if not (isinstance(destination, DMChannel) or isinstance(destination, User) or isinstance(destination, Member)):
@@ -215,7 +215,7 @@ class PythonBot(Bot):
                                      error_message='Trying to edit a message that isn\'t my own')
 
         if not (isinstance(destination, DMChannel) or isinstance(destination, User) or isinstance(destination, Member)):
-            perms: Permissions = destination.permissions_for(destination.guild.me)
+            perms = destination.permissions_for(destination.guild.me)
             if not perms.send_messages:
                 log.error_before_message(destination=destination, author=self.user.name, content=content,
                                          error_message='No permissions to send message')
@@ -265,7 +265,7 @@ class PythonBot(Bot):
                 await log.message(message, 'Command "{}" used, but cannot be private'.format(command))
                 return False
         else:
-            channel: TextChannel
+            # channel: TextChannel
             if must_be_private:
                 await channel.send('This command has to be used in a private conversation')
                 await log.message(message, 'Command "{}" used, but must be private'.format(command))

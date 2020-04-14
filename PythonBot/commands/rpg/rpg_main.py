@@ -540,7 +540,8 @@ class RPGGame(commands.Cog):
             return
         c = ctx.message.channel
         if isinstance(c, DMChannel):
-            c: Member = ctx.message.author
+            # c: Member
+            c = ctx.message.author
         db_rpg_player.set_busy(data.userid, n, c.id, BUSY_DESC_ADVENTURE)
         await self.bot.send_message(destination=ctx.channel,
                                     content="{}, you are now adventuring for {} minutes, good luck!".format(
@@ -1124,7 +1125,8 @@ class RPGGame(commands.Cog):
             if num_to_remove >= len(data.pets):
                 await self.bot.send_message(destination=ctx.channel, content='You do not have that many pets...')
                 return
-            pet: RPGPet = data.pets[num_to_remove]
+            # pet: RPGPet
+            pet = data.pets[num_to_remove]
             data.pets.remove(pet)
             db_rpg_player.update_player(data)
             c = 'Your pet named {} was released into the wild'.format(pet.name)

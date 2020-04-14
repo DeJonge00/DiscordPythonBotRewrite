@@ -12,3 +12,4 @@ urbandictionary
 pymongo
 flask
 flask-httpauth
+python-dateutil

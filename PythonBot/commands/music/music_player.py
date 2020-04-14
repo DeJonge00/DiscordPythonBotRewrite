@@ -16,7 +16,8 @@ logging.basicConfig(filename='logs/music_player.log', level=LOG_LEVEL,
 class MusicPlayer:
     def __init__(self, mybot: PythonBot):
         self.bot = mybot
-        self.states: {int: (VoiceState, TextChannel)} = {}
+        # self.states: {int: (VoiceState, TextChannel)}
+        self.states = {}
         self.running = True
 
     async def music_loop(self, time: datetime):
