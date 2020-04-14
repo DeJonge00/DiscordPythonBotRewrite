@@ -1,5 +1,10 @@
 import logging
 
+from discord import Member, Status, Game, Spotify, Message, DMChannel, Guild, VoiceChannel, User, Activity, \
+    VoiceState
+from discord.ext.commands import Cog
+
+from commands.rpg.rpg_main import RPGGame
 from config import constants
 from config.constants import STAR_EMOJI
 from core import logging as log
@@ -7,11 +12,6 @@ from core.handlers import message_handler, channel_handlers
 from core.utils import update_member_counter, on_member_message
 from database.general import general
 from secret.secrets import game_name, LOG_LEVEL
-from commands.rpg.rpg_main import RPGGame
-
-from discord.ext.commands import Cog
-from discord import Member, Status, Game, Spotify, Message, Forbidden, DMChannel, Guild, VoiceChannel, User, Activity, \
-    VoiceState
 
 logging.basicConfig(filename='logs/listeners.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
@@ -45,7 +45,7 @@ class Listeners(Cog):
 
         # Send message to rpggame for exp
         if self.bot.RPGGAME and (len(message.content) < 2 or (message.content[:2] == '<@') or
-                            (message.content[0].isalpha() and message.content[1].isalpha())):
+                                 (message.content[0].isalpha() and message.content[1].isalpha())):
             RPGGame.handle(message)
 
     @Cog.listener()

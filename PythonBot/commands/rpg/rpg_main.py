@@ -1162,6 +1162,9 @@ class RPGGame(commands.Cog):
         db_rpg_player.reset_busy(user.id)
         await self.bot.send_message(ctx.channel, 'Busy status of player"{}" reset'.format(user.display_name))
 
+    def quit(self):
+        pass
+
 
 def setup(bot):
     bot.add_cog(RPGGame(bot))
