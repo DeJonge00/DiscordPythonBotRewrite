@@ -1,0 +1,12 @@
+discord.py          ==  '1.2.3'
+requests
+setuptools
+pillow
+pymongo
+pymysql
+PyNaCl
+opuslib
+urbanpyctionary
+wikipedia
+youtube-dl
+urbandictionary
