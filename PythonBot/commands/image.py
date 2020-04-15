@@ -17,6 +17,15 @@ logging.basicConfig(filename='logs/image_commands.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
+def embedded_pic(name: str, picture: str, image_list: [str], pic_number: int = None):
+    embed = Embed(colour=EMBED_COLOR)
+    embed.set_author(name=name, icon_url=picture)
+    # TODO Add possible number to embed to improve debugging
+    u = image_list[pic_number] if pic_number and pic_number < len(image_list) else choice(image_list)
+    embed.set_image(url=u)
+    return {EMBED: embed}
+
+
 class ImageCommands(Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
@@ -40,15 +49,6 @@ class ImageCommands(Cog):
         embed.set_image(url=user.avatar_url)
         await self.bot.send_message(ctx.message.channel, embed=embed)
 
-    @staticmethod
-    def embedded_pic(name: str, picture: str, image_list: [str], pic_number: int = None):
-        embed = Embed(colour=EMBED_COLOR)
-        embed.set_author(name=name, icon_url=picture)
-        # TODO Add possible number to embed to improve debugging
-        u = image_list[pic_number] if pic_number and pic_number < len(image_list) else choice(image_list)
-        embed.set_image(url=u)
-        return {EMBED: embed}
-
     async def send_picture_template_command(self, message: Message, channel: TextChannel, command: str,
                                             pic_links: list, pic_number: str = None):
         if not await self.bot.pre_command(message=message, channel=channel, command=command, is_typing=False):
@@ -68,7 +68,7 @@ class ImageCommands(Cog):
                 return
             await channel.trigger_typing()
             self.image_timers[command][channel.id] = datetime.utcnow()
-        answer = ImageCommands.embedded_pic(command, self.bot.user.avatar_url, pic_links, pic_number=pic_number)
+        answer = embedded_pic(command, self.bot.user.avatar_url, pic_links, pic_number=pic_number)
         await self.bot.send_message(channel, embed=answer.get(EMBED))
 
     # TODO Biribiri command
