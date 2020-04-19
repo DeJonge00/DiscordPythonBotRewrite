@@ -27,6 +27,7 @@ def get_cogs():
         'commands.mod',
         'commands.games.hangman.commands',
         'commands.games.minesweeper.commands',
+        'commands.games.trivia.trivia',
         'core.listeners'
     ]
 

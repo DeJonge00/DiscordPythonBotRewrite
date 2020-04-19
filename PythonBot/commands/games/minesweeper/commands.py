@@ -16,7 +16,6 @@ class Minesweeper(Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
         self.games = {}
-        print('Minesweeper cog started')
 
     @staticmethod
     def read_parameters(height: str, width: str, mines: str):

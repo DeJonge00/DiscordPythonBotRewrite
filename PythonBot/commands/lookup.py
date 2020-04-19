@@ -18,7 +18,6 @@ logging.basicConfig(filename='logs/lookup_commands.log', level=LOG_LEVEL,
 class LookupCommands(Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
-        print('Lookup commands cog started')
 
     @staticmethod
     def lookup(query: str, search_url: str, search_for: str, min_results: int, skip_results: int,

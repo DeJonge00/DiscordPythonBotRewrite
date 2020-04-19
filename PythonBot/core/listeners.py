@@ -21,7 +21,6 @@ class Listeners(Cog):
     def __init__(self, my_bot):
         self.bot = my_bot
         self.logger = logging.getLogger(__name__)
-        print('Listeners started')
 
     @Cog.listener()
     async def on_message(self, message: Message):

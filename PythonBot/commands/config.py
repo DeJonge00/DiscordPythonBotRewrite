@@ -15,7 +15,6 @@ logging.basicConfig(filename='logs/config_commands.log', level=LOG_LEVEL,
 class ConfigCommands(Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
-        print('Config commands cog started')
 
     @staticmethod
     def command_prefix(guild_id: int, args: [str]):

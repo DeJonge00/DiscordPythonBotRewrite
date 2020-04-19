@@ -42,7 +42,6 @@ class RPGGame(commands.Cog):
         self.bot.rpggame = self
         self.top_lists = {}
         self.logger = logging.getLogger(__name__)
-        print('RPGGame started')
 
     async def check_role(self, role: str, message: discord.Message, error='You') -> bool:
         if role not in [x[0] for x in rpgc.names.get("role")]:

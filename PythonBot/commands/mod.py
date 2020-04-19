@@ -22,7 +22,6 @@ logging.basicConfig(filename='logs/mod_commands.log', level=LOG_LEVEL,
 class ModCommands(Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
-        print('Mod commands cog started')
 
     @staticmethod
     async def command_autovc(channel: TextChannel, name: str):
