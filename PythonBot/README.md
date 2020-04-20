@@ -127,10 +127,11 @@ The commands marked with the |WIP| tag have not been added to the rewritten vers
 |---			|---										            |---                                                                                        |---
 |autovc         |`autovc` _`channel-name`_                                | Create a voice-channel that multiplies when users join. These extra voice channels will be removed when there is nobody in them. | manage_channels
 |banish      	|`banish` ___`user`___                                      |Ban ___`user`___                                                                               |kick_members
-|invite |WIP|        |`invite` _`max members`_                               |Fetch/Create an invite. Maximum {max members} members, unlimited if not given
+|invite         |`invite` _`max members`_                               |Create an invite. Maximum _`max-members`_ members, unlimited if not given, will be active for 24 hours   |create_instant_invite
+|               |`invite`                                               |Find an active invite in the server and show it, no mod-powers needed                      |manage_guild
 |membercount    |`membercount,membercounter`                            |Create a locked channel in the channel list, which will be updated with the amount of members currently in the server | manage_channels
 |nickname |WIP|   	|`nickname,nn` ___`user`___ _`new_name`_                    |Nickname a person                                                                          |change_nickname, manage_nicknames
-|purge       	|`purge` _`amount`_ ___`user`___                            |Remove ___`user`___'s messages (all if user is not given) from the past _`amount`_ messages    |manage_messages
+|purge       	|`purge` _`amount`_ ___`user`___                        |Remove ___`user`___'s messages (all if user is not given) from the past _`amount`_ messages    |manage_messages
 |setwelcome  	|`setwelome` _`message`_                                |Sets a welcome message                                                                     |manage_server
 |setgoodbye  	|`setgoodbye` _`message`_                               |Sets a goodbye message                                                                     |manage_server
 |togglerole     |`togglerole,sarole,toggleassignable` _`rolename`_      |Add or remove a role to the list of self-assignable roles                                  |manage_roles
