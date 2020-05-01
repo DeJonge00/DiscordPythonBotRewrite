@@ -76,7 +76,8 @@ class ModCommands(Cog):
     @staticmethod
     async def create_invite(bot: PythonBot, ctx: Context, uses):
         if not await bot.pre_command(message=ctx.message, channel=ctx.channel, command='invite_creation',
-                                     perm_needed=['create_instant_invite', 'administrator']):
+                                     perm_needed=['create_instant_invite', 'administrator'],
+                                     delete_message=False):
             return
         return await ctx.channel.create_invite(reason='Invite command used by {}'.format(ctx.author.display_name),
                                                max_uses=uses, max_age=24*60*60)
