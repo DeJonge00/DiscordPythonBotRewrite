@@ -21,7 +21,6 @@ class RPGGameActivities(Cog):
         self.bot.rpgshop = self
         self.weapons = {}
         self.armors = {}
-        print('RPGGameActivities started')
 
     async def send_shop_help_message(self, url: str, message: discord.Message):
         prefix = await self.bot.get_prefix(message)

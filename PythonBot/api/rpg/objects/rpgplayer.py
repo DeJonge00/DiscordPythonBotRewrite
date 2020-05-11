@@ -1,10 +1,11 @@
+import math
+
 from api.rpg import constants as rpgc
 from api.rpg.objects import rpgcharacter
 from api.rpg.objects.rpgarmor import RPGArmor, dict_to_armor
-from api.rpg.objects.rpgweapon import RPGWeapon, dict_to_weapon
-from api.rpg.objects.rpgshopitem import RPGShopItem
 from api.rpg.objects.rpgpet import RPGPet, dict_to_pet
-import math
+from api.rpg.objects.rpgshopitem import RPGShopItem
+from api.rpg.objects.rpgweapon import RPGWeapon, dict_to_weapon
 
 DEFAULT_ROLE = 'Undead'
 
@@ -191,14 +192,14 @@ class RPGPlayer(rpgcharacter.RPGCharacter):
         return {
             'stats': {
                 'name': self.name,
-                'picture_url': self.picture_url,
+                'picture_url': str(self.picture_url),
                 'health': self.get_health(),
                 'maxhealth': self.maxhealth,
                 'damage': self.damage,
                 'weaponskill': self.weaponskill,
                 'critical': self.critical
             },
-            'userid': self.userid,
+            'userid': str(self.userid),
             'role': self.role,
             'exp': self.exp,
             'level': self.level,

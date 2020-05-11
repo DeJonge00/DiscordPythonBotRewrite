@@ -83,6 +83,7 @@ async def on_member_message(guild: Guild, member: Member, func_name, text, do_lo
     if not channel:
         return False
     m = await channel.send(embed=embed)
+    log.message(m=m)
     if REMOVE_JOIN_MESSAGE:
         await asyncio.sleep(30)
         await m.delete()
