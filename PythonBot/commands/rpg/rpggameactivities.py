@@ -262,8 +262,7 @@ class RPGGameActivities(Cog):
             await self.bot.send_message(destination=ctx.channel, content=c)
             return
         c = ctx.message.channel
-        if c.is_private:
-            c = ctx.message.author
+
         time = math.ceil(a * training.cost)
         if not (rpgp.mintrainingtime <= time <= int(rpgp.maxtrainingtime + (0.5 * player.extratime))):
             await self.bot.send_message(destination=ctx.channel, content=
@@ -301,8 +300,6 @@ class RPGGameActivities(Cog):
             await self.bot.send_message(destination=ctx.channel, content=c)
             return
         c = ctx.message.channel
-        if c.is_private:
-            c = ctx.message.author
 
         # Set busy time
         if not (rpgp.minworkingtime <= time <= (rpgp.maxworkingtime + player.extratime)):
