@@ -741,7 +741,7 @@ class RPGGame(commands.Cog):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='rpg king',
                                           cannot_be_private=True):
             return
-        king = db_rpg.get_king(ctx.message.guild.id)
+        king = int(db_rpg.get_king(ctx.message.guild.id))
         if len(args) <= 0:
             if king is None:
                 await self.bot.send_message(destination=ctx.channel,
@@ -751,7 +751,7 @@ class RPGGame(commands.Cog):
             await self.bot.send_message(destination=ctx.channel,
                                         content="The current {} of {} is {}".format(kingname, ctx.message.guild.name,
                                                                                     ctx.message.guild.get_member(
-                                                                                        str(king)).display_name))
+                                                                                        king).display_name))
             return
         data = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name,
                                         ctx.message.author.avatar_url)

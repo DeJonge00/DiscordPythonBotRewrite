@@ -183,7 +183,7 @@ class PythonBot(Bot):
             try:
                 return await message.delete()
             except Forbidden:
-                await log.error_on_message(message, 'No permissions to delete message')
+                log.error_on_message(message, 'No permissions to delete message')
 
     async def send_message(self, destination, content: str = None, *, file=None, tts: bool = False,
                            embed: Embed = None):
