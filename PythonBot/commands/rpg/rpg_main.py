@@ -290,25 +290,27 @@ class RPGGame(commands.Cog):
         embed.add_field(name="Adventure secret found", value="{}, {}\n{} +{}".format(player.name, name, stat, amount))
         await self.bot.send_message(channel, embed=embed)
 
-    async def do_adventure(self, user_id: int, name: str, pic_url: str, busy: dict):
+    async def do_adventure(self, user_id: int, name: str, pic_url: str, busy: dict, health=1):
         if random.randint(0, 4) <= 0:
-            await self.adventure_encounter(db_rpg_player.get_player(user_id, name, pic_url),
-                                           self.bot.get_channel(busy.get('channel')))
-            return
-        await self.do_wander(user_id, name, pic_url, busy)
+            player = db_rpg_player.get_player(user_id, name, pic_url)
+            await self.adventure_encounter(player, self.bot.get_channel(busy.get('channel')))
+            return player.get_health()
+        return await self.do_wander(user_id, name, pic_url, busy, health=health)
 
-    async def do_wander(self, user_id: int, name: str, pic_url: str, busy: dict):
+    async def do_wander(self, user_id: int, name: str, pic_url: str, busy: dict, health=1):
         if random.randint(0, 14) <= 0:
-            await self.adventure_secret(db_rpg_player.get_player(user_id, name, pic_url),
-                                        self.bot.get_channel(busy.get('channel')))
+            player = db_rpg_player.get_player(user_id, name, pic_url)
+            await self.adventure_secret(player, self.bot.get_channel(busy.get('channel')))
+            return player.get_health()
+        return health
 
     async def do_busy_per_person(self, name: str, user_id: int, pic_url: str, busy, health):
         if busy.get('description') == BUSY_DESC_ADVENTURE:
-            await self.do_adventure(user_id, name, pic_url, busy)
+            health = await self.do_adventure(user_id, name, pic_url, busy, health)
         if busy.get('description') == BUSY_DESC_WANDERING:
-            await self.do_wander(user_id, name, pic_url, busy)
+            health = await self.do_wander(user_id, name, pic_url, busy, health)
 
-        if busy.get('time') > 0:
+        if busy.get('time') > 0 and health > 0:
             return
 
         if busy.get('description') == BUSY_DESC_NONE:
@@ -334,7 +336,6 @@ class RPGGame(commands.Cog):
             embed.add_field(name="Ended {}".format(action_type),
                             value="You are now done {}".format(action_name))
         else:
-            # TODO No trigger after dying in adventure
             embed.add_field(name="You Died".format(action_type),
                             value="You were killed on one of your adventures".format(action_name))
             embed.set_thumbnail(url="https://res.cloudinary.com/teepublic/image/private/s--_1_FlGA"
@@ -963,7 +964,7 @@ class RPGGame(commands.Cog):
                 page = page - 1
             if reaction.emoji == "\N{BLACK RIGHTWARDS ARROW}":
                 page = page + 1
-            for m in await reaction.users():
+            async for m in reaction.users():
                 if m.id != self.bot.user.id:
                     await reaction.remove(m)
             try:
@@ -1039,11 +1040,8 @@ class RPGGame(commands.Cog):
     # DB commands
     @rpg.command(pass_context=1, help="Set rpg channel!")
     async def setchannel(self, ctx: Context):
-        if not await self.bot.pre_command(message=ctx.message, channel=ctx.message.channel, command='rpg setchannel'):
-            return
-        perms = ctx.message.channel.permissions_for(ctx.message.author)
-        if not (ctx.message.author.id == constants.NYAid or perms.manage_server or perms.administrator):
-            await self.bot.send_message(destination=ctx.channel, content="Hahahaha, no")
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.message.channel, command='rpg setchannel',
+                                          perm_needed=['manage_server', 'administrator']):
             return
         db_rpg_channels.set_rpg_channel(ctx.message.guild.id, ctx.message.channel.id)
         c = "This channel is now the rpg channel for this server"
