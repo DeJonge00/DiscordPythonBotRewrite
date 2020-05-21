@@ -2,7 +2,7 @@ import asyncio
 import logging
 import re
 
-from discord import Guild, Member, Embed, VoiceChannel
+from discord import Guild, Member, Embed
 
 from config.constants import WELCOME_EMBED_COLOR, member_counter_message
 from core import logging as log
@@ -27,6 +27,7 @@ def get_cogs():
         'commands.mod',
         'commands.games.hangman.commands',
         'commands.games.minesweeper.commands',
+        'commands.games.trivia.trivia',
         'core.listeners'
     ]
 
@@ -71,7 +72,7 @@ def command_allowed_in_channel(channel_id: int, command_name: str):
 
 async def on_member_message(guild: Guild, member: Member, func_name, text, do_log=True) -> bool:
     if do_log:
-        log.announcement(guild_name=guild.name, announcement_text='Member {} just {}'.format(member.mention, text))
+        log.announcement(guild_name=guild.name, announcement_text='Member {} just {}'.format(member, text))
     channel, mes = welcome.get_message(func_name, guild.id)
     if not channel or not mes:
         return False
@@ -82,6 +83,7 @@ async def on_member_message(guild: Guild, member: Member, func_name, text, do_lo
     if not channel:
         return False
     m = await channel.send(embed=embed)
+    log.message(m=m)
     if REMOVE_JOIN_MESSAGE:
         await asyncio.sleep(30)
         await m.delete()

@@ -2,16 +2,17 @@ import asyncio
 import logging
 from datetime import datetime
 
-from discord import Message, TextChannel, DMChannel, Forbidden, Embed, Member, User, Permissions
+from discord import Message, TextChannel, DMChannel, Forbidden, Embed, Member, User
 from discord.ext.commands import Bot, Context
+from discord.ext.commands.errors import CommandError, CommandNotFound
 
 from config import constants
 from core import logging as log
+from core.custom_help_command import CustomHelpCommand
 from core.utils import prep_str, command_allowed_in_channel, command_allowed_in_server
 # from discord.ext.commands.formatter import HelpFormatter
-from database.general import delete_commands, prefix, command_counter
+from database.general import delete_commands, prefix as db_prefix, command_counter
 from secret.secrets import prefix, LOG_LEVEL
-from core.custom_help_command import CustomHelpCommand
 
 logging.basicConfig(filename='logs/1rpg_main_errors.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
@@ -27,7 +28,6 @@ class PythonBot(Bot):
         self.RPGGAME = rpggame
         self.API = api
         self.EMBED_LIST = embed_list
-        # TODO Add custom help formatter
         super(PythonBot, self).__init__(command_prefix=prefix, help_command=CustomHelpCommand(self))
 
     """ Helper functions """
@@ -135,6 +135,31 @@ class PythonBot(Bot):
 
     """ Overwiting functions """
 
+    async def invoke(self, ctx):
+        """|coro|
+
+        Invokes the command given under the invocation context and
+        handles all the internal event dispatch mechanisms.
+
+        Parameters
+        -----------
+        ctx: :class:`.Context`
+            The invocation context to invoke.
+        """
+        if ctx.command is not None:
+            self.dispatch('command', ctx)
+            try:
+                if await self.can_run(ctx, call_once=True):
+                    await ctx.command.invoke(ctx)
+            except CommandError as exc:
+                await ctx.command.dispatch_error(ctx, exc)
+            else:
+                self.dispatch('command_completion', ctx)
+        elif ctx.invoked_with:
+            log.message(ctx.message, 'Command "{}" is not found'.format(ctx.invoked_with))
+            # exc = CommandNotFound('Command "{}" is not found'.format(ctx.invoked_with))
+            # self.dispatch('command_error', ctx, exc)
+
     async def get_prefix(self, message):
         """
         Overwrites default get_prefix, adds lookup in the database first. Defaults to the super function.
@@ -142,7 +167,7 @@ class PythonBot(Bot):
         :return:
         """
         try:
-            p = prefix.get_prefix(message.guild.id)
+            p = db_prefix.get_prefix(message.guild.id)
             return p if p else await super(PythonBot, self).get_prefix(message)
         except (KeyError, AttributeError):
             return await super(PythonBot, self).get_prefix(message)
@@ -158,7 +183,7 @@ class PythonBot(Bot):
             try:
                 return await message.delete()
             except Forbidden:
-                await log.error_on_message(message, 'No permissions to delete message')
+                log.error_on_message(message, 'No permissions to delete message')
 
     async def send_message(self, destination, content: str = None, *, file=None, tts: bool = False,
                            embed: Embed = None):

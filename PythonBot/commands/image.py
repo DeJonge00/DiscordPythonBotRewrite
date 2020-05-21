@@ -17,11 +17,19 @@ logging.basicConfig(filename='logs/image_commands.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
+def embedded_pic(name: str, picture: str, image_list: [str], pic_number: int = None):
+    embed = Embed(colour=EMBED_COLOR)
+    embed.set_author(name=name, icon_url=picture)
+    # TODO Add possible number to embed to improve debugging
+    u = image_list[pic_number] if pic_number and pic_number < len(image_list) else choice(image_list)
+    embed.set_image(url=u)
+    return {EMBED: embed}
+
+
 class ImageCommands(Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
         self.image_timers = {}
-        print('Image commands cog started')
 
     @commands.command(pass_context=1, aliases=['avatar', 'picture'], help="Show a profile pic, in max 200x200")
     async def pp(self, ctx: Context, *args):
@@ -39,15 +47,6 @@ class ImageCommands(Cog):
         embed.set_author(name=str(user.name))
         embed.set_image(url=user.avatar_url)
         await self.bot.send_message(ctx.message.channel, embed=embed)
-
-    @staticmethod
-    def embedded_pic(name: str, picture: str, image_list: [str], pic_number: int = None):
-        embed = Embed(colour=EMBED_COLOR)
-        embed.set_author(name=name, icon_url=picture)
-        # TODO Add possible number to embed to improve debugging
-        u = image_list[pic_number] if pic_number and pic_number < len(image_list) else choice(image_list)
-        embed.set_image(url=u)
-        return {EMBED: embed}
 
     async def send_picture_template_command(self, message: Message, channel: TextChannel, command: str,
                                             pic_links: list, pic_number: str = None):
@@ -68,26 +67,29 @@ class ImageCommands(Cog):
                 return
             await channel.trigger_typing()
             self.image_timers[command][channel.id] = datetime.utcnow()
-        answer = ImageCommands.embedded_pic(command, self.bot.user.avatar_url, pic_links, pic_number=pic_number)
+        answer = embedded_pic(command, self.bot.user.avatar_url, pic_links, pic_number=pic_number)
         await self.bot.send_message(channel, embed=answer.get(EMBED))
 
     # TODO Biribiri command
 
     @commands.command(name='cat', help="Take a look at my beautiful cats!")
     async def cat(self, ctx: Context, *args):
-        arg = re.match('[\d]+', args[0])[0] if len(args) > 0 else None
+        arg = re.match('[\d]+', args[0]) if len(args) > 0 else None
+        arg = arg[0] if arg else None
         await self.send_picture_template_command(ctx.message, ctx.channel, 'cat', pic_links=image_links.cat,
                                                  pic_number=arg)
 
     @commands.command(name='cute', help="For if you need cute anime girls!")
     async def cute(self, ctx: Context, *args):
-        arg = re.match('[\d]+', args[0])[0] if len(args) > 0 else None
+        arg = re.match('[\d]+', args[0]) if len(args) > 0 else None
+        arg = arg[0] if arg else None
         await self.send_picture_template_command(ctx.message, ctx.channel, 'cute', pic_links=image_links.cute_gifs,
                                                  pic_number=arg)
 
     @commands.command(name='cuddle', help="Cuddles everywhere!")
     async def cuddle(self, ctx: Context, *args):
-        arg = re.match('[\d]+', args[0])[0] if len(args) > 0 else None
+        arg = re.match('[\d]+', args[0]) if len(args) > 0 else None
+        arg = arg[0] if arg else None
         await self.send_picture_template_command(ctx.message, ctx.channel, 'cuddle', pic_links=image_links.hug_gifs,
                                                  pic_number=arg)
 
@@ -95,25 +97,29 @@ class ImageCommands(Cog):
 
     @commands.command(name='happy', help="Awwww yeaaahhh!")
     async def happy(self, ctx: Context, *args):
-        arg = re.match('[\d]+', args[0])[0] if len(args) > 0 else None
+        arg = re.match('[\d]+', args[0]) if len(args) > 0 else None
+        arg = arg[0] if arg else None
         await self.send_picture_template_command(ctx.message, ctx.channel, 'happy', pic_links=image_links.happy_gifs,
                                                  pic_number=arg)
 
     @commands.command(name='heresy', help="In the name of the God Emperor, be gone!")
     async def heresy(self, ctx: Context, *args):
-        arg = re.match('[\d]+', args[0])[0] if len(args) > 0 else None
+        arg = re.match('[\d]+', args[0]) if len(args) > 0 else None
+        arg = arg[0] if arg else None
         await self.send_picture_template_command(ctx.message, ctx.channel, 'heresy', pic_links=image_links.heresy,
                                                  pic_number=arg)
 
     @commands.command(name='lewd', help="LLEEEEEEEEWWDD!!!")
     async def lewd(self, ctx: Context, *args):
-        arg = re.match('[\d]+', args[0])[0] if len(args) > 0 else None
+        arg = re.match('[\d]+', args[0]) if len(args) > 0 else None
+        arg = arg[0] if arg else None
         await self.send_picture_template_command(ctx.message, ctx.channel, 'lewd', pic_links=image_links.lewd_gifs,
                                                  pic_number=arg)
 
     @commands.command(name='love', help="Everyone needs love in their life!")
     async def love(self, ctx: Context, *args):
-        arg = re.match('[\d]+', args[0])[0] if len(args) > 0 else None
+        arg = re.match('[\d]+', args[0]) if len(args) > 0 else None
+        arg = arg[0] if arg else None
         await self.send_picture_template_command(ctx.message, ctx.channel, 'love', pic_links=image_links.love_gifs,
                                                  pic_number=arg)
 
@@ -121,25 +127,29 @@ class ImageCommands(Cog):
 
     @commands.command(name='nyan', help="Nyanyanyanyanyanyanyanyanya!")
     async def nyan(self, ctx: Context, *args):
-        arg = re.match('[\d]+', args[0])[0] if len(args) > 0 else None
+        arg = re.match('[\d]+', args[0]) if len(args) > 0 else None
+        arg = arg[0] if arg else None
         await self.send_picture_template_command(ctx.message, ctx.channel, 'nyan', pic_links=image_links.nyan_gifs,
                                                  pic_number=arg)
 
     @commands.command(name='otter', help="OTTERSSSSS!")
     async def otter(self, ctx: Context, *args):
-        arg = re.match('[\d]+', args[0])[0] if len(args) > 0 else None
+        arg = re.match('[\d]+', args[0]) if len(args) > 0 else None
+        arg = arg[0] if arg else None
         await self.send_picture_template_command(ctx.message, ctx.channel, 'otter', pic_links=image_links.otters,
                                                  pic_number=arg)
 
     @commands.command(name='plsno', help="Nonononononono!", aliases=['nopls'])
     async def plsno(self, ctx: Context, *args):
-        arg = re.match('[\d]+', args[0])[0] if len(args) > 0 else None
+        arg = re.match('[\d]+', args[0]) if len(args) > 0 else None
+        arg = arg[0] if arg else None
         await self.send_picture_template_command(ctx.message, ctx.channel, 'plsno', pic_links=image_links.plsno_gifs,
                                                  pic_number=arg)
 
     @commands.command(name='sadness', help="Cri!")
     async def sadness(self, ctx: Context, *args):
-        arg = re.match('[\d]+', args[0])[0] if len(args) > 0 else None
+        arg = re.match('[\d]+', args[0]) if len(args) > 0 else None
+        arg = arg[0] if arg else None
         await self.send_picture_template_command(ctx.message, ctx.channel, 'sadness', pic_links=image_links.sad_gifs,
                                                  pic_number=arg)
 

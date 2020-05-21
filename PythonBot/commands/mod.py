@@ -1,7 +1,7 @@
 import logging
 import re
 
-from discord import Member, TextChannel, PermissionOverwrite, Forbidden
+from discord import Member, TextChannel, PermissionOverwrite, Forbidden, Guild
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
@@ -22,7 +22,6 @@ logging.basicConfig(filename='logs/mod_commands.log', level=LOG_LEVEL,
 class ModCommands(Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
-        print('Mod commands cog started')
 
     @staticmethod
     async def command_autovc(channel: TextChannel, name: str):
@@ -73,6 +72,47 @@ class ModCommands(Cog):
 
         m = 'Banished users {} successfully'.format(', '.join(ctx.message.mentions))
         await self.bot.send_message(ctx.channel, m)
+
+    @staticmethod
+    async def create_invite(bot: PythonBot, ctx: Context, uses):
+        if not await bot.pre_command(message=ctx.message, channel=ctx.channel, command='invite_creation',
+                                     perm_needed=['create_instant_invite', 'administrator'],
+                                     delete_message=False):
+            return
+        return await ctx.channel.create_invite(reason='Invite command used by {}'.format(ctx.author.display_name),
+                                               max_uses=uses, max_age=24*60*60)
+
+    @staticmethod
+    async def active_invites(guild: Guild):
+        return [i for i in await guild.invites() if i.inviter == guild.me and i.uses < i.max_uses]
+
+    @commands.command(name='invite', help="Create a server invite, or retrieve an existing one")
+    async def invite(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='invite'):
+            return
+        perms = ctx.channel.permissions_for(ctx.guild.me)
+        if not perms.create_instant_invite:
+            await self.bot.send_message(ctx.channel, "I don't have the right permissions!")
+            return
+
+        # Retrieve existing invite
+        if perms.manage_guild:
+            invites = await self.active_invites(guild=ctx.guild)
+            if invites:
+                await self.bot.send_message(destination=ctx.channel, content="Here you go: {}".format(invites[0]))
+                return
+        if not ctx.channel.permissions_for(ctx.author).create_instant_invite:
+            m = "Either I need the `manage_guild` permission, or you need the `create_instant_invite` permission..."
+            await self.bot.send_message(destination=ctx.channel, content=m)
+            return
+
+        # Create new invite
+        try:
+            uses = int(args[0])
+        except (IndexError, ValueError):
+            uses = 0
+        invite = await self.create_invite(bot=self.bot, ctx=ctx, uses=uses)
+        await self.bot.send_message(ctx.channel, "Here you go: {}".format(invite))
 
     @staticmethod
     async def command_membercount(user: Member, channel: TextChannel, args: [str]):

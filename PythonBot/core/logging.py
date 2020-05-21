@@ -1,24 +1,11 @@
 from datetime import datetime
 
-from discord import Message, TextChannel, DMChannel, Guild
+from discord import Message, TextChannel, DMChannel
 from discord.abc import Messageable
 
 
 def str_cmd(s: str):
     return s.encode("ascii", "replace").decode("ascii")
-
-
-# TODO
-# def replace_tags_with_names(m: Message, g: Guild):
-#     if not g:
-#         return m.content
-#     members = list(map(g.get_member, m.raw_mentions))
-#     for user in members:
-#         try:
-#             c = m.content.replace(user.mention, "@" + user.name)
-#         except AttributeError:
-#             pass
-#     return c
 
 
 def fill_logging_template(guild: str, channel: str, author: str, type: str, content: str):
