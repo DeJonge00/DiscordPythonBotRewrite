@@ -2,7 +2,7 @@ from discord.ext import commands
 import json
 import requests
 from discord.ext.commands import Cog
-from commands.games import triviainstance
+from commands.games.trivia import triviainstance
 
 
 CATEGORIES_URL = "https://opentdb.com/api_category.php"
@@ -13,7 +13,6 @@ class Trivia(Cog):
         self.bot = mybot
         self.categories = self.get_cats()
         self.game_instances = {}
-        print("Trivia started")
 
     # {prefix}trivia <categories>
     @commands.group(pass_context=1, help="Trivia", aliases=['tr'])

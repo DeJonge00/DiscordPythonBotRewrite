@@ -13,7 +13,6 @@ logging.basicConfig(filename='logs/misc_commands.log', level=LOG_LEVEL,
 class MiscCommands(Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
-        print('Misc commands cog started')
 
     @commands.command(name='inviteme', help="Invite me to your own server")
     async def inviteme(self, ctx: Context):

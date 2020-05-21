@@ -212,3 +212,24 @@ heresy = [
     'https://pics.me.me/not-sure-if-codex-approved-or-heresy-made-on-imgur-36827446.png',
     'https://i.imgur.com/KNcE3X0.jpg'
 ]
+
+praise_the_sun = [
+    'https://i.pinimg.com/originals/23/c1/c2/23c1c287c9da6d5d6521ff855d08607e.jpg',
+    'https://images.fineartamerica.com/images/artworkimages/mediumlarge/2/3-praise-the-sun-sumbu-caping.jpg',
+    'https://i.imgur.com/M5Tu7qV.jpg',
+    'https://i.imgur.com/kUjjI9m.jpg',
+    'https://i.imgur.com/3becXfG.png',
+    'https://i.imgur.com/G8TyOxl.png',
+    'https://i.imgur.com/oDamsit.jpg',
+    'https://i.imgur.com/XQXB85b.jpg',
+    'https://i.imgur.com/VHpgnqL.jpg',
+    'https://i.imgur.com/RvbNRq7.jpg',
+    'https://i.imgur.com/NjG2hmW.jpg',
+    'https://i.imgur.com/f9SnWKO.png',
+    'https://i.imgur.com/OApFSjS.jpg',
+    'https://i.imgur.com/JvRlYy9.jpg',
+    'https://i.imgur.com/bDilFQH.png',
+    'https://i.imgur.com/A4VYLb8.jpg',
+    'https://i.imgur.com/xGI6tnL.jpg',
+    'https://i.imgur.com/ToIg5Wr.jpg'
+]

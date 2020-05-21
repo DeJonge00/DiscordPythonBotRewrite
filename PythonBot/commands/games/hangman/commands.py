@@ -24,7 +24,6 @@ class Hangman(Cog):
         self.bot = my_bot
         self.games = {}
         self.prev = {}
-        print('Hangman started')
 
     async def show(self, channel: TextChannel, game: HangmanInstance, message="", win=False):
         embed = game.get_win_embed(message) if win else game.get_loss_embed(message)

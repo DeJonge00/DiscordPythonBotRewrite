@@ -3,12 +3,14 @@ import random
 import string
 from datetime import timedelta, datetime
 
-from discord import Message, Member, Reaction, Forbidden, NoMoreItems, Embed, DMChannel
+from discord import Message, Member, Reaction, Forbidden, NoMoreItems, Embed, DMChannel, File
 
 from config import constants, command_text
+from config.image_links import praise_the_sun
 from config.constants import TEXT, EMBED, IMAGE, ACTION, STAR_EMBED_COLOR, STAR_EMOJI
 from core import logging as log
 from core.bot import PythonBot
+from commands.image import embedded_pic
 from database.general.starboard import get_star_channel, get_star_message, update_star_message
 from secret.secrets import LOG_LEVEL
 from secret.secrets import bot_names
@@ -122,7 +124,7 @@ async def react_with_image(pre_command, message: Message, is_private: bool, guil
     # TODO add or replace images
     if (is_private or guild_id not in constants.praise_the_sun_blacklist) and message.content == "\\o/" and \
             await pre_command(message=message, channel=message.channel, command='\\o/', delete_message=True):
-        return {}  # {IMAGE: get_image_from_folder("sun")}
+        return {EMBED: embedded_pic('Praise the sun!', message.author.avatar_url, praise_the_sun).get(EMBED)}
     return {}
 
 

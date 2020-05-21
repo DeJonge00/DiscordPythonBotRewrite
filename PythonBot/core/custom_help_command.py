@@ -24,3 +24,8 @@ class CustomHelpCommand(DefaultHelpCommand):
                "\n\nVisit 'https://github.com/DeJonge00/PythonBot' for a more detailed version of this help message" \
                "\n\n" + super().get_ending_note() + \
                "\nFor more questions use '{}helpserver' or message user 'Nya#2698'".format(prefix)
+
+    async def on_help_command_error(self, ctx, error):
+        url = 'https://github.com/DeJonge00/DiscordPythonBotRewrite/blob/master/PythonBot/README.md'
+        c = "It seems I cannot DM you my commands, but you can find them at {}".format(url)
+        await self.bot.send_message(destination=ctx.channel, content=c)

@@ -4,10 +4,14 @@ from discord import Guild, TextChannel, DMChannel
 
 
 def server_as_dict(s: Guild):
+    try:
+        member_count = s.member_count
+    except AttributeError:
+        member_count = 0
     return {
         'name': s.name,
         SERVER_ID: s.id,
-        'members': s.member_count,
+        'members': member_count,
         'bots': len([x for x in s.members if x.bot]),
         'icon': str(s.icon_url),
         'channels': {
