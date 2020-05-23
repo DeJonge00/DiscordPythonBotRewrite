@@ -199,9 +199,9 @@ class ModCommands(Cog):
         if not role:
             await self.bot.send_message(ctx.channel, 'You have to specify the role you want')
             return
-        possible_roles = [r for r in ctx.guild.roles if prep_str(r.name).startswith(role)]
+        possible_roles = [r for r in ctx.guild.roles if prep_str(r.name.lower()).startswith(role.lower())]
         if not possible_roles:
-            await self.bot.send_message(ctx.channel, 'Thats not a valid role')
+            await self.bot.send_message(ctx.channel, 'That\'s not a valid role')
             return
         if len(possible_roles) == 1:
             role = possible_roles[0]
