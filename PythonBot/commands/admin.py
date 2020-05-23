@@ -20,7 +20,6 @@ logging.basicConfig(filename='logs/admin_commands.log', level=LOG_LEVEL,
 class AdminCommands(Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
-        print('Admin commands cog started')
 
     @commands.command(name='newpp', hidden=True, help="Give me a new look")
     async def newpp(self, ctx: Context):
@@ -96,6 +95,13 @@ class AdminCommands(Cog):
 
         await self.bot.send_message(destination=ctx, content="ZZZzzz...")
         await self.command_quit()
+
+    @commands.command(name='test', hidden=True, help="Test")
+    async def test(self, ctx: Context):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='test', owner_check=True):
+            return
+        from database.general.prefix import stringify_prefixes
+        stringify_prefixes()
 
 
 def setup(bot):

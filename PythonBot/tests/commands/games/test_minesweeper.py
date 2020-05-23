@@ -28,6 +28,7 @@ class Commands(unittest.TestCase):
             [UNGUESSED, UNGUESSED, UNGUESSED, UNGUESSED],
         ]
         game.height, game.width = 3, 4
+        game.game_state = PLAYING
 
     def test_minesweeper(self):
         game = MinesweeperInstance(1, 1, 1)

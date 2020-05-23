@@ -10,7 +10,7 @@ from io import BytesIO
 import discord
 import requests
 from PIL import Image, ImageFont, ImageDraw
-from discord import Message, Reaction, DMChannel, Member, File, Embed
+from discord import Message, Reaction, DMChannel, File, Embed
 from discord.ext import commands
 from discord.ext.commands.context import Context
 
@@ -42,7 +42,6 @@ class RPGGame(commands.Cog):
         self.bot.rpggame = self
         self.top_lists = {}
         self.logger = logging.getLogger(__name__)
-        print('RPGGame started')
 
     async def check_role(self, role: str, message: discord.Message, error='You') -> bool:
         if role not in [x[0] for x in rpgc.names.get("role")]:
@@ -207,7 +206,7 @@ class RPGGame(commands.Cog):
             party = boss_parties.get(serverid)
             try:
                 if len(party) > 0:
-                    channel = self.bot.get_channel(db_rpg_channels.get_rpg_channel(str(serverid)))
+                    channel = self.bot.get_channel(db_rpg_channels.get_rpg_channel(int(serverid)))
                     if not channel:
                         print("No channel for {}".format(serverid))
                         return
@@ -291,25 +290,27 @@ class RPGGame(commands.Cog):
         embed.add_field(name="Adventure secret found", value="{}, {}\n{} +{}".format(player.name, name, stat, amount))
         await self.bot.send_message(channel, embed=embed)
 
-    async def do_adventure(self, user_id: int, name: str, pic_url: str, busy: dict):
+    async def do_adventure(self, user_id: int, name: str, pic_url: str, busy: dict, health=1):
         if random.randint(0, 4) <= 0:
-            await self.adventure_encounter(db_rpg_player.get_player(user_id, name, pic_url),
-                                           self.bot.get_channel(busy.get('channel')))
-            return
-        await self.do_wander(user_id, name, pic_url, busy)
+            player = db_rpg_player.get_player(user_id, name, pic_url)
+            await self.adventure_encounter(player, self.bot.get_channel(busy.get('channel')))
+            return player.get_health()
+        return await self.do_wander(user_id, name, pic_url, busy, health=health)
 
-    async def do_wander(self, user_id: int, name: str, pic_url: str, busy: dict):
+    async def do_wander(self, user_id: int, name: str, pic_url: str, busy: dict, health=1):
         if random.randint(0, 14) <= 0:
-            await self.adventure_secret(db_rpg_player.get_player(user_id, name, pic_url),
-                                        self.bot.get_channel(busy.get('channel')))
+            player = db_rpg_player.get_player(user_id, name, pic_url)
+            await self.adventure_secret(player, self.bot.get_channel(busy.get('channel')))
+            return player.get_health()
+        return health
 
     async def do_busy_per_person(self, name: str, user_id: int, pic_url: str, busy, health):
         if busy.get('description') == BUSY_DESC_ADVENTURE:
-            await self.do_adventure(user_id, name, pic_url, busy)
+            health = await self.do_adventure(user_id, name, pic_url, busy, health)
         if busy.get('description') == BUSY_DESC_WANDERING:
-            await self.do_wander(user_id, name, pic_url, busy)
+            health = await self.do_wander(user_id, name, pic_url, busy, health)
 
-        if busy.get('time') > 0:
+        if busy.get('time') > 0 and health > 0:
             return
 
         if busy.get('description') == BUSY_DESC_NONE:
@@ -335,7 +336,6 @@ class RPGGame(commands.Cog):
             embed.add_field(name="Ended {}".format(action_type),
                             value="You are now done {}".format(action_name))
         else:
-            # TODO No trigger after dying in adventure
             embed.add_field(name="You Died".format(action_type),
                             value="You were killed on one of your adventures".format(action_name))
             embed.set_thumbnail(url="https://res.cloudinary.com/teepublic/image/private/s--_1_FlGA"
@@ -360,8 +360,8 @@ class RPGGame(commands.Cog):
 
     async def do_boss_raids_warning(self):
         boss_parties = db_rpg.get_boss_parties()
-        for p in [x for x in boss_parties if len(x) > 0]:
-            channel = self.bot.get_channel(db_rpg_channels.get_rpg_channel(str(p)))
+        for p in [x for x in boss_parties if x]:
+            channel = self.bot.get_channel(db_rpg_channels.get_rpg_channel(p))
             if not channel:
                 print("No channel for {}".format(p))
                 return
@@ -540,7 +540,8 @@ class RPGGame(commands.Cog):
             return
         c = ctx.message.channel
         if isinstance(c, DMChannel):
-            c: Member = ctx.message.author
+            # c: Member
+            c = ctx.message.author
         db_rpg_player.set_busy(data.userid, n, c.id, BUSY_DESC_ADVENTURE)
         await self.bot.send_message(destination=ctx.channel,
                                     content="{}, you are now adventuring for {} minutes, good luck!".format(
@@ -711,7 +712,7 @@ class RPGGame(commands.Cog):
         if not await self.check_role(data.role, ctx.message):
             return
 
-        party = db_rpg.get_boss_parties().get(ctx.message.server.id, [])
+        party = db_rpg.get_boss_parties().get(ctx.message.guild.id, [])
         if data in party:
             await self.bot.send_message(destination=ctx.channel,
                                         content="{}, you are already in the boss raid party...".format(
@@ -722,13 +723,13 @@ class RPGGame(commands.Cog):
                                         content="{}, finish your current task first, then you can join the boss raid party!".format(
                                             ctx.message.author.mention))
             return
-        if len(party) <= 0 and not db_rpg_channels.get_rpg_channel(ctx.message.server.id):
+        if len(party) <= 0 and not db_rpg_channels.get_rpg_channel(ctx.message.guild.id):
             await self.bot.send_message(destination=ctx.channel,
                                         content='Be sure to set the channel for bossfights with "{}rpg setchannel, '
                                                 'or you will not be able to see the results!'.format(
                                             await self.bot.get_prefix(ctx.message)))
 
-        db_rpg_player.set_busy(data.userid, 61, ctx.message.server.id, BUSY_DESC_BOSSRAID)
+        db_rpg_player.set_busy(data.userid, 61, ctx.message.guild.id, BUSY_DESC_BOSSRAID)
         c = "{}, prepare yourself! You and your party of {} will be fighting the boss at the hour mark!".format(
             ctx.message.author.mention, len(party) + 1)
         await self.bot.send_message(destination=ctx.channel, content=c)
@@ -737,23 +738,20 @@ class RPGGame(commands.Cog):
     @rpg.command(pass_context=1, aliases=["King", "k", "K"], help="The great king's game!")
     async def king(self, ctx: Context, *args):
         kingname = "Neko Overlord Ruling with an Iron Paw"
-        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='rpg king'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='rpg king',
+                                          cannot_be_private=True):
             return
-        if ctx.message.channel.is_private:
-            await self.bot.send_message(destination=ctx.channel,
-                                        content="This command cannot work in a private channel")
-            return
-        king = db_rpg.get_king(ctx.message.server.id)
+        king = int(db_rpg.get_king(ctx.message.guild.id))
         if len(args) <= 0:
             if king is None:
                 await self.bot.send_message(destination=ctx.channel,
                                             content="There is currently no {} in {}".format(kingname,
-                                                                                            ctx.message.server.name))
+                                                                                            ctx.message.guild.name))
                 return
             await self.bot.send_message(destination=ctx.channel,
-                                        content="The current {} of {} is {}".format(kingname, ctx.message.server.name,
-                                                                                    ctx.message.server.get_member(
-                                                                                        str(king)).display_name))
+                                        content="The current {} of {} is {}".format(kingname, ctx.message.guild.name,
+                                                                                    ctx.message.guild.get_member(
+                                                                                        king).display_name))
             return
         data = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name,
                                         ctx.message.author.avatar_url)
@@ -789,7 +787,7 @@ class RPGGame(commands.Cog):
             db_rpg_player.update_player(p)
         if battle_result == 1:
             winner = data
-            db_rpg.set_king(data.userid, ctx.message.server.id)
+            db_rpg.set_king(data.userid, ctx.message.guild.id)
             c = "{0} beat down {1}\n{0} is now the {2} of {3}!".format(data.name, king.name, kingname, ctx.guild.name)
             await self.bot.send_message(destination=ctx.channel, content=c)
         else:
@@ -866,7 +864,7 @@ class RPGGame(commands.Cog):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='rpg party',
                                           cannot_be_private=True):
             return
-        party = db_rpg.get_boss_parties().get(ctx.message.server.id, [])
+        party = db_rpg.get_boss_parties().get(ctx.message.guild.id, [])
         if len(party) <= 0:
             c = "There is no planned boss raid, but you are welcome to start a party!"
             await self.bot.send_message(destination=ctx.channel, content=c)
@@ -876,7 +874,7 @@ class RPGGame(commands.Cog):
         embed.add_field(name="Estimated boss level", value=max([x.get_bosstier() for x in party]), inline=False)
         m = ""
         for n in party:
-            member = ctx.message.server.get_member(str(n.userid))
+            member = ctx.guild.get_member(int(n.userid))
             m += "{}, level {}\n".format(member.display_name, n.get_level())
         embed.add_field(name="Adventurers", value=m, inline=False)
         await self.bot.send_message(destination=ctx.channel, embed=embed)
@@ -961,18 +959,18 @@ class RPGGame(commands.Cog):
 
     async def handle_reaction(self, reaction: Reaction):
         if reaction.message.id in [x[0] for x in self.top_lists.values()]:
-            _, page, group = self.top_lists.get(reaction.message.server.id)
+            _, page, group = self.top_lists.get(reaction.message.guild.id)
             if reaction.emoji == '\N{LEFTWARDS BLACK ARROW}':
                 page = page - 1
             if reaction.emoji == "\N{BLACK RIGHTWARDS ARROW}":
                 page = page + 1
-            for m in await reaction.users():
+            async for m in reaction.users():
                 if m.id != self.bot.user.id:
                     await reaction.remove(m)
             try:
                 embed = self.top_board(page, group)
                 await self.bot.edit_message(reaction.message, embed=embed)
-                self.top_lists[reaction.message.server.id] = (reaction.message.id, page, group)
+                self.top_lists[reaction.message.guild.id] = (reaction.message.id, page, group)
             except ValueError:
                 pass
 
@@ -1023,9 +1021,9 @@ class RPGGame(commands.Cog):
             try:
                 n = int(args[0])
             except ValueError:
-                n = 10
+                n = 60
         else:
-            n = 10
+            n = 60
 
         if data.busydescription != BUSY_DESC_NONE:
             await self.bot.send_message(destination=ctx.channel, content="You are already doing other things")
@@ -1035,22 +1033,17 @@ class RPGGame(commands.Cog):
             await self.bot.send_message(destination=ctx.channel, content=c)
             return
         c = ctx.message.channel
-        if c.is_private:
-            c = ctx.message.author
-        data.set_busy(BUSY_DESC_WANDERING, n, c.id)
+        db_rpg_player.set_busy(user_id=data.userid, time=n, channel_id=c.id, description=BUSY_DESC_WANDERING)
         c = "{}, you are now wandering for {} minutes, good luck!".format(ctx.message.author.mention, n)
         await self.bot.send_message(destination=ctx.channel, content=c)
 
     # DB commands
     @rpg.command(pass_context=1, help="Set rpg channel!")
     async def setchannel(self, ctx: Context):
-        if not await self.bot.pre_command(message=ctx.message, channel=ctx.message.channel, command='rpg setchannel'):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.message.channel, command='rpg setchannel',
+                                          perm_needed=['manage_server', 'administrator']):
             return
-        perms = ctx.message.channel.permissions_for(ctx.message.author)
-        if not (ctx.message.author.id == constants.NYAid or perms.manage_server or perms.administrator):
-            await self.bot.send_message(destination=ctx.channel, content="Hahahaha, no")
-            return
-        db_rpg_channels.set_rpg_channel(ctx.message.server.id, ctx.message.channel.id)
+        db_rpg_channels.set_rpg_channel(ctx.message.guild.id, ctx.message.channel.id)
         c = "This channel is now the rpg channel for this server"
         await self.bot.send_message(destination=ctx.channel, content=c)
 
@@ -1124,7 +1117,8 @@ class RPGGame(commands.Cog):
             if num_to_remove >= len(data.pets):
                 await self.bot.send_message(destination=ctx.channel, content='You do not have that many pets...')
                 return
-            pet: RPGPet = data.pets[num_to_remove]
+            # pet: RPGPet
+            pet = data.pets[num_to_remove]
             data.pets.remove(pet)
             db_rpg_player.update_player(data)
             c = 'Your pet named {} was released into the wild'.format(pet.name)
@@ -1159,6 +1153,9 @@ class RPGGame(commands.Cog):
 
         db_rpg_player.reset_busy(user.id)
         await self.bot.send_message(ctx.channel, 'Busy status of player"{}" reset'.format(user.display_name))
+
+    def quit(self):
+        pass
 
 
 def setup(bot):

@@ -1,10 +1,11 @@
+import math
+
 from api.rpg import constants as rpgc
 from api.rpg.objects import rpgcharacter
 from api.rpg.objects.rpgarmor import RPGArmor, dict_to_armor
-from api.rpg.objects.rpgweapon import RPGWeapon, dict_to_weapon
-from api.rpg.objects.rpgshopitem import RPGShopItem
 from api.rpg.objects.rpgpet import RPGPet, dict_to_pet
-import math
+from api.rpg.objects.rpgshopitem import RPGShopItem
+from api.rpg.objects.rpgweapon import RPGWeapon, dict_to_weapon
 
 DEFAULT_ROLE = 'Undead'
 
@@ -140,7 +141,7 @@ class RPGPlayer(rpgcharacter.RPGCharacter):
     def add_bosstier(self):
         self.bosstier += 1
 
-    def set_busy(self, action: int, time: int, channel: str):
+    def set_busy(self, action: int, time: int, channel: int):
         self.busytime = time
         self.busychannel = channel
         self.busydescription = action
@@ -191,14 +192,14 @@ class RPGPlayer(rpgcharacter.RPGCharacter):
         return {
             'stats': {
                 'name': self.name,
-                'picture_url': self.picture_url,
+                'picture_url': str(self.picture_url),
                 'health': self.get_health(),
                 'maxhealth': self.maxhealth,
                 'damage': self.damage,
                 'weaponskill': self.weaponskill,
                 'critical': self.critical
             },
-            'userid': self.userid,
+            'userid': str(self.userid),
             'role': self.role,
             'exp': self.exp,
             'level': self.level,
@@ -241,5 +242,6 @@ def dict_to_player(player: dict):
         kingtimer=player.get('kingtimer'),
         extratime=player.get('extratime')
     )
-    player.set_busy(action=busy.get('description'), time=busy.get('time'), channel=busy.get('channel'))
+    bc = 0 if busy.get('channel') == '' else int(busy.get('channel'))
+    player.set_busy(action=busy.get('description'), time=busy.get('time'), channel=bc)
     return player

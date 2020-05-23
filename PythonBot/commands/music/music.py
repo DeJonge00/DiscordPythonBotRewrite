@@ -19,7 +19,6 @@ class MusicCommands(Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
         self.bot.music_player = MusicPlayer(my_bot)
-        print('Music commands cog started')
         print('Opus loaded:', is_loaded())
 
     @commands.group(name='music', aliases=["m"], help="'{}help music' for full options".format(prefix))

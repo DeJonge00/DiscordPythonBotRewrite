@@ -1,8 +1,8 @@
 import pymongo
 
-from database.common import get_table as get_database_and_table
-from api.rpg.objects.rpgplayer import dict_to_player, BUSY_DESC_BOSSRAID, BUSY_DESC_NONE
 import api.rpg.constants as rpgc
+from api.rpg.objects.rpgplayer import dict_to_player, BUSY_DESC_BOSSRAID, BUSY_DESC_NONE
+from database.common import get_table as get_database_and_table
 
 RPG_DATABASE = 'rpg'
 CHANNEL_ID = 'channelid'
@@ -19,7 +19,11 @@ def get_table(table):
 
 
 def get_busy_players():
-    return [(x.get('stats').get('name'), int(x.get('userid')), x.get('picture_url'), x.get('busy'), x.get('stats')
+    return [(x.get('stats').get('name'), int(x.get('userid')), x.get('picture_url'), {
+        'time': x.get('busy').get('time'),
+        'channel': int(x.get('busy').get('channel')),
+        'description': x.get('busy').get('description')
+    }, x.get('stats')
              .get('health')) for x in get_table(RPG_PLAYER_TABLE).find({"$or": [{'busy.time': {'$lt': 0}},
                                                                                 {'busy.description': {
                                                                                     '$not': {'$eq': 0}}}]})]
@@ -60,13 +64,13 @@ def get_boss_parties():
 
 
 def set_king(user_id: int, server_id: int):
-    get_table(RPG_KING_TABLE).update({SERVER_ID: str(server_id)}, {'$set': {USER_ID: str(user_id)}}, upsert=True)
+    get_table(RPG_KING_TABLE).update({SERVER_ID: str(server_id)}, {'$set': {USER_ID: user_id}}, upsert=True)
 
 
 def get_king(server_id: int):
     r = get_table(RPG_KING_TABLE).find_one({SERVER_ID: str(server_id)})
-    return r if r else None
+    return int(r.get(USER_ID, 0)) if r else None
 
 
 def is_king(user_id: int):
-    return bool(get_table(RPG_KING_TABLE).find_one({USER_ID: str(user_id)}))
+    return bool(get_table(RPG_KING_TABLE).find_one({USER_ID: user_id}))
