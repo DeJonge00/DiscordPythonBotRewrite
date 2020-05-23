@@ -15,5 +15,5 @@ def get_role(server_id: int, role_id: int):
 
 def toggle_role(server_id: int, role_id: int):
     v = not get_role(server_id, role_id)
-    get_table(SELF_ASSIGNABLE_ROLES_TABLE).update({SERVER_ID: str(server_id)}, {'$set': {str(role_id): v}}, upsert=True)
+    get_table(SELF_ASSIGNABLE_ROLES_TABLE).update_one({SERVER_ID: str(server_id)}, {'$set': {str(role_id): v}}, upsert=True)
     return v
