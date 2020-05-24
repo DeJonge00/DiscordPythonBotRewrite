@@ -100,3 +100,19 @@ async def update_member_counter(guild: Guild):
         member_counter.delete_member_counter_channel(guild.id)
         return
     await channel.edit(name=member_counter_message.format(guild.member_count), reason='User left/joined')
+
+
+def shorten_number(n: int):
+    if n > 1000000000000000000:
+        return '{}T'.format(int(n / 1000000000000000))
+    if n > 1000000000000000:
+        return '{0:.3f}T'.format(n / 1000000000000000)[:6]
+    if n > 1000000000000:
+        return '{0:.3f}T'.format(n / 1000000000000)[:6]
+    if n > 1000000000:
+        return '{0:.3f}G'.format(n/1000000000)[:6]
+    if n > 1000000:
+        return '{0:.3f}M'.format(n/1000000)[:6]
+    if n > 1000:
+        return '{0:.3f}K'.format(n / 1000)
+    return str(n)

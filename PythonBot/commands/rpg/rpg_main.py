@@ -20,11 +20,12 @@ from api.rpg.objects.rpgmonster import RPGMonster
 from api.rpg.objects.rpgpet import RPGPet
 from api.rpg.objects.rpgplayer import RPGPlayer, BUSY_DESC_NONE, BUSY_DESC_WANDERING, BUSY_DESC_BOSSRAID, \
     BUSY_DESC_WORKING, BUSY_DESC_ADVENTURE, BUSY_DESC_TRAINING, minadvtime, maxadvtime, minwandertime, maxwandertime
-from api.rpg.rpg_helper_functions import shorten_exp, construct_battle_report, add_health_rep
+from api.rpg.rpg_helper_functions import construct_battle_report, add_health_rep
 from commands.rpg import rpggameactivities
 from config import constants
 from core import logging as log
 from core.bot import PythonBot
+from core.utils import shorten_number
 from database.rpg import rpg_main as db_rpg, channels as db_rpg_channels, player as db_rpg_player
 from secret.secrets import font_path
 
@@ -653,7 +654,7 @@ class RPGGame(commands.Cog):
         if data.get_level() > data.level:
             stats = "Level up available!"
         else:
-            stats = "lvl {} ({} xp)".format(data.level, await shorten_exp(data.exp))
+            stats = "lvl {} ({} xp)".format(data.level, shorten_number(data.exp))
         draw.text((statoffset, topoffset + following), stats, color, font=font)
         draw.text((nameoffset, topoffset + 2 * following), "Boss Tier:", color, font=font)
         draw.text((statoffset, topoffset + 2 * following), "{}".format(data.get_bosstier()), color, font=font)
@@ -946,6 +947,7 @@ class RPGGame(commands.Cog):
 
         for i in range(len(players)):
             name, player_score = players[i]
+            player_score = shorten_number(player_score)
             rank = page * users_per_page + i + 1
             if group == "money":
                 result += "Rank {}:\n\t**{}**, {}{}\n".format(rank, name,
@@ -1137,7 +1139,7 @@ class RPGGame(commands.Cog):
         embed.set_author(name='{}\'s pets:'.format(u.display_name), url=u.avatar_url)
         for i in range(len(data.pets)):
             pet = data.pets[i]
-            stats = 'Number: {}\nExp: {} (L{})\nDamage: {}\nWeaponskill: {}'.format(i + 1, await shorten_exp(pet.exp),
+            stats = 'Number: {}\nExp: {} (L{})\nDamage: {}\nWeaponskill: {}'.format(i + 1, shorten_number(pet.exp),
                                                                                     pet.get_level(),
                                                                                     pet.get_damage(),
                                                                                     pet.get_weaponskill())
