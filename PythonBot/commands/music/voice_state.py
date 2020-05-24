@@ -113,6 +113,10 @@ class VoiceState:
         self.remove_song_from_queue()
         return song
 
+    def stop_playing(self):
+        if self.state.is_playing():
+            self.state.stop()
+
     async def disconnect(self):
         """
         Stop playing music and disconnect from the voicechannel
