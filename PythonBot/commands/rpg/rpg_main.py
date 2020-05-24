@@ -39,7 +39,7 @@ logging.basicConfig(filename='logs/rpg_main.log', level=logging.DEBUG,
 class RPGGame(commands.Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot
-        self.bot.rpggame = self
+        self.bot.rpg_game = self
         self.top_lists = {}
         self.logger = logging.getLogger(__name__)
 
@@ -376,8 +376,8 @@ class RPGGame(commands.Cog):
                 await self.do_boss_raids_warning()
             if time.minute == 0:
                 await self.boss_battle()
-                self.bot.rpgshop.weapons = {}
-                self.bot.rpgshop.armors = {}
+                self.bot.rpg_shop.weapons = {}
+                self.bot.rpg_shop.armors = {}
 
         except Exception:
             print(traceback.format_exc())
@@ -782,6 +782,9 @@ class RPGGame(commands.Cog):
             await self.bot.send_message(destination=ctx.channel, content=c)
             return
 
+        king = ctx.message.guild.get_member(king)
+        king = db_rpg_player.get_player(king.id, king.display_name, king.avatar_url)
+
         battle_result = await self.resolve_battle("Kingsbattle", ctx.message.channel, [data], [king])
         for p in [data, king]:
             db_rpg_player.update_player(p)
@@ -1067,7 +1070,7 @@ class RPGGame(commands.Cog):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='rpg triggerbossfights',
                                           is_typing=False, owner_check=True):
             return
-        await self.bot.rpggame.boss_battle()
+        await self.bot.rpg_game.boss_battle()
 
     @rpg.command(pass_context=1, hidden=True)
     async def addpet(self, ctx: Context, num: int):

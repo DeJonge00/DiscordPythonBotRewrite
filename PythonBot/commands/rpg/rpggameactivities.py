@@ -18,7 +18,7 @@ SHOP_EMBED_COLOR = 0x00969b
 class RPGGameActivities(Cog):
     def __init__(self, bot: PythonBot):
         self.bot = bot
-        self.bot.rpgshop = self
+        self.bot.rpg_shop = self
         self.weapons = {}
         self.armors = {}
 
@@ -56,7 +56,7 @@ class RPGGameActivities(Cog):
             return
         player = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name,
                                           ctx.message.author.avatar_url)
-        if not await self.bot.rpggame.check_role(player.role, ctx.message):
+        if not await self.bot.rpg_game.check_role(player.role, ctx.message):
             return
         if player.role == rpgc.names.get("role")[-1][0]:
             c = "{}, A cat cannot possibly wear human armor...".format(ctx.message.author.mention)
@@ -110,7 +110,7 @@ class RPGGameActivities(Cog):
             return
         player = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name,
                                           ctx.message.author.avatar_url)
-        if not await self.bot.rpggame.check_role(player.role, ctx.message):
+        if not await self.bot.rpg_game.check_role(player.role, ctx.message):
             return
         if len(args) <= 0:
             embed = discord.Embed(colour=SHOP_EMBED_COLOR)
@@ -176,7 +176,7 @@ class RPGGameActivities(Cog):
             return
         player = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name,
                                           ctx.message.author.avatar_url)
-        if not await self.bot.rpggame.check_role(player.role, ctx.message):
+        if not await self.bot.rpg_game.check_role(player.role, ctx.message):
             return
         if player.role == rpgc.names.get("role")[-1][0]:
             c = "{}, how would you even use a weapon as a cat?".format(ctx.message.author.mention)
@@ -251,7 +251,7 @@ class RPGGameActivities(Cog):
 
         player = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name,
                                           ctx.message.author.avatar_url)
-        if not await self.bot.rpggame.check_role(player.role, ctx.message):
+        if not await self.bot.rpg_game.check_role(player.role, ctx.message):
             return
         if player.role == rpgc.names.get("role")[-1][0] and training.name == 'maxhealth':
             c = "{}, awww. So cute. A cat trying to fight a dummy".format(ctx.message.author.mention)
@@ -289,7 +289,7 @@ class RPGGameActivities(Cog):
 
         player = db_rpg_player.get_player(ctx.message.author.id, ctx.message.author.display_name,
                                           ctx.message.author.avatar_url)
-        if not await self.bot.rpggame.check_role(player.role, ctx.message):
+        if not await self.bot.rpg_game.check_role(player.role, ctx.message):
             return
         if player.role == rpgc.names.get("role")[-1][0]:
             await self.bot.send_message(destination=ctx.channel, content=

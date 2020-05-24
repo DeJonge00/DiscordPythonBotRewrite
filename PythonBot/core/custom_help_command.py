@@ -23,7 +23,8 @@ class CustomHelpCommand(DefaultHelpCommand):
                "\n\tMention me or 'biri' or 'biribiri' : I will talk to your lonely self" \
                "\n\nVisit 'https://github.com/DeJonge00/PythonBot' for a more detailed version of this help message" \
                "\n\n" + super().get_ending_note() + \
-               "\nFor more questions use '{}helpserver' or message user 'Nya#2698'".format(prefix)
+               "\nFor more questions use '{}helpserver' or message user 'Nya#2698'" \
+               "\nOr use the suggestion, complaint or bugreport commands".format(prefix)
 
     async def on_help_command_error(self, ctx, error):
         url = 'https://github.com/DeJonge00/DiscordPythonBotRewrite/blob/master/PythonBot/README.md'

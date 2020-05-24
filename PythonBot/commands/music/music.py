@@ -63,9 +63,9 @@ class MusicCommands(Cog):
             return
 
         if ctx.guild.voice_client:
-            await self.music_player.join_voice_channel(ctx.message, from_state=ctx.guild.voice_client)
+            await self.bot.music_player.join_voice_channel(ctx.message, from_state=ctx.guild.voice_client)
             return
-        await self.music_player.join_voice_channel(ctx.message)
+        await self.bot.music_player.join_voice_channel(ctx.message)
 
     @music.command(name='leave', aliases=["l"], help="Send me away from the voice channel")
     async def leave(self, ctx: Context):
@@ -89,9 +89,9 @@ class MusicCommands(Cog):
     async def play(self, ctx: Context, *song):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='music play'):
             return
-        state = self.music_player.get_voice_state(ctx.channel)
+        state = self.bot.music_player.get_voice_state(ctx.channel)
         if song:
-            await self.music_player.add_song_to_queue(ctx.message, " ".join(song))
+            await self.bot.music_player.add_song_to_queue(ctx.message, " ".join(song))
             return
 
         if state.state.is_playing():
@@ -105,7 +105,7 @@ class MusicCommands(Cog):
     async def current(self, ctx: Context):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='music current'):
             return
-        state = self.music_player.get_voice_state(ctx.channel)
+        state = self.bot.music_player.get_voice_state(ctx.channel)
         if not state or not state.current or not state.is_playing():
             await self.bot.send_message(ctx.channel, "I am not performing at the moment")
             return
@@ -117,33 +117,33 @@ class MusicCommands(Cog):
     async def queue(self, ctx: Context, *song):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='music queue'):
             return
-        state = self.music_player.get_voice_state(ctx.channel)
+        state = self.bot.music_player.get_voice_state(ctx.channel)
         if not state:
-            if not await self.music_player.join_voice_channel(ctx.message):
+            if not await self.bot.music_player.join_voice_channel(ctx.message):
                 return
-            state = self.music_player.get_voice_state(ctx.channel)
+            state = self.bot.music_player.get_voice_state(ctx.channel)
         if len(song) <= 0:
-            await self.music_player.show_queue(ctx.channel)
+            await self.bot.music_player.show_queue(ctx.channel)
             return
-        await self.music_player.add_song_to_queue(ctx.message, " ".join(song))
+        await self.bot.music_player.add_song_to_queue(ctx.message, " ".join(song))
 
     @music.command(name='stop', aliases=["quit"],
                    help="Empty the queue and skip the current song, then leave the voice channel")
     async def stop(self, ctx: Context):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='music stop'):
             return
-        state = self.music_player.get_voice_state(ctx.channel)
+        state = self.bot.music_player.get_voice_state(ctx.channel)
         if not state or not state.state.is_playing():
             await self.bot.send_message(ctx.channel, "I am not singing at the moment")
             return
         await state.stop_playing(ctx)
-        await self.music_player.stop_playing(ctx.guild)
+        await self.bot.music_player.stop_playing(ctx.guild)
 
     @music.command(name='repeat', aliases=["r"], help="Repeat the current song")
     async def repeat(self, ctx):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='music repeat'):
             return
-        state = self.music_player.get_voice_state(ctx.channel)
+        state = self.bot.music_player.get_voice_state(ctx.channel)
         if not state or not state.state.isplaying():
             await self.bot.send_message(ctx.message, "I am not singing at the moment")
             return
@@ -161,7 +161,7 @@ class MusicCommands(Cog):
     async def skip(self, ctx: Context, *args):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='music skip'):
             return
-        state = self.music_player.get_voice_state(ctx.channel)
+        state = self.bot.music_player.get_voice_state(ctx.channel)
         if not state or not state.state.is_playing():
             await self.bot.send_message(ctx.channel, "I am not playing songs right now...")
             return

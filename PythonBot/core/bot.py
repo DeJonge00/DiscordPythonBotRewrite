@@ -4,7 +4,7 @@ from datetime import datetime
 
 from discord import Message, TextChannel, DMChannel, Forbidden, Embed, Member, User
 from discord.ext.commands import Bot, Context
-from discord.ext.commands.errors import CommandError, CommandNotFound
+from discord.ext.commands.errors import CommandError
 
 from config import constants
 from core import logging as log
@@ -25,7 +25,10 @@ class PythonBot(Bot):
         self.commands_counters = {}
 
         self.MUSIC = music
+        self.music_player = None
         self.RPGGAME = rpggame
+        self.rpg_game = None
+        self.rpg_shop = None
         self.API = api
         self.EMBED_LIST = embed_list
         super(PythonBot, self).__init__(command_prefix=prefix, help_command=CustomHelpCommand(self))
