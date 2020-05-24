@@ -132,7 +132,7 @@ class PythonBot(Bot):
         for key in self.commands_counters.keys():
             print('Command "{}" was used {} times'.format(key, self.commands_counters.get(key)))
         if self.RPGGAME:
-            self.rpggame.quit()
+            self.rpg_game.quit()
         if self.MUSIC:
             await self.music_player.quit()
 
@@ -325,7 +325,7 @@ class PythonBot(Bot):
             time = datetime.utcnow()
 
             if self.RPGGAME:
-                await self.rpggame.game_tick(time)
+                await self.rpg_game.game_tick(time)
             if self.MUSIC:
                 await self.music_player.music_loop(time)
 
