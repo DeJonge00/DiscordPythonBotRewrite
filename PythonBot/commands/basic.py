@@ -551,12 +551,15 @@ class BasicCommands(Cog):
         s_a_roles = self_assignable_roles.get_roles(ctx.guild.id)
         if not role:
             if s_a_roles:
-                nr, sar, m = 10, s_a_roles, 'These are the available roles for this server:\n'
+                nr, sar, m = 10, s_a_roles, 'These are the available roles for this server:\n```'
                 while len(sar) > nr:
                     m += '\n'.join([ctx.guild.get_role(r).name for r in sar[:nr]])
+                    m += '```'
                     await self.bot.send_message(ctx.channel, m)
+                    m = '```'
                     sar = sar[nr:]
                 m += '\n'.join([ctx.guild.get_role(r).name for r in sar])
+                m += '```'
             else:
                 m = 'There are no self-assignable roles in this guild...'
             await self.bot.send_message(ctx.channel, m)
