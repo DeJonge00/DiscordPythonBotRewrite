@@ -4,7 +4,7 @@ from datetime import datetime
 
 from discord import Message, TextChannel, DMChannel, Forbidden, Embed, Member, User
 from discord.ext.commands import Bot, Context
-from discord.ext.commands.errors import CommandError, CommandNotFound
+from discord.ext.commands.errors import CommandError
 
 from config import constants
 from core import logging as log

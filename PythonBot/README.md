@@ -11,7 +11,8 @@ _Do note that the text does not need to be italic or bold, this is simply a way 
 \
 The response message `Hahaha, no.` indicates that you lack the permissions to use the command.\
 \
-Biribiri is still in development, comments and improvements are welcome (_`prefix}helpserver` or message `Nya#2698` to contact me)
+Biribiri is still in development, comments and improvements are welcome by messaging `Nya#2698` to contact me\
+There are also commands for complaints, suggestions and bugreports, or an invitelink to a helpserver, which can be found below.
 
 The commands marked with the |WIP| tag have not been added to the rewritten version yet
 
@@ -119,6 +120,9 @@ The commands marked with the |WIP| tag have not been added to the rewritten vers
 |---			|---										            |---
 |inviteme    	|`inviteme`                                             |Invite me to your own server
 |helpserver  	|`helpserver`                                           |Join my masters discord server if questions need answering
+|suggestion     |`suggestion,suggest`                                   |Give the bot-owners a suggestion to improve the bot
+|complaint      |`complain,complaint`                                   |Complaint about bad practices, or just about whatever irritates you to the bot-owners
+|bugreport      |`bug,bugreport`                                        |Notify the bot-owners of a bug in the commands, or an error in the help or readme
 |vote           |`vote`                                                 |Vote for me! This makes me more popular, which results in more attention from my master...
 
 ### Mod
