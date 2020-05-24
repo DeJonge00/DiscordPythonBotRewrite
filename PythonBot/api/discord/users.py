@@ -31,6 +31,7 @@ def init_users(api: Flask, auth: HTTPBasicAuth):
         if r.status_code is not 200:
             print('get_discord_user_guilds returned status code', r.status_code)
             return jsonify(r.json())
+
         player_servers = [str(x.get('id')) for x in r.json()]
         bot_servers = general.get_table(general.SERVER_TABLE).find({general.SERVER_ID: {'$in': player_servers}},
                                                                    {'_id': 0})

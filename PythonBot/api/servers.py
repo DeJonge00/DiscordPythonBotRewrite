@@ -30,27 +30,31 @@ def init_servers(api: Flask, auth: HTTPBasicAuth):
 
     @api.route(route_start + '/servers/<int:server_id>/config', methods=['GET'])
     @auth.login_required
-    def get_server_config(server_id: int):
-        welcome = general.get_table(general.WELCOME_TABLE).find_one({general.SERVER_ID: server_id}, {'_id': 0})
+    def get_server_config(server_id: str):
+        welcome = general.get_table(general.WELCOME_TABLE).find_one({general.SERVER_ID: str(server_id)}, {'_id': 0})
         if welcome:
             welcome = {
-                'id': welcome.get(general.CHANNEL_ID),
-                'text': welcome.get('message')
+                'id': str(welcome.get(general.CHANNEL_ID, 0)),
+                'text': welcome.get('message', '')
             }
+        else:
+            welcome = {'id': 0, 'text': ''}
 
-        goodbye = general.get_table(general.GOODBYE_TABLE).find_one({general.SERVER_ID: server_id}, {'_id': 0})
+        goodbye = general.get_table(general.GOODBYE_TABLE).find_one({general.SERVER_ID: str(server_id)}, {'_id': 0})
         if goodbye:
             goodbye = {
-                'id': goodbye.get(general.CHANNEL_ID),
-                'text': goodbye.get('message')
+                'id': str(goodbye.get(general.CHANNEL_ID, 0)),
+                'text': goodbye.get('message', '')
             }
+        else:
+            goodbye = {'id': 0, 'text': ''}
         server_prefix = prefix.get_prefix(int(server_id))
         if not server_prefix:
             server_prefix = default_prefix
 
         starchannel = starboard.get_star_channel(int(server_id))
         if not starchannel:
-            starchannel = "None"
+            starchannel = 0
 
         return jsonify({
             'welcome': welcome,

@@ -10,6 +10,7 @@ from discord.ext.commands import Cog, Context
 
 from core.bot import PythonBot
 from core.setup import get_cogs
+from database.general.bot_information import clear_server_list
 from secret.secrets import LOG_LEVEL
 
 logging.basicConfig(filename='logs/admin_commands.log', level=LOG_LEVEL,
@@ -64,6 +65,13 @@ class AdminCommands(Cog):
             m += "{}, members={}, owner={}\n".format(i.name, sum([1 for _ in i.members]), i.owner)
         # await self.bot.send_message(ctx.message.channel, m)
         print(m)
+
+    @commands.command(name='clearserverlist', hidden=1, help="Delete servers in the database")
+    async def clearserverlist(self, ctx):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='clearserverlist',
+                                          owner_check=True, is_typing=False):
+            return
+        clear_server_list()
 
     @commands.command(pass_context=1, hidden=True)
     async def reload(self, ctx: Context, *args):

@@ -1,6 +1,6 @@
-from database.general.general import get_table, SERVER_ID, CHANNEL_ID, SERVER_TABLE, CHANNEL_TABLE
-
 from discord import Guild, TextChannel, DMChannel
+
+from database.general.general import get_table, SERVER_ID, CHANNEL_ID, SERVER_TABLE, CHANNEL_TABLE
 
 
 def server_as_dict(s: Guild):
@@ -10,7 +10,7 @@ def server_as_dict(s: Guild):
         member_count = 0
     return {
         'name': s.name,
-        SERVER_ID: s.id,
+        SERVER_ID: str(s.id),
         'members': member_count,
         'bots': len([x for x in s.members if x.bot]),
         'icon': str(s.icon_url),
@@ -37,3 +37,8 @@ def update_server_list(servers: [Guild]):
         server_table.replace_one({SERVER_ID: str(s.id)}, server_as_dict(s), upsert=True)
         for c in s.channels:
             channel_table.replace_one({CHANNEL_ID: str(c.id)}, channel_as_dict(c), upsert=True)
+
+
+def clear_server_list():
+    get_table(SERVER_TABLE).remove({})
+    get_table(CHANNEL_TABLE).remove({})
