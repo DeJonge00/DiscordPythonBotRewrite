@@ -136,7 +136,7 @@ class MusicCommands(Cog):
         if not state or not state.state.is_playing():
             await self.bot.send_message(ctx.channel, "I am not singing at the moment")
             return
-        await self.bot.music_player.stop_playing(ctx.guild)
+        await self.bot.music_player.stop_playing(ctx.channel)
 
     @music.command(name='repeat', aliases=["r"], help="Repeat the current song")
     async def repeat(self, ctx):
