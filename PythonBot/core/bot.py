@@ -132,7 +132,7 @@ class PythonBot(Bot):
         for key in self.commands_counters.keys():
             print('Command "{}" was used {} times'.format(key, self.commands_counters.get(key)))
         if self.RPGGAME:
-            self.rpggame.quit()
+            self.rpg_game.quit()
         if self.MUSIC:
             await self.music_player.quit()
 
@@ -296,17 +296,17 @@ class PythonBot(Bot):
             # channel: TextChannel
             if must_be_private:
                 await channel.send('This command has to be used in a private conversation')
-                await log.message(message, 'Command "{}" used, but must be private'.format(command))
+                log.message(message, 'Command "{}" used, but must be private'.format(command))
                 return False
             if must_be_nsfw and not channel.is_nsfw():
                 await channel.send('This command cannot be used outside NSFW channels')
-                await log.message(message, 'Command "{}" used, but must be an NSFW channel'.format(command))
+                log.message(message, 'Command "{}" used, but must be an NSFW channel'.format(command))
                 return False
             if not command_allowed_in_server(channel.guild.id, command):
-                await log.message(message, 'Command "{}" used, but is serverbanned'.format(command))
+                log.message(message, 'Command "{}" used, but is serverbanned'.format(command))
                 return False
             if not command_allowed_in_channel(channel.id, command):
-                await log.message(message, 'Command "{}" used, but is channelbanned'.format(command))
+                log.message(message, 'Command "{}" used, but is channelbanned'.format(command))
                 return False
             if delete_message and delete_commands.get_delete_commands(channel.guild.id):
                 await self.delete_message(message)
@@ -325,7 +325,7 @@ class PythonBot(Bot):
             time = datetime.utcnow()
 
             if self.RPGGAME:
-                await self.rpggame.game_tick(time)
+                await self.rpg_game.game_tick(time)
             if self.MUSIC:
                 await self.music_player.music_loop(time)
 

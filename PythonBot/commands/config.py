@@ -6,10 +6,13 @@ from discord.ext.commands import Cog, Context
 from config.constants import TEXT, STAR_EMOJI
 from core.bot import PythonBot
 from database.general import prefix, delete_commands, starboard
+from database.general.banned_commands import toggle_banned_command
 from secret.secrets import LOG_LEVEL
 
 logging.basicConfig(filename='logs/config_commands.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
+
+response_names = ['\\o/', 'ayy', 'response_lenny', 'response_ded', 'tableflip', 'talk']
 
 
 class ConfigCommands(Cog):
@@ -55,7 +58,57 @@ class ConfigCommands(Cog):
             m = 'Commands will now not be deleted in this server'
         await self.bot.send_message(ctx, content=m)
 
-    # TODO >togglecommand
+    def get_command_name(self, command: str):
+        if command == 'all':
+            return 'all', 'All commands'
+        if command in response_names:
+            return command, 'Response "{}"'.format(command)
+
+        comm = self.bot.get_command(command)
+        if not comm:
+            raise ValueError
+        return str(comm), 'Command "{}" is'.format(command)
+
+    @commands.command(pass_context=1, help="Toggle whether a specific commands can be used here", aliases=['tc'])
+    async def togglecommand(self, ctx, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='togglecommand',
+                                          cannot_be_private=True,
+                                          perm_needed=['manage_channels', 'manage_messages', 'administrator']):
+            return
+
+        if len(args) <= 0:
+            m = 'The response commands are (un)banned with either of {}'.format(', '.join(response_names))
+            await self.bot.send_message(destination=ctx.channel, content=m)
+            return
+
+        if len(args) <= 1 or not (args[0].lower() in ['server', 'channel']):
+            m = 'Please give me either "server" or "channel" followed by the name of the command'
+            await self.bot.send_message(destination=ctx.channel, content=m)
+            return
+
+        command = ' '.join(args[1:])
+        try:
+            name, text = self.get_command_name(command)
+        except ValueError:
+            m = 'I do not recognize the command name ' + command
+            await self.bot.send_message(destination=ctx.channel, content=m)
+            return
+
+        # Check whether to ban locally or globally
+        id_type = args[0].lower()
+        identifier = ctx.guild.id if id_type == 'server' else ctx.channel.id
+
+        # Add or remove command
+        if name == 'togglecommand':
+            await self.bot.send_message(destination=ctx.channel, content='Wow... just wow')
+            return
+        result = toggle_banned_command(id_type, identifier, name)
+        if not result:
+            await self.bot.send_message(destination=ctx.channel,
+                                        content='{} now unbanned from this {}'.format(text, args[0]))
+        else:
+            await self.bot.send_message(destination=ctx.channel,
+                                        content='{} now banned from this {}'.format(text, args[0]))
 
     @commands.command(name='starboard', help="Change my prefix", aliases=['star'])
     async def starboard(self, ctx: Context, *args):

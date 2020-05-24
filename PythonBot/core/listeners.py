@@ -101,7 +101,7 @@ class Listeners(Cog):
         if self.bot.MUSIC:
             await self.bot.music_player.handle_reaction(reaction)
         if self.bot.RPGGAME:
-            await self.bot.rpggame.handle_reaction(reaction)
+            await self.bot.rpg_game.handle_reaction(reaction)
         if self.bot.EMBED_LIST:
             await self.bot.embed_list.handle_reaction(reaction)
         if reaction.emoji == STAR_EMOJI:
