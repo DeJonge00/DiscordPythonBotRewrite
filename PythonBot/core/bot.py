@@ -25,7 +25,10 @@ class PythonBot(Bot):
         self.commands_counters = {}
 
         self.MUSIC = music
+        self.music_player = None
         self.RPGGAME = rpggame
+        self.rpg_game = None
+        self.rpg_shop = None
         self.API = api
         self.EMBED_LIST = embed_list
         super(PythonBot, self).__init__(command_prefix=prefix, help_command=CustomHelpCommand(self))
