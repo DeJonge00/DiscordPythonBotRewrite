@@ -1,6 +1,6 @@
 import unittest
-from commands.games.trivia import Trivia
-import commands.games.triviainstance as tr
+from commands.games.trivia.commands import Trivia
+import commands.games.trivia.game_instance as tr
 from unittest import mock
 
 
@@ -8,7 +8,7 @@ class Commands(unittest.TestCase):
 
     def test_get_cats(self):
         cats = Trivia.get_cats()
-        self.assertEqual(len(cats), cats[len(cats - 1)]['nbr'])
+        self.assertEqual(len(cats), cats[len(cats) - 1]['nbr'])
 
     def test_is_natural_nbr(self):
         self.assertTrue(tr.is_natural_nbr("4"))
