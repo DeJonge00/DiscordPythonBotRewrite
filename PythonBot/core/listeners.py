@@ -10,6 +10,7 @@ from config.constants import STAR_EMOJI
 from core import logging as log
 from core.handlers import message_handler, channel_handlers
 from core.utils import update_member_counter, on_member_message
+from database.general import bot_information
 from database.general import general
 from secret.secrets import game_name, LOG_LEVEL
 
@@ -71,6 +72,7 @@ class Listeners(Cog):
     async def on_guild_channel_delete(self, channel):
         if isinstance(channel, VoiceChannel):
             channel_handlers.deleted_channel(channel)
+        bot_information.update_channel(channel)
 
     @Cog.listener()
     async def on_guild_create(self, guild: Guild):
@@ -78,6 +80,7 @@ class Listeners(Cog):
 
     @Cog.listener()
     async def on_member_join(self, member: Member):
+        bot_information.update_server_member_count(member.guild)
         await update_member_counter(member.guild)
         if member.bot:
             return
@@ -85,6 +88,7 @@ class Listeners(Cog):
 
     @Cog.listener()
     async def on_member_remove(self, member: Member):
+        bot_information.update_server_member_count(member.guild)
         await update_member_counter(member.guild)
         if member.bot:
             return
@@ -117,15 +121,21 @@ class Listeners(Cog):
 
     @Cog.listener()
     async def on_guild_join(self, guild: Guild):
+        bot_information.update_server(server=guild)
         channel = self.bot.get_guild(constants.PRIVATESERVERid).get_channel(constants.SNOWFLAKE_GENERAL)
         m = "I joined a new server named '{}' with {} members, senpai!".format(guild.name, guild.member_count)
         await self.bot.send_message(channel, m)
 
     @Cog.listener()
     async def on_guild_remove(self, guild: Guild):
+        bot_information.remove_server(server=guild)
         channel = self.bot.get_guild(constants.PRIVATESERVERid).get_channel(constants.SNOWFLAKE_GENERAL)
         m = "A server named '{}' ({} members) just removed me from service :(".format(guild.name, guild.member_count)
         await self.bot.send_message(channel, m)
+
+    @Cog.listener()
+    async def on_guild_update(self, before: Guild, after: Guild):
+        bot_information.update_server(server=after)
 
 
 def setup(bot):
