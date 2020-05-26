@@ -63,7 +63,7 @@ def remove_server(server: Guild):
 def update_server_member_count(server: Guild, server_table=None):
     if not server_table:
         server_table = get_table(SERVER_TABLE)
-    server_table.update_one({SERVER_ID: str(server.id)}, {MEMBERS: server.member_count})
+    server_table.update_one({SERVER_ID: str(server.id)}, {'$set': {MEMBERS: server.member_count}})
 
 
 def update_server_list(servers: [Guild]):
