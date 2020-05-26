@@ -84,6 +84,7 @@ The commands marked with the |WIP| tag have not been added to the rewritten vers
 |Name			|Command, aliases and usage					            |Description
 |---			|---										            |---
 |anime          |`anime,mal,myanimelist` _`title`_                      |Search for the MAL entry of the anime _`title`_
+|game           |`game` _`title`_                                       |Search for a description of the video game named _`title`_ 
 |manga          |`manga` _`title`_                                      |Search for the MAL entry of manga _`title`_
 |movie          |`movie,imdb` _`title`_                                 |Search for the IMDb entry of movie _`title`_
 |osu            |`osu` _`playername`_                                   |Search profile data for a popular rhythm game

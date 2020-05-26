@@ -2,7 +2,7 @@ import logging
 import re
 
 import requests
-from discord import TextChannel, Embed
+from discord import TextChannel, Embed, Member
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
@@ -99,6 +99,58 @@ class LookupCommands(Cog):
 
         answer = LookupCommands.command_osu(args, ctx.message.author.display_name, ctx.message.author.avatar_url)
 
+        await self.bot.send_message(ctx.channel, content=answer.get(TEXT), embed=answer.get(EMBED))
+
+    @staticmethod
+    def command_game(title: str, author: Member):
+        # Get exact name of the game
+        url = 'https://chicken-coop.fr/rest/games'
+        querystring = {"title": title}
+        r = requests.get(url=url, params=querystring)
+        if r.status_code != 200:
+            return {TEXT: 'The description could not be retrieved, something is wrong at the source'}
+        r = r.json().get('result')
+        if not isinstance(r, list):
+            return {TEXT: 'The game `{}` does not exist in our library'.format(title)}
+        games = [g.get('title', '') for g in r]
+        if not games:
+            return {TEXT: 'No game with that title could be found'}
+        title = games[0]
+
+        # Get the game's information
+        url = 'https://chicken-coop.fr/rest/games/{}'.format(title)
+        querystring = {"title": title}
+        r = requests.get(url=url, params=querystring)
+        if r.status_code != 200:
+            return {TEXT: 'The description for `{}` could not be found, something is wrong at the source'.format(title)}
+        r = r.json().get('result')
+        if not isinstance(r, dict):
+            return {TEXT: 'The game `{}` exists, but there is no description for it...'.format(title)}
+
+        # Put the results in a nice embed
+        embed = Embed()
+        embed.set_author(name=r.get('title'), icon_url=author.avatar_url)
+        embed.set_thumbnail(url=r.get('image'))
+        n = 400
+        d = r.get('description')[:n] + '...' if len(r.get('description')) > n else r.get('description')
+        embed.add_field(name='Description', value=d, inline=False)
+        if r.get('genre'):
+            embed.add_field(name='Genres', value=', '.join(r.get('genre')))
+        if r.get('score'):
+            embed.set_footer(text='This game scores a {}/100'.format(r.get('score')))
+        return {EMBED: embed}
+
+    @commands.command(name='game', help="Look up a game!")
+    async def game(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='game'):
+            return
+
+        if not len(args):
+            m = 'Just give me the title of the game to look up for you'
+            await self.bot.send_message(destination=ctx.channel, content=m)
+            return
+
+        answer = LookupCommands.command_game(' '.join(args), ctx.author)
         await self.bot.send_message(ctx.channel, content=answer.get(TEXT), embed=answer.get(EMBED))
 
 
