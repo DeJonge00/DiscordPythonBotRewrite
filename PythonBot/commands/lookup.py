@@ -2,11 +2,12 @@ import logging
 import re
 
 import requests
+import wikipedia
 from discord import TextChannel, Embed, Member
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
-from config.constants import TEXT, EMBED, LOOKUP_COMMANDS_EMBED_COLOR as EMBED_COLOR
+from config.constants import TEXT, EMBED, LOOKUP_COMMANDS_EMBED_COLOR as EMBED_COLOR, ERROR
 from core.bot import PythonBot
 from secret.secrets import LOG_LEVEL
 from secret.secrets import osu_api_key
@@ -152,6 +153,80 @@ class LookupCommands(Cog):
 
         answer = LookupCommands.command_game(' '.join(args), ctx.author)
         await self.bot.send_message(ctx.channel, content=answer.get(TEXT), embed=answer.get(EMBED))
+
+    @staticmethod
+    def command_urban(args: [str]):
+        q = " ".join(args)
+        if not q:
+            return {TEXT: '...'}
+
+        embed = Embed(colour=EMBED_COLOR)
+        try:
+            params = {'term': q}
+            r = requests.get('http://api.urbandictionary.com/v0/define', params=params).json().get('list')
+            if len(r) <= 0:
+                embed.add_field(name="Definition", value="I'm afraid there are no results for '{}'".format(q))
+                return {EMBED: embed}
+
+            r = r[0]
+            embed.add_field(name="Urban Dictionary Query", value=r.get('word'))
+            definition = r.get('definition').replace('[', '').replace(']', '')
+            if len(definition) > 500:
+                definition = definition[:500] + '...'
+            embed.add_field(name="Definition", value=definition, inline=False)
+            example = r.get('example').replace('[', '').replace(']', '')
+            if len(definition) < 500:
+                if len(example) + len(definition) > 500:
+                    example = example[:500 - len(definition)]
+                if len(example) > 20:
+                    embed.add_field(name="Example", value=example)
+            embed.add_field(name="👍", value=r.get('thumbs_up'))
+            embed.add_field(name="👎", value=r.get('thumbs_down'))
+            return {EMBED: embed}
+        except KeyError:
+            embed.add_field(name="Definition", value="ERROR ERROR ... CANT HANDLE AWESOMENESS LEVEL")
+            return {EMBED: embed}
+
+    @commands.command(pass_context=1, help="Search the totally official wiki!", aliases=["ud", "urbandictionary"])
+    async def urban(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='urban'):
+            return
+
+        answer = LookupCommands.command_urban(args)
+        await self.bot.send_message(ctx, content=answer.get(TEXT), embed=answer.get(EMBED))
+
+    @staticmethod
+    async def command_wikipedia(ctx: Context, ask_one, args: [str]):
+        q = " ".join(args)
+        if not q:
+            return {TEXT: '...'}
+
+        embed = Embed(colour=0x00FF00)
+        s = wikipedia.search(q)
+        if len(s) <= 0:
+            return {TEXT: 'I cant find anything for that query'}
+        try:
+            s = await ask_one(ctx, s, 'Which result would you want to see?')
+        except ValueError:
+            return {ERROR: 'No choice returned when option was given to user'}
+        try:
+            page = wikipedia.WikipediaPage(s)
+        except wikipedia.exceptions.DisambiguationError:
+            return {TEXT: "This is too ambiguous..."}
+
+        embed.add_field(name="Title", value=page.title)
+        embed.add_field(name='Content', value=wikipedia.summary(s, sentences=2))
+        embed.add_field(name='Page url', value=page.url)
+        return {EMBED: embed}
+
+    @commands.command(name='wikipedia', help="Search the wiki!", aliases=["wiki"])
+    async def wikipedia(self, ctx, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='wikipedia'):
+            return
+
+        answer = await LookupCommands.command_wikipedia(ctx, self.bot.ask_one_from_multiple, args)
+        if answer.get(TEXT) or answer.get(EMBED):
+            await self.bot.send_message(ctx, content=answer.get(TEXT), embed=answer.get(EMBED))
 
 
 def setup(bot):

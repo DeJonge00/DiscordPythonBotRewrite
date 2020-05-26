@@ -54,9 +54,7 @@ The commands marked with the |WIP| tag have not been added to the rewritten vers
 |quote          |`quote`                                                |Fetch a random quote from the internet
 |role           |`role` _`rolename`_                                    |Add or remove the role _`rolename`_ from yourself, if it is in the self-assignable roles list. Give to rolename argument to see a list of roles
 |serverinfo  	|`serverinfo,serverstats`                               |Get the server's information
-|urban       	|`urban,us,urbandictionary` _`query`_                   |Search urbandictionary for _`query`_
 |userinfo    	|`userinfo,user,info` ___`user`___                      |Get ___`user`___'s information
-|wikipedia   	|`wikipedia,wiki` _`query`_                             |Search wikipedia for _`query`_
 
 ### Image commands
 
@@ -88,6 +86,8 @@ The commands marked with the |WIP| tag have not been added to the rewritten vers
 |manga          |`manga` _`title`_                                      |Search for the MAL entry of manga _`title`_
 |movie          |`movie,imdb` _`title`_                                 |Search for the IMDb entry of movie _`title`_
 |osu            |`osu` _`playername`_                                   |Search profile data for a popular rhythm game
+|urban       	|`urban,us,urbandictionary` _`query`_                   |Search urbandictionary for _`query`_
+|wikipedia   	|`wikipedia,wiki` _`query`_                             |Search wikipedia for _`query`_
 
 
 ### Hangman
