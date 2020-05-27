@@ -4,13 +4,12 @@ from datetime import datetime
 
 from discord import Message, TextChannel, DMChannel, Forbidden, Embed, Member, User
 from discord.ext.commands import Bot, Context
-from discord.ext.commands.errors import CommandError
+from discord.ext.commands.errors import CommandError, MissingPermissions
 
 from config import constants
 from core import logging as log
 from core.custom_help_command import CustomHelpCommand
 from core.utils import prep_str, command_allowed_in_channel, command_allowed_in_server
-# from discord.ext.commands.formatter import HelpFormatter
 from database.general import delete_commands, prefix as db_prefix, command_counter
 from secret.secrets import prefix, LOG_LEVEL
 
@@ -314,7 +313,10 @@ class PythonBot(Bot):
         # Log and send the message
         log.message(message, type='Command \'{}\' used'.format(command))
         if is_typing:
-            await channel.trigger_typing()
+            try:
+                await channel.trigger_typing()
+            except MissingPermissions:
+                pass
         command_counter.command_counter(command, message)
         return True
 

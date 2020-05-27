@@ -50,6 +50,8 @@ The commands marked with the |WIP| tag have not been added to the rewritten vers
 |kill        	|`kill` ___`user`___                                    |Wish ___`user`___ a happy death (is a bit explicit)
 |lenny       	|`lenny` _`message`_                                    |Send _`message`_ `( ͡° ͜ʖ ͡°)`
 |lottery |WIP|    	|`lottery` _`description`_                          |Set up a lottery, ends when creator adds the correct reaction
+|nice           |`nice`                                                 |Figure out how nice you are
+|               |`nice` ___`user`___                                    |Figure out how nice ___`user`___ is
 |pat         	|`pat` ___`user`___                                     |Pat ___`user`___, keeps track of pats
 |quote          |`quote`                                                |Fetch a random quote from the internet
 |role           |`role` _`rolename`_                                    |Add or remove the role _`rolename`_ from yourself, if it is in the self-assignable roles list. Give to rolename argument to see a list of roles
