@@ -242,7 +242,7 @@ class RPGGameActivities(Cog):
             training = "maxhealth"
         training = rpgc.trainingitems.get(training)
         if not training:
-            await self.bot.say("Thats not an available training")
+            await self.bot.send_message(destination=ctx.channel, content="Thats not an available training")
             return
         try:
             a = int(args[1])
@@ -265,17 +265,17 @@ class RPGGameActivities(Cog):
 
         time = math.ceil(a * training.cost)
         if not (rpgp.mintrainingtime <= time <= int(rpgp.maxtrainingtime + (0.5 * player.extratime))):
-            await self.bot.send_message(destination=ctx.channel, content=
-            "You can train between {} and {} points".format(math.ceil(rpgp.mintrainingtime / training.cost),
-                                                            math.floor(int(rpgp.maxtrainingtime + (
-                                                                    0.5 * player.extratime)) / training.cost)))
+            m = "You can train between {} and {} points".format(math.ceil(rpgp.mintrainingtime / training.cost),
+                                                                math.floor(int(rpgp.maxtrainingtime + (
+                                                                        0.5 * player.extratime)) / training.cost))
+            await self.bot.send_message(destination=ctx.channel, content=m)
             return
         player.set_busy(rpgp.BUSY_DESC_TRAINING, time, c.id)
         player.buy_training(training, amount=a)
         db_rpg_player.update_player(player)
-        await self.bot.send_message(destination=ctx.channel, content=
-        "{}, you are now training your {} for {} minutes".format(ctx.message.author.mention, training.name,
-                                                                 int(math.ceil(a * training.cost))))
+        m = "{}, you are now training your {} for {} minutes".format(ctx.message.author.mention, training.name,
+                                                                     int(math.ceil(a * training.cost)))
+        await self.bot.send_message(destination=ctx.channel, content=m)
 
     # {prefix}work
     @commands.command(pass_context=1, aliases=["Work"], help="Work for some spending money!")
@@ -292,14 +292,13 @@ class RPGGameActivities(Cog):
         if not await self.bot.rpg_game.check_role(player.role, ctx.message):
             return
         if player.role == rpgc.names.get("role")[-1][0]:
-            await self.bot.send_message(destination=ctx.channel, content=
-            "{}, I'm sorry, but we need someone with more... height...".format(ctx.message.author.mention))
+            m = "{}, I'm sorry, but we need someone with more... height...".format(ctx.message.author.mention)
+            await self.bot.send_message(destination=ctx.channel, content=m)
             return
         if player.busydescription != rpgp.BUSY_DESC_NONE:
             c = "Please make sure you finish your other shit first"
             await self.bot.send_message(destination=ctx.channel, content=c)
             return
-        c = ctx.message.channel
 
         # Set busy time
         if not (rpgp.minworkingtime <= time <= (rpgp.maxworkingtime + player.extratime)):
@@ -308,7 +307,7 @@ class RPGGameActivities(Cog):
             await self.bot.send_message(destination=ctx.channel, content=c)
             return
 
-        db_rpg_player.set_busy(player.userid, math.ceil(time), c.id, rpgp.BUSY_DESC_WORKING)
+        db_rpg_player.set_busy(player.userid, math.ceil(time), ctx.channel.id, rpgp.BUSY_DESC_WORKING)
         money = time * pow((player.get_level()) + 1, 1 / 2) * 120
         if player.role == rpgc.names.get('role')[0][0]:  # role == Peasant
             money *= 1.15

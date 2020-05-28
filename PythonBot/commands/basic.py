@@ -7,14 +7,13 @@ from datetime import datetime
 from parser import ParserError
 
 import requests
-import wikipedia
 from dateutil.parser import parse
 from discord import Embed, Attachment, User, Emoji, Member, Spotify, Message
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
 from config import constants, command_text
-from config.constants import TEXT, EMBED, ERROR, BASIC_COMMANDS_EMBED_COLOR as EMBED_COLOR
+from config.constants import TEXT, EMBED, BASIC_COMMANDS_EMBED_COLOR as EMBED_COLOR
 from config.structs import englishyfy_numbers
 from core.bot import PythonBot
 from core.utils import on_member_message, prep_str, prep_str_for_print
@@ -512,7 +511,7 @@ class BasicCommands(Cog):
             m += '\n- {}'.format(r.get('quoteAuthor'))
         await self.bot.send_message(ctx, m)
 
-    @commands.command(name='remindme', help='Let me remind you of something by sending you a message')
+    @commands.command(name='remindme', hidden=True, help='Let me remind you of something by sending you a message')
     async def remindme(self, ctx: Context, *args):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='remindme'):
             return
@@ -551,12 +550,15 @@ class BasicCommands(Cog):
         s_a_roles = self_assignable_roles.get_roles(ctx.guild.id)
         if not role:
             if s_a_roles:
-                nr, sar, m = 10, s_a_roles, 'These are the available roles for this server:\n'
+                nr, sar, m = 10, s_a_roles, 'These are the available roles for this server:\n```'
                 while len(sar) > nr:
                     m += '\n'.join([ctx.guild.get_role(r).name for r in sar[:nr]])
+                    m += '```'
                     await self.bot.send_message(ctx.channel, m)
+                    m = '```'
                     sar = sar[nr:]
                 m += '\n'.join([ctx.guild.get_role(r).name for r in sar])
+                m += '```'
             else:
                 m = 'There are no self-assignable roles in this guild...'
             await self.bot.send_message(ctx.channel, m)
@@ -634,47 +636,6 @@ class BasicCommands(Cog):
             for c in guild.channels:
                 print(prep_str_for_print(c.name))
 
-    @staticmethod
-    def command_urban(args: [str]):
-        q = " ".join(args)
-        if not q:
-            return {TEXT: '...'}
-
-        embed = Embed(colour=EMBED_COLOR)
-        try:
-            params = {'term': q}
-            r = requests.get('http://api.urbandictionary.com/v0/define', params=params).json().get('list')
-            if len(r) <= 0:
-                embed.add_field(name="Definition", value="I'm afraid there are no results for '{}'".format(q))
-                return {EMBED: embed}
-
-            r = r[0]
-            embed.add_field(name="Urban Dictionary Query", value=r.get('word'))
-            definition = r.get('definition').replace('[', '').replace(']', '')
-            if len(definition) > 500:
-                definition = definition[:500] + '...'
-            embed.add_field(name="Definition", value=definition, inline=False)
-            example = r.get('example').replace('[', '').replace(']', '')
-            if len(definition) < 500:
-                if len(example) + len(definition) > 500:
-                    example = example[:500 - len(definition)]
-                if len(example) > 20:
-                    embed.add_field(name="Example", value=example)
-            embed.add_field(name="👍", value=r.get('thumbs_up'))
-            embed.add_field(name="👎", value=r.get('thumbs_down'))
-            return {EMBED: embed}
-        except KeyError:
-            embed.add_field(name="Definition", value="ERROR ERROR ... CANT HANDLE AWESOMENESS LEVEL")
-            return {EMBED: embed}
-
-    @commands.command(pass_context=1, help="Search the totally official wiki!", aliases=["ud", "urbandictionary"])
-    async def urban(self, ctx: Context, *args):
-        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='urban'):
-            return
-
-        answer = BasicCommands.command_urban(args)
-        await self.bot.send_message(ctx, content=answer.get(TEXT), embed=answer.get(EMBED))
-
     @commands.command(name='userinfo', help="Get a user's information!", aliases=["user", "info"])
     async def userinfo(self, ctx: Context, *args):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='userinfo',
@@ -711,39 +672,6 @@ class BasicCommands(Cog):
             m += "\n" + user.roles[r].name
         embed.add_field(name="Roles", value=m)
         await self.bot.send_message(ctx, embed=embed)
-
-    @staticmethod
-    async def command_wikipedia(ctx: Context, ask_one, args: [str]):
-        q = " ".join(args)
-        if not q:
-            return {TEXT: '...'}
-
-        embed = Embed(colour=0x00FF00)
-        s = wikipedia.search(q)
-        if len(s) <= 0:
-            return {TEXT: 'I cant find anything for that query'}
-        try:
-            s = await ask_one(ctx, s, 'Which result would you want to see?')
-        except ValueError:
-            return {ERROR: 'No choice returned when option was given to user'}
-        try:
-            page = wikipedia.WikipediaPage(s)
-        except wikipedia.exceptions.DisambiguationError:
-            return {TEXT: "This is too ambiguous..."}
-
-        embed.add_field(name="Title", value=page.title)
-        embed.add_field(name='Content', value=wikipedia.summary(s, sentences=2))
-        embed.add_field(name='Page url', value=page.url)
-        return {EMBED: embed}
-
-    @commands.command(name='wikipedia', help="Search the wiki!", aliases=["wiki"])
-    async def wikipedia(self, ctx, *args):
-        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='wikipedia'):
-            return
-
-        answer = await BasicCommands.command_wikipedia(ctx, self.bot.ask_one_from_multiple, args)
-        if answer.get(TEXT) or answer.get(EMBED):
-            await self.bot.send_message(ctx, content=answer.get(TEXT), embed=answer.get(EMBED))
 
 
 def setup(bot):

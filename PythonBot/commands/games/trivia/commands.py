@@ -20,7 +20,6 @@ class Trivia(Cog):
         self.bot = mybot
         self.categories = self.get_cats()
         self.game_instances = {}
-        print("Trivia started")
 
     # {prefix}trivia <categories>
     @commands.group(pass_context=1, help="Trivia", aliases=["tr"])

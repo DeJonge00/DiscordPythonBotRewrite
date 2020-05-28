@@ -14,16 +14,6 @@ async def check_role(bot: PythonBot, role: str, message: Message, error='You') -
     return True
 
 
-async def shorten_exp(exp: int):
-    if exp > 1000000000:
-        return str(int(exp / 1000000000)) + "B"
-    if exp > 1000000:
-        return str(int(exp / 1000000)) + "M"
-    if exp > 1000:
-        return str(int(exp / 1000)) + "K"
-    return str(int(exp))
-
-
 def add_health_rep(players: [RPGCharacter]):
     health_report = ""
     for m in players:
