@@ -14,7 +14,7 @@ The response message `Hahaha, no.` indicates that you lack the permissions to us
 Biribiri is still in development, comments and improvements are welcome by messaging `Nya#2698` to contact me\
 There are also commands for complaints, suggestions and bugreports, or an invitelink to a helpserver, which can be found below.
 
-The commands marked with the |WIP| tag have not been added to the rewritten version yet
+The commands marked with the __WIP__ tag have not been added to the rewritten version yet
 
 ### Reactions to messages
 
@@ -49,7 +49,7 @@ The commands marked with the |WIP| tag have not been added to the rewritten vers
 |kick        	|`kick` ___`user`___                                    |Fake kick ___`user`___
 |kill        	|`kill` ___`user`___                                    |Wish ___`user`___ a happy death (is a bit explicit)
 |lenny       	|`lenny` _`message`_                                    |Send _`message`_ `( ͡° ͜ʖ ͡°)`
-|lottery |WIP|    	|`lottery` _`description`_                          |Set up a lottery, ends when creator adds the correct reaction
+|lottery __WIP__    	|`lottery` _`description`_                          |Set up a lottery, ends when creator adds the correct reaction
 |nice           |`nice`                                                 |Figure out how nice you are
 |               |`nice` ___`user`___                                    |Figure out how nice ___`user`___ is
 |pat         	|`pat` ___`user`___                                     |Pat ___`user`___, keeps track of pats
@@ -62,17 +62,17 @@ The commands marked with the |WIP| tag have not been added to the rewritten vers
 
 |Name			|Command, aliases and usage					            |Description
 |---			|---										            |---
-|fps |WIP|        	|`fps,60`                                               |Send a high-fps gif
-|biribiri |WIP|   	|`biribiri,biri`                                        |Send pics of the only best girl
+|fps __WIP__        	|`fps,60`                                               |Send a high-fps gif
+|biribiri __WIP__   	|`biribiri,biri`                                        |Send pics of the only best girl
 |cat        	|`cat`                                                  |Pictures of my cats
 |cuddle      	|`cuddle`                                               |Send a cuddly gif
 |cute           |`cute`                                                 |For when you need a cute anime girl gif
-|ded |WIP|        	|`ded`                                                  |Ded chat reminder (image)
+|ded __WIP__        	|`ded`                                                  |Ded chat reminder (image)
 |heresy     	|`heresy`                                               |Send images worthy of the emperor (warhammer 40k)
 |happy          |`happy`                                                |Send a happy gif
 |lewd           |`lewd`                                                 |Send anti-lewd gif
 |love           |`love`                                                 |Send a confession of love through a gif
-|nonazi |WIP|     	|`nonazi`                                               |Try to persuade Lizzy with anti-nazi-propaganda!
+|nonazi __WIP__     	|`nonazi`                                               |Try to persuade Lizzy with anti-nazi-propaganda!
 |nyan           |`nyan`                                                 |Send an anime happy catgirl gif
 |otter          |`otter`                                                |Send a cute otter picture
 |plsno          |`plsno`                                                |Send a gif that expresses 'pls no'
@@ -137,7 +137,7 @@ The commands marked with the |WIP| tag have not been added to the rewritten vers
 |invite         |`invite` _`max members`_                               |Create an invite. Maximum _`max-members`_ members, unlimited if not given, will be active for 24 hours   |create_instant_invite
 |               |`invite`                                               |Find an active invite in the server and show it, no mod-powers needed                      |manage_guild
 |membercount    |`membercount,membercounter`                            |Create a locked channel in the channel list, which will be updated with the amount of members currently in the server | manage_channels
-|nickname |WIP|   	|`nickname,nn` ___`user`___ _`new_name`_                    |Nickname a person                                                                          |change_nickname, manage_nicknames
+|nickname __WIP__   	|`nickname,nn` ___`user`___ _`new_name`_                    |Nickname a person                                                                          |change_nickname, manage_nicknames
 |purge       	|`purge` _`amount`_ ___`user`___                        |Remove ___`user`___'s messages (all if user is not given) from the past _`amount`_ messages    |manage_messages
 |setwelcome  	|`setwelome` _`message`_                                |Sets a welcome message                                                                     |manage_server
 |setgoodbye  	|`setgoodbye` _`message`_                               |Sets a goodbye message                                                                     |manage_server

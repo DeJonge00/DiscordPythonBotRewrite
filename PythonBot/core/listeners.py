@@ -84,7 +84,7 @@ class Listeners(Cog):
         await update_member_counter(member.guild)
         if member.bot:
             return
-        await on_member_message(member.guild, member, general.WELCOME_TABLE, 'joined')
+        await on_member_message(member.guild, member, general.WELCOME_TABLE, 'joined', do_log=False)
 
     @Cog.listener()
     async def on_member_remove(self, member: Member):
@@ -92,7 +92,7 @@ class Listeners(Cog):
         await update_member_counter(member.guild)
         if member.bot:
             return
-        await on_member_message(member.guild, member, general.GOODBYE_TABLE, 'left')
+        await on_member_message(member.guild, member, general.GOODBYE_TABLE, 'left', do_log=False)
 
     @Cog.listener()
     async def on_reaction_add(self, reaction, user):
