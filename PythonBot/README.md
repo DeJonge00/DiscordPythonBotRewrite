@@ -117,6 +117,8 @@ The commands marked with the __WIP__ tag have not been added to the rewritten ve
 |               |`trivia,tr` `join`                                     |Join an upcoming turn by turn Trivia game on the channel
 |               |`trivia,tr` `quit`                                     |Quit the game you're currently playing                                           
 
+# TODO Blackjack commands
+
 ### Misc
 
 |Name			|Command, aliases and usage					            |Description
