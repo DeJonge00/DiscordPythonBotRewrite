@@ -27,6 +27,12 @@ jobs:
         # Version range or exact version of a Python version to use, using SemVer's version range syntax.
         python-version: 3.8
 
+
+
+    # Install deps
+    - name: Installing dependencies
+      run: pip install requests && pip3 install -r requirements.txt
+
     # Runs a single command using the runners shell
-    - name: Run a one-line script
-      run: echo 'Hello world'
+    - name: Unit tests
+      run: cd PythonBot && python -m unittest
