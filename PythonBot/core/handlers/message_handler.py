@@ -12,8 +12,8 @@ from core import logging as log
 from core.bot import PythonBot
 from commands.image import embedded_pic
 from database.general.starboard import get_star_channel, get_star_message, update_star_message
-from secret.secrets import LOG_LEVEL
-from secret.secrets import bot_names
+from config.running_options import LOG_LEVEL
+from config.running_options import bot_names
 
 logging.basicConfig(filename='logs/message_handlers.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')

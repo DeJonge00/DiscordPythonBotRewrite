@@ -13,7 +13,7 @@ from database.general.auto_voice_channel import set_joiner_channel
 from database.general.general import WELCOME_TABLE, GOODBYE_TABLE
 from database.general.member_counter import set_member_counter_channel, get_member_counter_channel
 from database.general.welcome import set_message
-from secret.secrets import LOG_LEVEL
+from config.running_options import LOG_LEVEL
 
 logging.basicConfig(filename='logs/mod_commands.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')

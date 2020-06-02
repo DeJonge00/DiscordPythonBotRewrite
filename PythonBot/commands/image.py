@@ -11,7 +11,7 @@ from discord.ext.commands import Cog, Context
 from config import image_links
 from config.constants import IMAGE_COMMANDS_EMBED_COLOR as EMBED_COLOR, image_spam_protection_removal, EMBED
 from core.bot import PythonBot
-from secret.secrets import LOG_LEVEL
+from config.running_options import LOG_LEVEL
 
 logging.basicConfig(filename='logs/image_commands.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
