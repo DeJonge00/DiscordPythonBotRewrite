@@ -5,6 +5,8 @@ services:
       context: ./PythonBot
     volumes:
       - ./PythonBot:/usr/src/PythonBot
+    restart: unless-stopped
+
 
   pythonbot_api:
     build:
@@ -14,6 +16,7 @@ services:
     ports:
       - 5000:5000
     entrypoint: python -u run_api.py
+    restart: unless-stopped
 
   mongodb:
     image: mongo:latest
@@ -22,6 +25,7 @@ services:
       - "MONGO_INITDB_ROOT_PASSWORD=undef"
     volumes:
       - mongo_data:/data/db
+    restart: unless-stopped
 
 volumes:
   mongo_data:
