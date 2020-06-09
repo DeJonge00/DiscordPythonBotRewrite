@@ -28,6 +28,7 @@ def get_cogs():
         'commands.games.hangman.commands',
         'commands.games.minesweeper.commands',
         'commands.games.trivia.commands',
+        'commands.games.blackjack.commands',
         'core.listeners'
     ]
 

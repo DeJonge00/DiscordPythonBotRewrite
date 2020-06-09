@@ -169,7 +169,9 @@ response = [
     "I. Drank. Your. Milkshake.",
     "The horror! The horror!",
     "My precious!",
-    "La di da, la di da"
+    "La di da, la di da",
+    "I will take that as a compliment :heart:",
+    "Ha. ha. ha."
 ]
 
 # random responses

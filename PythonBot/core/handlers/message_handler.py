@@ -166,9 +166,9 @@ async def react_with_action(pre_command, message: Message, is_private: bool, gui
                 pass
 
     # Add reacion
-    # TODO Find replacing emoji or delete command
-    if message.author.id in [constants.TRISTANid, constants.CHURROid] and "pls" in message.content.lower().split(" "):
-        await message.add_reaction(":pepederp:302888052508852226")
+    if message.author.id in [constants.KAPPAid, constants.RAZid, constants.POLYid] \
+            and message.content.lower() in ['owo', 'uwu', 'umu']:
+        await message.add_reaction(":uumuu:715594968328175687")
         return {ACTION: True}
     return {}
 

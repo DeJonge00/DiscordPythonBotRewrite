@@ -295,10 +295,10 @@ class BasicCommands(Cog):
 
         def convert_char(c: str):
             if c.isalpha():
-                return ' ' if c is ' ' else ":regional_indicator_" + c + ":"
+                return ' ' if c == ' ' else ":regional_indicator_" + c + ":"
             if c in englishyfy_numbers.keys():
                 return ':{}:'.format(englishyfy_numbers.get(c))
-            return ":question:" if c is '?' else ":exclamation:" if c == "!" else c
+            return ":question:" if c == '?' else ":exclamation:" if c == "!" else c
 
         return {TEXT: ' '.join([convert_char(c) for c in text])}
 
@@ -441,13 +441,13 @@ class BasicCommands(Cog):
             return {TEXT: author.mention + " Not so fast, b-b-baka!"}
 
         n = increment_pats(author.id, target.id)
-        s = '' if n is 1 else 's'
+        s = '' if n == 1 else 's'
         m = "{} has pat {} {} time{} now".format(author.mention, target.mention, n, s)
-        if n % 100 is 0:
+        if n % 100 == 0:
             m += "\nWoooooaaaaahh LEGENDARY!!!"
-        elif n % 25 is 0:
+        elif n % 25 == 0:
             m += "\nWow, that is going somewhere!"
-        elif n % 10 is 0:
+        elif n % 10 == 0:
             m += "\nSugoi!"
 
         return {TEXT: m}
