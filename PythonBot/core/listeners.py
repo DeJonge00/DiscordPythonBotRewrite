@@ -12,7 +12,7 @@ from core.handlers import message_handler, channel_handlers
 from core.utils import update_member_counter, on_member_message
 from database.general import bot_information
 from database.general import general
-from secret.secrets import game_name, LOG_LEVEL
+from config.running_options import game_name, LOG_LEVEL
 
 logging.basicConfig(filename='logs/listeners.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')

@@ -9,7 +9,7 @@ from discord.opus import is_loaded
 from commands.music.music_player import MusicPlayer
 from config.constants import MUSIC_EMBED_COLOR as EMBED_COLOR, NYAid
 from core.bot import PythonBot
-from secret.secrets import LOG_LEVEL, prefix
+from config.running_options import LOG_LEVEL, prefix
 
 logging.basicConfig(filename='logs/music.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')

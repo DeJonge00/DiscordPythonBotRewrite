@@ -6,7 +6,7 @@ import requests
 import random
 import asyncio
 
-from secret.secrets import LOG_LEVEL
+from config.running_options import LOG_LEVEL
 
 logging.basicConfig(
     filename="logs/trivia.log",
