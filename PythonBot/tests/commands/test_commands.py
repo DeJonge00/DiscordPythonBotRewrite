@@ -62,14 +62,15 @@ class Commands(unittest.TestCase):
         for text in ['', 'abcdef']:
             answer = bc.command_emoji(text.split(), '', '', [])
             self.assertTrue(answer.get(TEXT))
-            self.assertFalse(answer.get(EMBED))
+            self.assertTrue(answer.get(EMBED) is None)
 
         emoji_name = 'emoji1'
         emoji_id = 123451234512345
         emoji1 = get_test_emoji(emoji_name, emoji_id)
         for text in [str(emoji_id), emoji_name]:
             answer = bc.command_emoji(text.split(), '', '', [emoji1]).get(EMBED)
-            self.assertTrue(answer)
+            # .get(EMBED) returns False even if the attribute is there, so checking the returned value instead.
+            self.assertFalse(answer is None)
             self.assertEqual("https://cdn.discordapp.com/emojis/{}.png".format(emoji_id), answer.image.url)
 
     def test_command_emojify(self):

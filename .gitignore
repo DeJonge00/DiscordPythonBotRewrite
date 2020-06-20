@@ -258,3 +258,4 @@ PythonBot/comm/__pycache__/*
 */venv/*
 */.idea/*
 .idea
+.env

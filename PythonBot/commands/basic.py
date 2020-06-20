@@ -20,7 +20,7 @@ from core.utils import on_member_message, prep_str, prep_str_for_print
 from database.general import self_assignable_roles
 from database.general.general import GOODBYE_TABLE
 from database.pats import increment_pats
-from secret.secrets import LOG_LEVEL
+from config.running_options import LOG_LEVEL
 
 logging.basicConfig(filename='logs/basic_commands.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')

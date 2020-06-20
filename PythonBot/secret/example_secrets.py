@@ -1,13 +1,5 @@
-from logging import INFO
-
 # Bot
 bot_token = 'BOT_TOKEN'
-prefix = '>'
-game_name = 'Lurking'
-bot_names = ['biribiri', 'biri']
-
-# General
-LOG_LEVEL = INFO
 
 # Database
 DBAddress = 'localhost'

@@ -4,7 +4,7 @@ import logging
 from discord.ext import commands
 from discord.ext.commands import Cog
 from commands.games.trivia import game_instance
-from secret.secrets import LOG_LEVEL
+from config.running_options import LOG_LEVEL
 
 logging.basicConfig(
     filename="logs/trivia.log",

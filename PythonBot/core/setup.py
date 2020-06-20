@@ -6,7 +6,7 @@ from discord import Status, Game
 from core.bot import PythonBot
 from core.utils import get_cogs
 from database.general import bot_information
-from secret.secrets import game_name, LOG_LEVEL
+from config.running_options import game_name, LOG_LEVEL
 
 logging.basicConfig(filename='logs/setup.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')

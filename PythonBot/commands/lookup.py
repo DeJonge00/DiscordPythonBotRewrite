@@ -9,7 +9,7 @@ from discord.ext.commands import Cog, Context
 
 from config.constants import TEXT, EMBED, LOOKUP_COMMANDS_EMBED_COLOR as EMBED_COLOR, ERROR
 from core.bot import PythonBot
-from secret.secrets import LOG_LEVEL
+from config.running_options import LOG_LEVEL
 from secret.secrets import osu_api_key
 
 logging.basicConfig(filename='logs/lookup_commands.log', level=LOG_LEVEL,

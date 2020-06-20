@@ -8,5 +8,5 @@ def get_banned_command(id_type: str, iden: int, command: str):
 
 def toggle_banned_command(id_type: str, iden: int, command: str):
     v = not get_banned_command(id_type, iden, command)
-    get_table(BANNED_COMMANDS_TABLE).update({id_type: command}, {'$set': {str(iden): v}}, upsert=True)
+    get_table(BANNED_COMMANDS_TABLE).update_one({id_type: command}, {'$set': {str(iden): v}}, upsert=True)
     return v

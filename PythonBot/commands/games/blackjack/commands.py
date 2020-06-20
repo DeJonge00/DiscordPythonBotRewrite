@@ -6,7 +6,7 @@ from discord.ext.commands import Cog, Context
 
 from commands.games.blackjack.game_instance import BlackjackGame, GAME_OVER, PLAYING
 from core.bot import PythonBot
-from secret.secrets import LOG_LEVEL
+from config.running_options import LOG_LEVEL
 
 logging.basicConfig(filename='logs/blackjack.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')

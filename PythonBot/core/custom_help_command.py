@@ -1,6 +1,6 @@
 from discord.ext.commands.help import DefaultHelpCommand
 
-from secret.secrets import prefix
+from config.running_options import prefix
 
 
 class CustomHelpCommand(DefaultHelpCommand):
