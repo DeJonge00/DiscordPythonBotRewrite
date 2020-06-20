@@ -26,7 +26,7 @@ logging.basicConfig(filename='logs/basic_commands.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
 
-# Mod commands
+# Basic commands
 class BasicCommands(Cog):
     def __init__(self, my_bot: PythonBot):
         self.bot = my_bot

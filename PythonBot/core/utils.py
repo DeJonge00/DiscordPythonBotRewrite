@@ -25,6 +25,7 @@ def get_cogs():
         'commands.lookup',
         'commands.misc',
         'commands.mod',
+        'commands.games.games',
         'commands.games.hangman.commands',
         'commands.games.minesweeper.commands',
         'commands.games.trivia.commands',

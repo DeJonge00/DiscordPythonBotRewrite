@@ -187,6 +187,12 @@ class ModCommands(Cog):
         answer = ModCommands.set_welcome(args, WELCOME_TABLE, 'Welcome', ctx.guild.id, ctx.channel.id)
         await self.bot.send_message(ctx.channel, content=answer.get(TEXT))
 
+    # Save a users roles on serer exit, in case of leave-join resetting roles
+    # Kinda obsolete because of bans I guess?
+    # @commands.command(name='permrole', help="Toggles saving of a role on server exit",
+    #                   aliases=['togglepermrole', 'togglepernamentrole', 'pernamentrole', 'prole'])
+    # async def togglerole(self, ctx: Context, *args):
+
     @commands.command(name='togglerole', help="Toggles a role to be self-assignable or not",
                       aliases=['toggleassignable', 'sarole'])
     async def togglerole(self, ctx: Context, *args):
