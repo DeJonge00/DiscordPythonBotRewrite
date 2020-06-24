@@ -7,7 +7,7 @@ from discord import Guild, Member, Embed
 from config.constants import WELCOME_EMBED_COLOR, member_counter_message
 from core import logging as log
 from database.general import banned_commands, welcome, member_counter
-from secret.secrets import LOG_LEVEL
+from config.running_options import LOG_LEVEL
 
 logging.basicConfig(filename='logs/utils.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
@@ -25,6 +25,7 @@ def get_cogs():
         'commands.lookup',
         'commands.misc',
         'commands.mod',
+        'commands.games.games',
         'commands.games.hangman.commands',
         'commands.games.minesweeper.commands',
         'commands.games.trivia.commands',

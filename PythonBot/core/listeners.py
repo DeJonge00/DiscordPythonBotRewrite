@@ -12,7 +12,8 @@ from core.handlers import message_handler, channel_handlers
 from core.utils import update_member_counter, on_member_message
 from database.general import bot_information
 from database.general import general
-from secret.secrets import game_name, LOG_LEVEL
+from config.running_options import game_name, LOG_LEVEL
+from commands.games.games import ROW_NUMS, GamesCommands
 
 logging.basicConfig(filename='logs/listeners.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
@@ -102,6 +103,8 @@ class Listeners(Cog):
             if reaction.message.author.id is self.bot.user.id:
                 await self.bot.delete_message(reaction.message)
                 return
+        if reaction.emoji in ROW_NUMS:
+            await self.bot.games_cog.handle_reaction(reaction, user)
         if self.bot.MUSIC:
             await self.bot.music_player.handle_reaction(reaction)
         if self.bot.RPGGAME:

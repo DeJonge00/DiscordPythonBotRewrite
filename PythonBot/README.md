@@ -48,6 +48,7 @@ The commands marked with the __WIP__ tag have not been added to the rewritten ve
 |hype           |`hype`                                                 |Make hype by sending 10 random emoji from the current server
 |kick        	|`kick` ___`user`___                                    |Fake kick ___`user`___
 |kill        	|`kill` ___`user`___                                    |Wish ___`user`___ a happy death (is a bit explicit)
+|kiss        	|`kiss` ___`user`___                                    |Give ___`user`___ a little kiss
 |lenny       	|`lenny` _`message`_                                    |Send _`message`_ `( ͡° ͜ʖ ͡°)`
 |lottery __WIP__    	|`lottery` _`description`_                          |Set up a lottery, ends when creator adds the correct reaction
 |nice           |`nice`                                                 |Figure out how nice you are

@@ -4,7 +4,7 @@ from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
 from core.bot import PythonBot
-from secret.secrets import LOG_LEVEL
+from config.running_options import LOG_LEVEL
 from config.constants import PRIVATESERVERid, SNOWFLAKE_GENERAL
 
 logging.basicConfig(filename='logs/misc_commands.log', level=LOG_LEVEL,

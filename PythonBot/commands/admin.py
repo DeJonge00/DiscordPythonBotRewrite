@@ -11,7 +11,7 @@ from discord.ext.commands import Cog, Context
 from core.bot import PythonBot
 from core.setup import get_cogs
 from database.general.bot_information import clear_server_list
-from secret.secrets import LOG_LEVEL
+from config.running_options import LOG_LEVEL
 
 logging.basicConfig(filename='logs/admin_commands.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')

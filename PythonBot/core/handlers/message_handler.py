@@ -3,17 +3,17 @@ import random
 import string
 from datetime import timedelta, datetime
 
-from discord import Message, Member, Reaction, Forbidden, NoMoreItems, Embed, DMChannel, File
+from discord import Message, Member, Reaction, Forbidden, NoMoreItems, Embed, DMChannel
 
+from commands.image import embedded_pic
 from config import constants, command_text
-from config.image_links import praise_the_sun
 from config.constants import TEXT, EMBED, IMAGE, ACTION, STAR_EMBED_COLOR, STAR_EMOJI
+from config.image_links import praise_the_sun
+from config.running_options import LOG_LEVEL
+from config.running_options import bot_names
 from core import logging as log
 from core.bot import PythonBot
-from commands.image import embedded_pic
 from database.general.starboard import get_star_channel, get_star_message, update_star_message
-from secret.secrets import LOG_LEVEL
-from secret.secrets import bot_names
 
 logging.basicConfig(filename='logs/message_handlers.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
@@ -73,7 +73,7 @@ async def react_with_text(pre_command, message: Message, is_private: bool, guild
     :return: {TEXT: The text to respond with.} or {} if there is nothing to respond to.
     """
     if (is_private or guild_id in constants.s_to_ringels_whitelist) and \
-            author_id == constants.DOGEid and "s" in message.content and \
+            author_id == constants.POLYid and "s" in message.content and \
             await pre_command(message=message, channel=message.channel, command='s_to_ringel_s', delete_message=False):
         return {TEXT: "*" + message.content.replace("s", "ß")}
 
@@ -167,9 +167,12 @@ async def react_with_action(pre_command, message: Message, is_private: bool, gui
 
     # Add reacion
     if message.author.id in [constants.KAPPAid, constants.RAZid, constants.POLYid] \
+            and message.guild.id in constants.owo_uumuu_whitelist \
             and message.content.lower() in ['owo', 'uwu', 'umu']:
         await message.add_reaction(":uumuu:715594968328175687")
-        return {ACTION: True}
+        if await pre_command(message=message, channel=message.channel, command='uumuu_reaction',
+                             delete_message=False, is_typing=False):
+            return {ACTION: True}
     return {}
 
 

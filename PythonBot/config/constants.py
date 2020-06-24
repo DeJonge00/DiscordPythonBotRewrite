@@ -61,6 +61,7 @@ s_to_ringels_whitelist = []
 auto_name_change_whitelist = [PRIVATESERVERid]
 nickname_change_whitelist = [PRIVATESERVERid]
 image_spam_protection_removal = []
+owo_uumuu_whitelist = [PRIVATESERVERid]
 
 # Blacklists
 sponge_capitalization_blacklist = bot_list_servers

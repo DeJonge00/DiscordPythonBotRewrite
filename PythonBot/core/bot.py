@@ -11,7 +11,7 @@ from core import logging as log
 from core.custom_help_command import CustomHelpCommand
 from core.utils import prep_str, command_allowed_in_channel, command_allowed_in_server
 from database.general import delete_commands, prefix as db_prefix, command_counter
-from secret.secrets import prefix, LOG_LEVEL
+from config.running_options import prefix, LOG_LEVEL
 
 logging.basicConfig(filename='logs/1rpg_main_errors.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')

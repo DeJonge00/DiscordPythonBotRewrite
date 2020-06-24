@@ -7,7 +7,7 @@ from discord import Message, TextChannel, Reaction
 from commands.music.song import Song
 from commands.music.voice_state import VoiceState
 from core.bot import PythonBot
-from secret.secrets import LOG_LEVEL
+from config.running_options import LOG_LEVEL
 
 logging.basicConfig(filename='logs/music_player.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')

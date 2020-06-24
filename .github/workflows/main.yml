@@ -27,6 +27,20 @@ jobs:
         # Version range or exact version of a Python version to use, using SemVer's version range syntax.
         python-version: 3.8
 
-    # Runs a single command using the runners shell
-    - name: Run a one-line script
-      run: echo 'Hello world'
+    # Setting up fake secrets
+    - name: Setup fake secrets
+      run: |
+        echo -e "DBAddress = 'mongodb'\nDBName = 'undef'\nDBPassword = 'undef'\nDBPort = 27017\n" >> PythonBot/secret/secrets.py
+        echo -e "MONGO_INITDB_ROOT_USERNAME=undef\nMONGO_INITDB_ROOT_PASSWORD=undef" >> .env
+
+    - name: Creating very useful directories
+      run: mkdir PythonBot/logs
+
+    - name: Build dockerfile
+      run: docker-compose build
+
+    - name: Run unit tests
+      run: |
+        docker-compose up -d mongodb
+        sleep 2
+        docker-compose run pythonbot python -m unittest

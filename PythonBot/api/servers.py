@@ -6,7 +6,7 @@ from flask_httpauth import HTTPBasicAuth
 from api.helper_functions import resolve_channels
 from database.general import general, prefix, starboard, delete_commands, welcome
 from secret.api_secrets import route_start
-from secret.secrets import prefix as default_prefix
+from config.running_options import prefix as default_prefix
 
 
 def init_servers(api: Flask, auth: HTTPBasicAuth):

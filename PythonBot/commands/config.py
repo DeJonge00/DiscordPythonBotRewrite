@@ -7,7 +7,7 @@ from config.constants import TEXT, STAR_EMOJI
 from core.bot import PythonBot
 from database.general import prefix, delete_commands, starboard
 from database.general.banned_commands import toggle_banned_command
-from secret.secrets import LOG_LEVEL
+from config.running_options import LOG_LEVEL
 
 logging.basicConfig(filename='logs/config_commands.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
