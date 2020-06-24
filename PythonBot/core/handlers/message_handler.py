@@ -166,12 +166,12 @@ async def react_with_action(pre_command, message: Message, is_private: bool, gui
                 pass
 
     # Add reacion
-    if message.author.id in [constants.KAPPAid, constants.RAZid, constants.POLYid] \
+    if message.author.id in [constants.KAPPAid, constants.RAZid, constants.POLYid, constants.NYAid] \
             and message.guild.id in constants.owo_uumuu_whitelist \
             and message.content.lower() in ['owo', 'uwu', 'umu']:
-        await message.add_reaction(":uumuu:715594968328175687")
         if await pre_command(message=message, channel=message.channel, command='uumuu_reaction',
                              delete_message=False, is_typing=False):
+            await message.add_reaction(":uumuu:715594968328175687")
             return {ACTION: True}
     return {}
 
