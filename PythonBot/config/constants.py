@@ -57,7 +57,7 @@ ytdl_options = dict(
 ytdl_before = "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5"
 
 # Whitelists
-s_to_ringels_whitelist = []
+s_to_ringels_whitelist = [PRIVATESERVERid]
 auto_name_change_whitelist = [PRIVATESERVERid]
 nickname_change_whitelist = [PRIVATESERVERid]
 image_spam_protection_removal = []
