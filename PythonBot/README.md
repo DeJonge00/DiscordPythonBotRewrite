@@ -118,7 +118,14 @@ The commands marked with the __WIP__ tag have not been added to the rewritten ve
 |               |`trivia,tr` `join`                                     |Join an upcoming turn by turn Trivia game on the channel
 |               |`trivia,tr` `quit`                                     |Quit the game you're currently playing                                           
 
-# TODO Blackjack commands
+### Other games
+
+|Name			|Command, aliases and usage					            |Description
+|---			|---										            |---
+|blackjack      |`blackjack` `d,draw`                                   |Draw another card
+|               |`blackjack` `s,stop,f,fold`                            |Stop drawing and resolve the game
+|connectfour    |`connectfour,c4`                                       |Play a game of connect four with another user, use the reactions to play the game
+|               |`connectfour,c4` `reset,stop,quit`                     |Quit the current game
 
 ### Misc
 
