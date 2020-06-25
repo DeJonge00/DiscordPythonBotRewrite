@@ -45,7 +45,7 @@ class Blackjack(Cog):
                 await self.draw(channel=ctx.channel, game=self.get_game(ctx.author))
                 return
 
-            if args[0] in ['f', 'fold']:
+            if args[0] in ['f', 'fold', 's', 'stop']:
                 await self.fold(channel=ctx.channel, game=self.get_game(ctx.author))
                 return
         await self.help(ctx.channel)

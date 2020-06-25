@@ -147,8 +147,7 @@ async def react_with_action(pre_command, message: Message, is_private: bool, gui
     :return: {ACTION: True} if an action was taken or {} if there is nothing to respond to.
     """
     # Change nickname
-    if (is_private or guild_id in constants.auto_name_change_whitelist) and \
-            author_id in [constants.NYAid, constants.LOLIid, constants.WIZZid] and \
+    if guild_id in constants.auto_name_change_whitelist and \
             message.author.permissions_in(message.channel).change_nickname:
         if guild_id in constants.auto_name_change_whitelist:
             try:

@@ -4,15 +4,16 @@ from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
 from config.constants import TEXT, STAR_EMOJI
+from config.running_options import LOG_LEVEL
 from core.bot import PythonBot
 from database.general import prefix, delete_commands, starboard
 from database.general.banned_commands import toggle_banned_command
-from config.running_options import LOG_LEVEL
 
 logging.basicConfig(filename='logs/config_commands.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
 
-response_names = ['\\o/', 'ayy', 'response_lenny', 'response_ded', 'tableflip', 'talk']
+response_names = ['\\o/', 'ayy', 'response_lenny', 'response_ded', 'tableflip', 'talk', 's_to_ringel_s',
+                  'nickname_auto_change', 'uumuu_reaction']
 
 
 class ConfigCommands(Cog):
