@@ -3,10 +3,10 @@ from datetime import datetime
 
 from discord import Status, Game
 
+from config.running_options import game_name, LOG_LEVEL
 from core.bot import PythonBot
 from core.utils import get_cogs
 from database.general import bot_information
-from config.running_options import game_name, LOG_LEVEL
 
 logging.basicConfig(filename='logs/setup.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')

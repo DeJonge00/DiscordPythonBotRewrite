@@ -14,6 +14,7 @@ SERVER_TABLE = 'servers'
 CHANNEL_TABLE = 'channels'
 MEMBER_COUTER_VOICECHANNEL_TABLE = 'membercountervc'
 AUTO_VOICE_CHANNEL_TABLE = 'auto_voice_channel'
+STREAMER_NOTIFICATIONS_TABLE = 'streamer_notifications'
 
 SERVER_ID = 'serverid'
 USER_ID = 'userid'

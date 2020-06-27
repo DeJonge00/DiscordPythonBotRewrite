@@ -1,19 +1,20 @@
 import logging
 
 from discord import Member, Status, Game, Spotify, Message, DMChannel, Guild, VoiceChannel, User, Activity, \
-    VoiceState
+    VoiceState, Streaming, Embed
 from discord.ext.commands import Cog
 
+from commands.games.games import ROW_NUMS
 from commands.rpg.rpg_main import RPGGame
 from config import constants
-from config.constants import STAR_EMOJI
+from config.constants import STAR_EMOJI, STREAMER_EMBED_COLOR
+from config.running_options import game_name, LOG_LEVEL
 from core import logging as log
 from core.handlers import message_handler, channel_handlers
 from core.utils import update_member_counter, on_member_message
 from database.general import bot_information
 from database.general import general
-from config.running_options import game_name, LOG_LEVEL
-from commands.games.games import ROW_NUMS, GamesCommands
+from database.general.stream_notification import get_streamers
 
 logging.basicConfig(filename='logs/listeners.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
@@ -51,6 +52,24 @@ class Listeners(Cog):
 
     @Cog.listener()
     async def on_member_update(self, before: Member, after: Member):
+        if isinstance(after.activity, Streaming) and not isinstance(before.activity, Streaming):
+            ss = get_streamers(after.guild.id)
+            if str(after.id) in ss:
+                embed = Embed(colour=STREAMER_EMBED_COLOR)
+                embed.set_author(name=after.activity.name, icon_url=after.avatar_url)
+                embed.add_field(
+                    name='**{}** just started streaming {}!'.format(after.display_name, after.activity.game),
+                    value='Watch here: {}'.format(after.activity.url))
+                embed.set_footer(text='Look for {} on {}!'.format(after.activity.twitch_name, after.activity.platform))
+
+                channel = self.bot.get_channel(ss.get(str(after.id)))
+                print(after.display_name, "started streaming")
+                await self.bot.send_message(destination=channel, embed=embed)
+                # if after.activity.twitch_name:
+                #     m = 'https://player.twitch.tv/?channel={}&player=facebook&autoplay=true&parent=meta.tag'.format(
+                #         after.activity.twitch_name)
+                #     await self.bot.send_message(destination=channel, content=m)
+
         if before.id == constants.NYAid:
             if before.activity != after.activity:
                 if isinstance(after.activity, Spotify):

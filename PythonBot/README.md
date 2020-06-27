@@ -57,6 +57,8 @@ The commands marked with the __WIP__ tag have not been added to the rewritten ve
 |quote          |`quote`                                                |Fetch a random quote from the internet
 |role           |`role` _`rolename`_                                    |Add or remove the role _`rolename`_ from yourself, if it is in the self-assignable roles list. Give to rolename argument to see a list of roles
 |serverinfo  	|`serverinfo,serverstats`                               |Get the server's information
+|streamnotify   |`streamnotify,notifystream,stream,ns`                  |Send a notification message in this channel as soon as discord recognized you have started streaming
+|               |`streamnotify,notifystream,stream,ns` `quit,reset,stop`|Remove all twitch notifications from the server
 |userinfo    	|`userinfo,user,info` ___`user`___                      |Get ___`user`___'s information
 
 ### Image commands
@@ -142,8 +144,8 @@ The commands marked with the __WIP__ tag have not been added to the rewritten ve
 
 |Name			|Command, aliases and usage					            |Description                                                                                |Permissions needed
 |---			|---										            |---                                                                                        |---
-|autovc         |`autovc` _`channel-name`_                                | Create a voice-channel that multiplies when users join. These extra voice channels will be removed when there is nobody in them. | manage_channels
-|banish      	|`banish` ___`user`___                                      |Ban ___`user`___                                                                               |kick_members
+|autovc         |`autovc` _`channel-name`_                              | Create a voice-channel that multiplies when users join. These extra voice channels will be removed when there is nobody in them. | manage_channels
+|banish      	|`banish` ___`user`___                                  |Ban ___`user`___                                                                               |kick_members
 |invite         |`invite` _`max members`_                               |Create an invite. Maximum _`max-members`_ members, unlimited if not given, will be active for 24 hours   |create_instant_invite
 |               |`invite`                                               |Find an active invite in the server and show it, no mod-powers needed                      |manage_guild
 |membercount    |`membercount,membercounter`                            |Create a locked channel in the channel list, which will be updated with the amount of members currently in the server | manage_channels
