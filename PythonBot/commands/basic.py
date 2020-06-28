@@ -405,12 +405,33 @@ class BasicCommands(Cog):
         await self.bot.send_message(ctx, answer.get(TEXT))
 
     @commands.command(name='lenny', help="( ͡° ͜ʖ ͡°)!")
-    async def lenny(self, ctx, *args):
+    async def lenny(self, ctx: Context, *args):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='lenny'):
             return
         await self.bot.send_message(ctx, " ".join(args) + " ( ͡° ͜ʖ ͡°)")
 
     # TODO Lottery command
+
+    @staticmethod
+    def mockify(s: str):
+        us = random.sample(range(len(s)), len(s) // 2)
+        return ''.join([s[x].lower() if x in us else s[x].upper() for x in range(len(s))])
+
+    @commands.command(pass_context=1, help="Mock the previous message!")
+    async def mock(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='mock'):
+            return
+
+        if args and re.match('\^+', args[0]):
+            limit = args[0].count('^')
+        else:
+            limit = 1
+
+        m = ctx.author.display_name
+        async for message in ctx.channel.history(limit=limit, before=ctx.message):
+            m = message
+        c = '"{}"'.format(' '.join([BasicCommands.mockify(x) for x in m.content.split()]))
+        await self.bot.send_message(destination=ctx.channel, content=c)
 
     @commands.command(pass_context=1, help="Calculate how nice you are!")
     async def nice(self, ctx, *args):

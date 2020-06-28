@@ -1,7 +1,7 @@
 import logging
 
 from discord import Member, Status, Game, Spotify, Message, DMChannel, Guild, VoiceChannel, User, Activity, \
-    VoiceState, Streaming, Embed
+    VoiceState, Streaming, Embed, CustomActivity
 from discord.ext.commands import Cog
 
 from commands.games.games import ROW_NUMS
@@ -70,19 +70,20 @@ class Listeners(Cog):
                 #         after.activity.twitch_name)
                 #     await self.bot.send_message(destination=channel, content=m)
 
-        if before.id == constants.NYAid:
-            if before.activity != after.activity:
-                if isinstance(after.activity, Spotify):
-                    activity = Game(name='🎵 {}: {} 🎵'.format(after.activity.artist, after.activity.title))
-                elif isinstance(after.activity, Activity):
-                    name = after.activity.name
-                    if after.activity.details:
-                        name += ' | ' + after.activity.details
-                    activity = Game(name=name)
-                else:
-                    activity = after.activity if after.activity else Game(name=game_name)
-                await self.bot.change_presence(activity=activity, status=Status.do_not_disturb)
-                return
+        if before.id == constants.NYAid and before.activity != after.activity:
+            if isinstance(after.activity, Spotify):
+                activity = Game(name='🎵 {}: {} 🎵'.format(after.activity.artist, after.activity.title))
+            elif isinstance(after.activity, CustomActivity):
+                activity = Game(name=game_name)
+            elif isinstance(after.activity, Activity):
+                name = after.activity.name
+                if after.activity.details:
+                    name += ' | ' + after.activity.details
+                activity = Game(name=name)
+            else:
+                activity = after.activity if after.activity else Game(name=game_name)
+            await self.bot.change_presence(activity=activity, status=Status.do_not_disturb)
+            return
 
     @Cog.listener()
     async def on_voice_state_update(self, member: Member, before: VoiceState, after: VoiceState):

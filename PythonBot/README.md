@@ -53,12 +53,14 @@ The commands marked with the __WIP__ tag have not been added to the rewritten ve
 |lottery __WIP__    	|`lottery` _`description`_                          |Set up a lottery, ends when creator adds the correct reaction
 |nice           |`nice`                                                 |Figure out how nice you are
 |               |`nice` ___`user`___                                    |Figure out how nice ___`user`___ is
+|mock           |`mock`                                                 |Mock the previous message, by repeating it while randomly capitalizing letters
+|               |`mock` `^`                                             |Specify a different message to mock, the amount of `^` characters is the amount of messages back
 |pat         	|`pat` ___`user`___                                     |Pat ___`user`___, keeps track of pats
 |quote          |`quote`                                                |Fetch a random quote from the internet
 |role           |`role` _`rolename`_                                    |Add or remove the role _`rolename`_ from yourself, if it is in the self-assignable roles list. Give to rolename argument to see a list of roles
 |serverinfo  	|`serverinfo,serverstats`                               |Get the server's information
 |streamnotify   |`streamnotify,notifystream,stream,ns`                  |Send a notification message in this channel as soon as discord recognized you have started streaming
-|               |`streamnotify,notifystream,stream,ns` `quit,reset,stop`|Remove all twitch notifications from the server
+|               |`streamnotify,notifystream,stream,ns` `quit,reset,stop`|Remove all stream notifications from the server
 |userinfo    	|`userinfo,user,info` ___`user`___                      |Get ___`user`___'s information
 
 ### Image commands
