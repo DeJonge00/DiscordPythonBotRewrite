@@ -63,7 +63,6 @@ class Listeners(Cog):
                 embed.set_footer(text='Look for {} on {}!'.format(after.activity.twitch_name, after.activity.platform))
 
                 channel = self.bot.get_channel(ss.get(str(after.id)))
-                print(after.display_name, "started streaming")
                 await self.bot.send_message(destination=channel, embed=embed)
                 # if after.activity.twitch_name:
                 #     m = 'https://player.twitch.tv/?channel={}&player=facebook&autoplay=true&parent=meta.tag'.format(
