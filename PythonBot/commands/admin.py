@@ -108,8 +108,9 @@ class AdminCommands(Cog):
     async def test(self, ctx: Context):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='test', owner_check=True):
             return
-        from database.general.prefix import stringify_prefixes
-        stringify_prefixes()
+
+        async for m in ctx.channel.history(limit=4):
+            print('owo')
 
 
 def setup(bot):

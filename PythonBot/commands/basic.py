@@ -14,13 +14,13 @@ from discord.ext.commands import Cog, Context
 
 from config import constants, command_text
 from config.constants import TEXT, EMBED, BASIC_COMMANDS_EMBED_COLOR as EMBED_COLOR
+from config.running_options import LOG_LEVEL
 from config.structs import englishyfy_numbers
 from core.bot import PythonBot
 from core.utils import on_member_message, prep_str, prep_str_for_print
-from database.general import self_assignable_roles
+from database.general import self_assignable_roles, stream_notification
 from database.general.general import GOODBYE_TABLE
 from database.pats import increment_pats
-from config.running_options import LOG_LEVEL
 
 logging.basicConfig(filename='logs/basic_commands.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
@@ -405,12 +405,33 @@ class BasicCommands(Cog):
         await self.bot.send_message(ctx, answer.get(TEXT))
 
     @commands.command(name='lenny', help="( ͡° ͜ʖ ͡°)!")
-    async def lenny(self, ctx, *args):
+    async def lenny(self, ctx: Context, *args):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='lenny'):
             return
         await self.bot.send_message(ctx, " ".join(args) + " ( ͡° ͜ʖ ͡°)")
 
     # TODO Lottery command
+
+    @staticmethod
+    def mockify(s: str):
+        us = random.sample(range(len(s)), len(s) // 2)
+        return ''.join([s[x].lower() if x in us else s[x].upper() for x in range(len(s))])
+
+    @commands.command(pass_context=1, help="Mock the previous message!")
+    async def mock(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='mock'):
+            return
+
+        if args and re.match('\^+', args[0]):
+            limit = args[0].count('^')
+        else:
+            limit = 1
+
+        m = ctx.author.display_name
+        async for message in ctx.channel.history(limit=limit, before=ctx.message):
+            m = message
+        c = '"{}"'.format(' '.join([BasicCommands.mockify(x) for x in m.content.split()]))
+        await self.bot.send_message(destination=ctx.channel, content=c)
 
     @commands.command(pass_context=1, help="Calculate how nice you are!")
     async def nice(self, ctx, *args):
@@ -635,6 +656,27 @@ class BasicCommands(Cog):
         if ctx.message.author.id in [constants.NYAid, constants.KAPPAid]:
             for c in guild.channels:
                 print(prep_str_for_print(c.name))
+
+    @staticmethod
+    def command_stream_notify(settings: [str], guild_id: int, channel_id: int, streamer_id: int):
+        if settings and settings[0] in ['quit', 'reset', 'remove', 'stop']:
+            stream_notification.remove_all_streamers(guild_id)
+            return {TEXT: 'All streaming notifications have been reset'}
+        if stream_notification.toggle_streamer(guild_id, channel_id, streamer_id):
+            return {TEXT: 'The notifications for {u} have been added to this channel'}
+        return {TEXT: 'The notifications for {u} have been removed'}
+
+    @commands.command(name='streamnotify',
+                      help="Make me send a message in this channel every time you start livestreaming",
+                      aliases=['stream', 'notifystream', 'sn'])
+    async def streamnotify(self, ctx: Context, *args: [str]):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='streamnotify',
+                                          cannot_be_private=True):
+            return
+
+        t = BasicCommands.command_stream_notify(args, ctx.guild.id, ctx.channel.id, ctx.author.id).get(TEXT)
+        if t:
+            await self.bot.send_message(destination=ctx.channel, content=t.format(u=ctx.author.display_name))
 
     @commands.command(name='userinfo', help="Get a user's information!", aliases=["user", "info"])
     async def userinfo(self, ctx: Context, *args):
