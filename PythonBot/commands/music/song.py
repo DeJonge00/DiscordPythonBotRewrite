@@ -14,10 +14,13 @@ def get_details_from_url(url: str):
     """
     with YoutubeDL(ytdl_options) as ydl:
         song_info = ydl.extract_info(url, download=True)
-    playlist = song_info.get('entries')
-    if not playlist or not playlist[0].get('title'):
-        return
-    s = playlist[0]
+    if isinstance(song_info, dict):
+        s = song_info
+    else:
+        playlist = song_info.get('entries')
+        if not playlist or not playlist[0].get('title'):
+            return
+        s = playlist[0]
     file_name = sanitize_filename(s.get('title'), restricted=True) + '-' + s.get('display_id') + '.' + s.get('ext')
     print('Downloaded', file_name)
     return s, file_name
