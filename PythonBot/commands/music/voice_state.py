@@ -115,6 +115,7 @@ class VoiceState:
 
     def stop_playing(self):
         if self.state.is_playing():
+            self.delete_current()
             self.state.stop()
 
     async def disconnect(self):
@@ -123,6 +124,5 @@ class VoiceState:
         """
         self.running = False
         if self.state:
-            if self.state.is_playing():
-                self.state.stop()
+            self.stop_playing()
             await self.state.disconnect()
