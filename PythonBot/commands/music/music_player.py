@@ -63,10 +63,13 @@ class MusicPlayer:
         if not re.match('([a-zA-Z0-9 ]*)|(^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$)', song_url):
             await self.bot.send_message(message.channel, 'I cannot find anything for that sadly...')
             return
-        song = Song(message.author, song_url)
-        if not song:
+        try:
+            song = Song(message.author, song_url)
+            if not song:
+                return
+        except Exception as e:
+            print(e)
             return
-
         state = self.get_voice_state(message.channel)
         if not state:
             await self.join_voice_channel(message)

@@ -14,11 +14,16 @@ def get_details_from_url(url: str):
     """
     with YoutubeDL(ytdl_options) as ydl:
         song_info = ydl.extract_info(url, download=True)
-    playlist = song_info.get('entries')
-    if not playlist or not playlist[0].get('title'):
-        return
-    s = playlist[0]
-    file_name = sanitize_filename(s.get('title'), restricted=True) + '-' + s.get('display_id') + '.' + s.get('ext')
+    if not song_info.get('entries'):
+        s = song_info
+    else:
+        playlist = song_info.get('entries')
+        if not playlist:
+            raise Exception("playlist is empty")
+        s = playlist[0]
+    if not s.get('title'):
+        raise Exception(f"{s} has not title attribute")
+    file_name = f"{sanitize_filename(s.get('title'), restricted=True)}-{s.get('display_id')}.{s.get('ext')}"
     print('Downloaded', file_name)
     return s, file_name
 
@@ -26,8 +31,13 @@ def get_details_from_url(url: str):
 class Song:
     def __init__(self, requester: Member, url: str):
         self.requester = requester
-
-        s, self.file_name = get_details_from_url(url)
+        s, self.file_name = None, None
+        try:
+            s, self.file_name = get_details_from_url(url)
+        except Exception as e:
+            print(e)
+        if not s or not self.file_name:
+            raise Exception("song.get_details_from_url: could not init song")
         self.title = s.get('track') or s.get('alt_title') or s.get('title', 'Unknown title')
         self.url = s.get('url')
         self.artist = s.get('artist') or s.get('creator') or s.get('uploader')
