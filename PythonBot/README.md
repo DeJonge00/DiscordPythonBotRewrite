@@ -57,6 +57,7 @@ The commands marked with the __WIP__ tag have not been added to the rewritten ve
 |               |`mock` `^`                                             |Specify a different message to mock, the amount of `^` characters is the amount of messages back
 |pat         	|`pat` ___`user`___                                     |Pat ___`user`___, keeps track of pats
 |quote          |`quote`                                                |Fetch a random quote from the internet
+|quote40k       |`quote40k,40k,q40k,40kq`                               |Fetch an inspiring quote, very grimdark related
 |role           |`role` _`rolename`_                                    |Add or remove the role _`rolename`_ from yourself, if it is in the self-assignable roles list. Give to rolename argument to see a list of roles
 |serverinfo  	|`serverinfo,serverstats`                               |Get the server's information
 |streamnotify   |`streamnotify,notifystream,stream,ns`                  |Send a notification message in this channel as soon as discord recognized you have started streaming

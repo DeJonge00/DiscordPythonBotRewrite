@@ -422,15 +422,20 @@ class BasicCommands(Cog):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='mock'):
             return
 
+        m = ctx.author.display_name
         if args and re.match('\^+', args[0]):
             limit = args[0].count('^')
+        elif args:
+            m = ' '.join(args)
+            limit = 0
         else:
             limit = 1
 
-        m = ctx.author.display_name
-        async for message in ctx.channel.history(limit=limit, before=ctx.message):
-            m = message
-        c = '"{}"'.format(' '.join([BasicCommands.mockify(x) for x in m.content.split()]))
+        if limit:
+            async for message in ctx.channel.history(limit=limit, before=ctx.message):
+                m = message
+            m = m.content.split()
+        c = '"{}"'.format(' '.join([BasicCommands.mockify(x) for x in m]))
         await self.bot.send_message(destination=ctx.channel, content=c)
 
     @commands.command(pass_context=1, help="Calculate how nice you are!")
@@ -531,6 +536,13 @@ class BasicCommands(Cog):
         if r.get('quoteAuthor'):
             m += '\n- {}'.format(r.get('quoteAuthor'))
         await self.bot.send_message(ctx, m)
+
+    @commands.command(name='quote40k', help="Get a random quote dedicated to the Emperor!",
+                      aliases=['40k', 'q40k', '40kq'])
+    async def quote40k(self, ctx: Context):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='quote40k'):
+            return
+        await self.bot.send_message(ctx, random.choice(command_text.quotes_40k))
 
     @commands.command(name='remindme', hidden=True, help='Let me remind you of something by sending you a message')
     async def remindme(self, ctx: Context, *args):
