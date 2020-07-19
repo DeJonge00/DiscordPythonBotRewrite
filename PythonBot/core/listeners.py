@@ -101,18 +101,16 @@ class Listeners(Cog):
     @Cog.listener()
     async def on_member_join(self, member: Member):
         bot_information.update_server_member_count(member.guild)
+        if not member.bot:
+            await on_member_message(member.guild, member, general.WELCOME_TABLE, 'joined', do_log=False)
         await update_member_counter(member.guild)
-        if member.bot:
-            return
-        await on_member_message(member.guild, member, general.WELCOME_TABLE, 'joined', do_log=False)
 
     @Cog.listener()
     async def on_member_remove(self, member: Member):
         bot_information.update_server_member_count(member.guild)
+        if not member.bot:
+            await on_member_message(member.guild, member, general.GOODBYE_TABLE, 'left', do_log=False)
         await update_member_counter(member.guild)
-        if member.bot:
-            return
-        await on_member_message(member.guild, member, general.GOODBYE_TABLE, 'left', do_log=False)
 
     @Cog.listener()
     async def on_reaction_add(self, reaction, user):
