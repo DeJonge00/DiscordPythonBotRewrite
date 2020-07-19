@@ -84,7 +84,8 @@ def message_content(m: Message, guild_name: str, channel_name: str, type: str):
 
 
 def embedded_message(m: Message, guild_name: str, channel_name: str, type: str):
-    title = m.embeds[0].author.name if m.embeds[0].author.name else (m.fields[0].name if m.fields[0].name else m.color)
+    title = m.embeds[0].author.name if m.embeds[0].author.name else (
+        m.embeds[0].fields[0].name if m.embeds[0].fields[0].name else m.color)
     log_and_print(guild_name, fill_logging_template(guild=guild_name, channel=channel_name, author=str(m.author),
                                                     type=type, content='Embed: {}'.format(title)))
 
