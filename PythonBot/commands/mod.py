@@ -36,7 +36,7 @@ class ModCommands(Cog):
         set_joiner_channel(channel.guild.id, new_vc.id)
         return {TEXT: 'New channel \'{}\' created'.format(name)}
 
-    @commands.command(name='autovc', help="BANHAMMER")
+    @commands.command(name='autovc', help="Automatically add new voicechats when needed")
     async def autovc(self, ctx: Context, *args):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='autovc',
                                           perm_needed=['manage_channels', 'administrator']):

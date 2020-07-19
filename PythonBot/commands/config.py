@@ -111,7 +111,8 @@ class ConfigCommands(Cog):
             await self.bot.send_message(destination=ctx.channel,
                                         content='{} now banned from this {}'.format(text, args[0]))
 
-    @commands.command(name='starboard', help="Change my prefix", aliases=['star'])
+    @commands.command(name='starboard', help="List the special messages, which are reacted to with a star emoji",
+                      aliases=['star'])
     async def starboard(self, ctx: Context, *args):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='starboard',
                                           cannot_be_private=True,
