@@ -19,7 +19,7 @@ services:
     restart: unless-stopped
 
   mongodb:
-    image: mongo:latest
+    image: mongo:4.2
     env_file:
       - .env
     volumes:
