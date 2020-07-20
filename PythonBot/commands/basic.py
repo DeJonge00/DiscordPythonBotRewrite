@@ -8,7 +8,7 @@ from parser import ParserError
 
 import requests
 from dateutil.parser import parse
-from discord import Embed, Attachment, User, Emoji, Member, Spotify, Message
+from discord import Embed, Attachment, User, Emoji, Member, Spotify, Message, TextChannel, Guild
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
@@ -17,7 +17,7 @@ from config.constants import TEXT, EMBED, BASIC_COMMANDS_EMBED_COLOR as EMBED_CO
 from config.running_options import LOG_LEVEL
 from config.structs import englishyfy_numbers
 from core.bot import PythonBot
-from core.utils import on_member_message, prep_str, prep_str_for_print
+from core.utils import on_member_message, prep_str_for_print
 from database.general import self_assignable_roles, stream_notification
 from database.general.general import GOODBYE_TABLE
 from database.pats import increment_pats
@@ -568,6 +568,23 @@ class BasicCommands(Cog):
         await self.bot.send_message(ctx.channel, 'This command is not finished, but thanks for testing it')
         # 'Owkey, thy will be done')
 
+    async def send_self_assignable_role_list(self, guild: Guild, channel: TextChannel, role_list=None):
+        if not role_list:
+            role_list = self_assignable_roles.get_roles(guild.id)
+        if role_list:
+            nr, sar, m = 10, role_list, 'These are the available roles for this server:\n```'
+            while len(sar) > nr:
+                m += '\n'.join([guild.get_role(r).name for r in sar[:nr]])
+                m += '```'
+                await self.bot.send_message(channel, m)
+                m = '```'
+                sar = sar[nr:]
+            m += '\n'.join([guild.get_role(r).name for r in sar])
+            m += '```'
+        else:
+            m = 'There are no self-assignable roles in this guild...'
+        await self.bot.send_message(channel, m)
+
     @commands.command(name='role', help="Add or remove a self-assignable role to or from yourself!")
     async def role(self, ctx: Context, *args):
         if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='role'):
@@ -578,36 +595,16 @@ class BasicCommands(Cog):
             await self.bot.send_message(ctx.channel, 'I don\'t have permission to assign roles here')
             return
 
-        # Determine role
-        role = prep_str(' '.join(args))
         s_a_roles = self_assignable_roles.get_roles(ctx.guild.id)
-        if not role:
-            if s_a_roles:
-                nr, sar, m = 10, s_a_roles, 'These are the available roles for this server:\n```'
-                while len(sar) > nr:
-                    m += '\n'.join([ctx.guild.get_role(r).name for r in sar[:nr]])
-                    m += '```'
-                    await self.bot.send_message(ctx.channel, m)
-                    m = '```'
-                    sar = sar[nr:]
-                m += '\n'.join([ctx.guild.get_role(r).name for r in sar])
-                m += '```'
-            else:
-                m = 'There are no self-assignable roles in this guild...'
-            await self.bot.send_message(ctx.channel, m)
+        if len(args) <= 0:
+            await self.send_self_assignable_role_list(ctx.guild, ctx.channel, role_list=s_a_roles)
             return
-        possible_roles = [r for r in ctx.guild.roles if prep_str(r.name.lower()).startswith(role.lower())]
-        if not possible_roles:
-            await self.bot.send_message(ctx.channel, 'That\'s not a valid role')
-            return
-        if len(possible_roles) == 1:
-            role = possible_roles[0]
-        else:
-            role = await self.bot.ask_one_from_multiple(ctx, possible_roles, 'Which role did you have in mind?')
-            if not role:
-                return
 
-        # Check whether role is self-assignable
+        role = await self.bot.get_role_from_message(ctx=ctx, args=args)
+        if not role:
+            return
+
+            # Check whether role is self-assignable
         if role.id not in s_a_roles:
             await self.bot.send_message(ctx.channel, 'This role is not self-assignable')
             return
@@ -615,10 +612,10 @@ class BasicCommands(Cog):
         # Add or remove role from ctx.author
         if role in ctx.author.roles:
             await ctx.author.remove_roles(role, reason='Self-assignable role')
-            await self.bot.send_message(ctx.channel, 'I removed the {} role from you'.format(role.name))
+            await self.bot.send_message(ctx.channel, 'I removed the `{}` role from you'.format(role.name))
             return
         await ctx.author.add_roles(role, reason='Self-assignable role')
-        await self.bot.send_message(ctx.channel, 'I added the {} role to you'.format(role.name))
+        await self.bot.send_message(ctx.channel, 'I added the `{}` role to you'.format(role.name))
 
     @commands.command(name='serverinfo', help="Get the guild's information!",
                       aliases=['serverstats', 'guildstats', 'guildinfo'])

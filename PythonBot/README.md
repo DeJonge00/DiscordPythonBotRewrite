@@ -151,6 +151,8 @@ The commands marked with the __WIP__ tag have not been added to the rewritten ve
 |banish      	|`banish` ___`user`___                                  |Ban ___`user`___                                                                               |kick_members
 |invite         |`invite` _`max members`_                               |Create an invite. Maximum _`max-members`_ members, unlimited if not given, will be active for 24 hours   |create_instant_invite
 |               |`invite`                                               |Find an active invite in the server and show it, no mod-powers needed                      |manage_guild
+|massrole       |`massrole,mrole` `add,+,a` _`role_name`_               |Add role _`role_name`_ to every user in the server
+|               |`massrole,mrole` `remove,-,r` _`role_name`_            |Remove role _`role_name`_ from every user in the server
 |membercount    |`membercount,membercounter`                            |Create a locked channel in the channel list, which will be updated with the amount of members currently in the server | manage_channels
 |nickname __WIP__   	|`nickname,nn` ___`user`___ _`new_name`_                    |Nickname a person                                                                          |change_nickname, manage_nicknames
 |purge       	|`purge` _`amount`_ ___`user`___                        |Remove ___`user`___'s messages (all if user is not given) from the past _`amount`_ messages    |manage_messages

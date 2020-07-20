@@ -2,7 +2,7 @@ import asyncio
 import logging
 from datetime import datetime
 
-from discord import Message, TextChannel, DMChannel, Forbidden, Embed, Member, User
+from discord import Message, TextChannel, DMChannel, Forbidden, Embed, Member, User, Role
 from discord.ext.commands import Bot, Context
 from discord.ext.commands.errors import CommandError, MissingPermissions
 
@@ -125,6 +125,19 @@ class PythonBot(Bot):
 
         # Give options if multiple users were found
         return await self.ask_one_from_multiple(ctx, users, question='Which user did you mean?')
+
+    async def get_role_from_message(self, ctx: Context, args: [str]) -> Role:
+        role = prep_str(' '.join(args))
+
+        possible_roles = [r for r in ctx.guild.roles if prep_str(r.name.lower()).startswith(role.lower())]
+        if not possible_roles:
+            await self.send_message(ctx.channel, 'That\'s not a valid role')
+            return
+        if len(possible_roles) == 1:
+            role = possible_roles[0]
+        else:
+            role = await self.ask_one_from_multiple(ctx, possible_roles, 'Which role did you have in mind?')
+        return role
 
     async def quit(self):
         self.running = False

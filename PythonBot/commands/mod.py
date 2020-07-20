@@ -1,11 +1,12 @@
 import logging
 import re
 
-from discord import Member, TextChannel, PermissionOverwrite, Forbidden, Guild
+from discord import Member, TextChannel, PermissionOverwrite, Forbidden, Guild, Role
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
 from config.constants import TEXT, KICK_REASON, member_counter_message
+from config.running_options import LOG_LEVEL
 from core.bot import PythonBot
 from core.utils import prep_str
 from database.general import self_assignable_roles
@@ -13,7 +14,6 @@ from database.general.auto_voice_channel import set_joiner_channel
 from database.general.general import WELCOME_TABLE, GOODBYE_TABLE
 from database.general.member_counter import set_member_counter_channel, get_member_counter_channel
 from database.general.welcome import set_message
-from config.running_options import LOG_LEVEL
 
 logging.basicConfig(filename='logs/mod_commands.log', level=LOG_LEVEL,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
@@ -80,7 +80,7 @@ class ModCommands(Cog):
                                      delete_message=False):
             return
         return await ctx.channel.create_invite(reason='Invite command used by {}'.format(ctx.author.display_name),
-                                               max_uses=uses, max_age=24*60*60)
+                                               max_uses=uses, max_age=24 * 60 * 60)
 
     @staticmethod
     async def active_invites(guild: Guild):
@@ -140,11 +140,54 @@ class ModCommands(Cog):
     @commands.command(name='membercount', help="Count the people in this server for everyone to see",
                       aliases=['membercounter'])
     async def membercount(self, ctx: Context, *args):
-        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='purge', is_typing=False,
-                                          perm_needed=['administrator', 'manage_channels']):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='membercount',
+                                          is_typing=False, perm_needed=['administrator', 'manage_channels']):
             return
         answer = await ModCommands.command_membercount(ctx.guild.me, ctx.channel, args)
         await self.bot.send_message(ctx.channel, answer.get(TEXT))
+
+    async def command_add_mass_role(self, role: Role, guild: Guild, bot_free=True) -> int:
+        users = [x for x in guild.members if role.id not in [r.id for r in x.roles]]
+        if bot_free:
+            users = [u for u in users if not u.bot]
+        for u in users:
+            await u.add_roles(role)
+        return len(users)
+
+    async def command_remove_mass_role(self, role: Role, guild: Guild, bot_free=True) -> int:
+        users = [x for x in guild.members if role.id in [r.id for r in x.roles]]
+        if bot_free:
+            users = [u for u in users if not u.bot]
+        for u in users:
+            await u.remove_roles(role)
+        return len(users)
+
+    @commands.command(name='massrole', help="Give/remove a role to/from everyone in the server",
+                      aliases=['mrole'])
+    async def massrole(self, ctx: Context, *args):
+        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='massrole', is_typing=False,
+                                          perm_needed=['administrator', 'manage_roles']):
+            return
+
+        if len(args) < 2:
+            m = "I need 2 arguments: `add`/`remove` and the name of the role"
+            await self.bot.send_message(destination=ctx.channel, content=m)
+            return
+
+        role = await self.bot.get_role_from_message(ctx, args=args[1:])
+        if not role:
+            return
+
+        if args[0] in ['add', '+', 'a']:
+            n = await self.command_add_mass_role(role=role, guild=ctx.guild)
+            m = "Role `{}` added to {} users".format(role.name, n)
+        elif args[0] in ['remove', '-', 'r']:
+            n = await self.command_remove_mass_role(role=role, guild=ctx.guild)
+            m = "Role `{}` removed from {} users".format(role.name, n)
+        else:
+            m = "The first argument can only be `add` or `remove`"
+
+        await self.bot.send_message(destination=ctx.channel, content=m)
 
     @commands.command(name='purge', help="Remove a weird chat")
     async def purge(self, ctx: Context, *args):
