@@ -117,4 +117,4 @@ def shorten_number(n: int):
         return '{0:.3f}M'.format(n/1000000)[:6]
     if n > 1000:
         return '{0:.3f}K'.format(n / 1000)
-    return str(n)
+    return n
