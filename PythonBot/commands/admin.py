@@ -64,7 +64,8 @@ class AdminCommands(Cog):
         finally:
             try:
                 remove(name)
-            except:
+            except Exception as e:
+                print(e)
                 pass
 
     @commands.command(
