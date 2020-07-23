@@ -4,7 +4,16 @@ from api.rpg import constants as rpgc
 
 
 class RPGArmor:
-    def __init__(self, armorid=None, name="Training Robes", cost=0, element=1, maxhealth=0, healthregen=0, money=0):
+    def __init__(
+        self,
+        armorid=None,
+        name="Training Robes",
+        cost=0,
+        element=1,
+        maxhealth=0,
+        healthregen=0,
+        money=0,
+    ):
         self.armorid = armorid
         self.name = name
         self.cost = cost
@@ -14,35 +23,43 @@ class RPGArmor:
         self.money = money
 
     def __str__(self):
-        return "{}: mh+{}, hr+{}, m+{}%".format(self.name, self.maxhealth, self.healthregen, self.money)
+        return "{}: mh+{}, hr+{}, m+{}%".format(
+            self.name, self.maxhealth, self.healthregen, self.money
+        )
 
     def as_dict(self):
         return {
-            'name': self.name,
-            'cost': self.cost,
-            'element': self.element,
-            'maxhealth': self.maxhealth,
-            'healthregen': self.healthregen,
-            'money': self.money
+            "name": self.name,
+            "cost": self.cost,
+            "element": self.element,
+            "maxhealth": self.maxhealth,
+            "healthregen": self.healthregen,
+            "money": self.money,
         }
 
 
 def dict_to_armor(weapon: dict):
     return RPGArmor(
-        name=weapon.get('name'),
-        cost=weapon.get('cost'),
-        element=weapon.get('element'),
-        maxhealth=weapon.get('maxhealth'),
-        healthregen=weapon.get('healthregen'),
-        money=weapon.get('money')
+        name=weapon.get("name"),
+        cost=weapon.get("cost"),
+        element=weapon.get("element"),
+        maxhealth=weapon.get("maxhealth"),
+        healthregen=weapon.get("healthregen"),
+        money=weapon.get("money"),
     )
 
 
 def generateArmor(cost: int):
     name = str(random.choice(rpgc.prefixes))
     i = random.choice(list(rpgc.elementnames.keys()))
-    name += " " + rpgc.elementnames.get(i)[1] + " " + str(random.choice(rpgc.armors)) + " " + str(
-        random.choice(rpgc.suffixes))
+    name += (
+        " "
+        + rpgc.elementnames.get(i)[1]
+        + " "
+        + str(random.choice(rpgc.armors))
+        + " "
+        + str(random.choice(rpgc.suffixes))
+    )
 
     maxhealth = healthregen = money = 0
     points = math.floor(cost / 100)
@@ -69,4 +86,11 @@ def generateArmor(cost: int):
     else:
         money += int(points / 30)
         maxhealth -= int(points)
-    return RPGArmor(name=name, cost=cost, element=i, maxhealth=maxhealth, healthregen=healthregen, money=money)
+    return RPGArmor(
+        name=name,
+        cost=cost,
+        element=i,
+        maxhealth=maxhealth,
+        healthregen=healthregen,
+        money=money,
+    )

@@ -10,23 +10,23 @@ def test_rpg_channel():
     channel = 2
     rpg_channels.set_rpg_channel(server, channel)
     channel = rpg_channels.get_rpg_channel(server)
-    print('Setchannel/getchannel', channel, channel == channel)
+    print("Setchannel/getchannel", channel, channel == channel)
 
     channel = 3
     rpg_channels.set_rpg_channel(server, channel)
     channel = rpg_channels.get_rpg_channel(server)
-    print('Setchannel/getchannel', channel, channel == channel)
+    print("Setchannel/getchannel", channel, channel == channel)
 
     rpg_main.get_table(rpg_main.RPG_PLAYER_TABLE).drop()
 
 
 def test_rpg_player():
-    player = RPGPlayer(userid=1, picture_url='', username='owo', health=10)
+    player = RPGPlayer(userid=1, picture_url="", username="owo", health=10)
 
     try:
         rpg_player.get_player(player.userid, player.name)
     except ValueError:
-        print('No user successful')
+        print("No user successful")
 
     rpg_player.update_player(player)
     print(player.name)
@@ -37,25 +37,30 @@ def test_rpg_player():
 
 
 def test_top_list():
-    players = [RPGPlayer(userid=x, picture_url='', username=str(x), exp=x).as_dict() for x in range(400)]
+    players = [
+        RPGPlayer(userid=x, picture_url="", username=str(x), exp=x).as_dict()
+        for x in range(400)
+    ]
     rpg_channels.get_table(rpg_main.RPG_PLAYER_TABLE).insert_many(players)
 
-    print('0-10')
-    for i in rpg_main.get_top_players(group='exp', start=0, amount=10):
+    print("0-10")
+    for i in rpg_main.get_top_players(group="exp", start=0, amount=10):
         print(i)
 
-    print('11-20')
-    for i in rpg_main.get_top_players(group='exp', start=300, amount=10):
+    print("11-20")
+    for i in rpg_main.get_top_players(group="exp", start=300, amount=10):
         print(i)
 
         rpg_main.get_table(rpg_main.RPG_PLAYER_TABLE).drop()
 
 
 def test_boss_parties():
-    players = [RPGPlayer(userid=x, picture_url='', username=str(x)) for x in range(400)]
+    players = [RPGPlayer(userid=x, picture_url="", username=str(x)) for x in range(400)]
     for p in players:
         p.set_busy(BUSY_DESC_BOSSRAID, 10, randint(0, 10))
-    rpg_main.get_table(rpg_main.RPG_PLAYER_TABLE).insert_many([x.as_dict() for x in players])
+    rpg_main.get_table(rpg_main.RPG_PLAYER_TABLE).insert_many(
+        [x.as_dict() for x in players]
+    )
 
     for k, v in rpg_main.get_boss_parties().items():
         print(k, len(v))
@@ -64,30 +69,44 @@ def test_boss_parties():
 
 
 def test_add_stat():
-    player = RPGPlayer(userid=1, picture_url='', username='owo', pets=[RPGPet(name=str(x)) for x in range(2)])
+    player = RPGPlayer(
+        userid=1,
+        picture_url="",
+        username="owo",
+        pets=[RPGPet(name=str(x)) for x in range(2)],
+    )
     rpg_player.update_player(player)
     exp = player.exp
-    rpg_player.add_stats(player.userid, 'exp', 10)
-    print('Player exp from-to', exp, rpg_player.get_player(player.userid, player.name).exp)
+    rpg_player.add_stats(player.userid, "exp", 10)
+    print(
+        "Player exp from-to", exp, rpg_player.get_player(player.userid, player.name).exp
+    )
 
     exp = [p.exp for p in rpg_player.get_player(player.userid, player.name).pets]
-    rpg_player.add_pet_stats(player.userid, 'exp', 10)
-    print('Pet exp from-to', exp, [p.exp for p in rpg_player.get_player(player.userid, player.name).pets])
+    rpg_player.add_pet_stats(player.userid, "exp", 10)
+    print(
+        "Pet exp from-to",
+        exp,
+        [p.exp for p in rpg_player.get_player(player.userid, player.name).pets],
+    )
 
     rpg_main.get_table(rpg_main.RPG_PLAYER_TABLE).drop()
 
 
 def test_decrement_busy_counters():
-    players = [RPGPlayer(userid=x, picture_url='', username=str(x)) for x in range(10)]
+    players = [RPGPlayer(userid=x, picture_url="", username=str(x)) for x in range(10)]
     for p in players:
         p.set_busy(BUSY_DESC_ADVENTURE, 20, randint(0, 10))
-    rpg_main.get_table(rpg_main.RPG_PLAYER_TABLE).insert_many([x.as_dict() for x in players])
+    rpg_main.get_table(rpg_main.RPG_PLAYER_TABLE).insert_many(
+        [x.as_dict() for x in players]
+    )
 
     rpg_main.decrement_busy_counters()
     for x in rpg_main.get_table(rpg_main.RPG_PLAYER_TABLE).find():
-        print(x.get('busy').get('time'))
+        print(x.get("busy").get("time"))
 
     rpg_main.get_table(rpg_main.RPG_PLAYER_TABLE).drop()
+
 
 #
 # def test_get_done_players():
@@ -100,4 +119,3 @@ def test_decrement_busy_counters():
 #     print('Player busytimes', [x.get('busy').get('time') for x in rpg.get_table(rpg.RPG_PLAYER_TABLE).find()])
 #
 #     rpg.get_table(rpg.RPG_PLAYER_TABLE).drop()
-

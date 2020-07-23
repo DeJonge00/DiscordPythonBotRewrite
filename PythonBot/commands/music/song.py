@@ -14,17 +14,17 @@ def get_details_from_url(url: str):
     """
     with YoutubeDL(ytdl_options) as ydl:
         song_info = ydl.extract_info(url, download=True)
-    if not song_info.get('entries'):
+    if not song_info.get("entries"):
         s = song_info
     else:
-        playlist = song_info.get('entries')
+        playlist = song_info.get("entries")
         if not playlist:
             raise Exception("playlist is empty")
         s = playlist[0]
-    if not s.get('title'):
+    if not s.get("title"):
         raise Exception(f"{s} has not title attribute")
     file_name = f"{sanitize_filename(s.get('title'), restricted=True)}-{s.get('display_id')}.{s.get('ext')}"
-    print('Downloaded', file_name)
+    print("Downloaded", file_name)
     return s, file_name
 
 
@@ -38,34 +38,36 @@ class Song:
             print(e)
         if not s or not self.file_name:
             raise Exception("song.get_details_from_url: could not init song")
-        self.title = s.get('track') or s.get('alt_title') or s.get('title', 'Unknown title')
-        self.url = s.get('url')
-        self.artist = s.get('artist') or s.get('creator') or s.get('uploader')
-        self.thumbnail = s.get('thumbnail')
-        self.duration = s.get('duration')
-        self.web_url = s.get('webpage_url')
+        self.title = (
+            s.get("track") or s.get("alt_title") or s.get("title", "Unknown title")
+        )
+        self.url = s.get("url")
+        self.artist = s.get("artist") or s.get("creator") or s.get("uploader")
+        self.thumbnail = s.get("thumbnail")
+        self.duration = s.get("duration")
+        self.web_url = s.get("webpage_url")
 
         # Create the object that can be given to VoiceClient.play()
         self.stream_object = self.create_stream_object()
 
     def __str__(self):
         if self.artist:
-            t = '{}: {}'.format(self.artist, self.title)
+            t = "{}: {}".format(self.artist, self.title)
         else:
             t = self.title
         if self.duration:
             try:
                 d = int(self.duration)
-                t += ' ({}m{}s)'.format(int(d / 60), d % 60)
+                t += " ({}m{}s)".format(int(d / 60), d % 60)
             except Exception as e:
                 print(self.title, self.artist)
-                print('Error while adding duration:', e, 'Duration:', self.duration)
+                print("Error while adding duration:", e, "Duration:", self.duration)
         return t
 
     def as_embed(self):
         e = Embed()
         e.set_author(name=self.requester.display_name, url=self.requester.avatar_url)
-        e.add_field(name='Song', value=str(self))
+        e.add_field(name="Song", value=str(self))
         if self.thumbnail:
             e.set_thumbnail(url=self.thumbnail)
         if self.web_url:

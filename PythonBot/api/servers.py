@@ -10,44 +10,48 @@ from config.running_options import prefix as default_prefix
 
 
 def init_servers(api: Flask, auth: HTTPBasicAuth):
-    print('Adding servers paths')
+    print("Adding servers paths")
 
-    @api.route(route_start + '/servers', methods=['GET'])
+    @api.route(route_start + "/servers", methods=["GET"])
     @auth.login_required
     def get_server_list():
         servers = general.get_server_list()
-        if request.args.get('resolve_channels'):
+        if request.args.get("resolve_channels"):
             servers = resolve_channels(servers)
         return jsonify(servers)
 
-    @api.route(route_start + '/servers/<int:server_id>', methods=['GET'])
+    @api.route(route_start + "/servers/<int:server_id>", methods=["GET"])
     @auth.login_required
     def get_server(server_id: int):
         r = general.get_server(server_id)
-        if request.args.get('resolve_channels'):
+        if request.args.get("resolve_channels"):
             r = resolve_channels(r)[0]
         return jsonify(r)
 
-    @api.route(route_start + '/servers/<int:server_id>/config', methods=['GET'])
+    @api.route(route_start + "/servers/<int:server_id>/config", methods=["GET"])
     @auth.login_required
     def get_server_config(server_id: str):
-        welcome = general.get_table(general.WELCOME_TABLE).find_one({general.SERVER_ID: str(server_id)}, {'_id': 0})
+        welcome = general.get_table(general.WELCOME_TABLE).find_one(
+            {general.SERVER_ID: str(server_id)}, {"_id": 0}
+        )
         if welcome:
             welcome = {
-                'id': str(welcome.get(general.CHANNEL_ID, 0)),
-                'text': welcome.get('message', '')
+                "id": str(welcome.get(general.CHANNEL_ID, 0)),
+                "text": welcome.get("message", ""),
             }
         else:
-            welcome = {'id': 0, 'text': ''}
+            welcome = {"id": 0, "text": ""}
 
-        goodbye = general.get_table(general.GOODBYE_TABLE).find_one({general.SERVER_ID: str(server_id)}, {'_id': 0})
+        goodbye = general.get_table(general.GOODBYE_TABLE).find_one(
+            {general.SERVER_ID: str(server_id)}, {"_id": 0}
+        )
         if goodbye:
             goodbye = {
-                'id': str(goodbye.get(general.CHANNEL_ID, 0)),
-                'text': goodbye.get('message', '')
+                "id": str(goodbye.get(general.CHANNEL_ID, 0)),
+                "text": goodbye.get("message", ""),
             }
         else:
-            goodbye = {'id': 0, 'text': ''}
+            goodbye = {"id": 0, "text": ""}
         server_prefix = prefix.get_prefix(int(server_id))
         if not server_prefix:
             server_prefix = default_prefix
@@ -56,29 +60,35 @@ def init_servers(api: Flask, auth: HTTPBasicAuth):
         if not starchannel:
             starchannel = 0
 
-        return jsonify({
-            'welcome': welcome,
-            'goodbye': goodbye,
-            'delete_commands': delete_commands.get_delete_commands(server_id),
-            'star': starchannel,
-            'prefix': server_prefix
-        })
+        return jsonify(
+            {
+                "welcome": welcome,
+                "goodbye": goodbye,
+                "delete_commands": delete_commands.get_delete_commands(server_id),
+                "star": starchannel,
+                "prefix": server_prefix,
+            }
+        )
 
-    @api.route(route_start + '/servers/<int:server_id>/config', methods=['POST'])
+    @api.route(route_start + "/servers/<int:server_id>/config", methods=["POST"])
     @auth.login_required
     def set_server_config(server_id: int):
         config_data = json.loads(request.data)
-        if config_data.get('prefix'):
-            prefix.set_prefix(server_id, config_data.get('prefix'))
-        if config_data.get('star'):
-            starboard.set_star_channel(server_id, config_data.get('star'))
-        if config_data.get('welcome'):
-            w = config_data.get('welcome')
-            welcome.set_message(general.WELCOME_TABLE, server_id, w.get('id'), w.get('text'))
-        if config_data.get('goodbye'):
-            g = config_data.get('goodbye')
-            welcome.set_message(general.GOODBYE_TABLE, server_id, g.get('id'), g.get('text'))
-        if config_data.get('delete_commands'):
-            b = True if config_data.get('delete_commands') == 'true' else False
+        if config_data.get("prefix"):
+            prefix.set_prefix(server_id, config_data.get("prefix"))
+        if config_data.get("star"):
+            starboard.set_star_channel(server_id, config_data.get("star"))
+        if config_data.get("welcome"):
+            w = config_data.get("welcome")
+            welcome.set_message(
+                general.WELCOME_TABLE, server_id, w.get("id"), w.get("text")
+            )
+        if config_data.get("goodbye"):
+            g = config_data.get("goodbye")
+            welcome.set_message(
+                general.GOODBYE_TABLE, server_id, g.get("id"), g.get("text")
+            )
+        if config_data.get("delete_commands"):
+            b = True if config_data.get("delete_commands") == "true" else False
             delete_commands.set_delete_commands(server_id, b)
-        return jsonify({'Status': 'Success'})
+        return jsonify({"Status": "Success"})

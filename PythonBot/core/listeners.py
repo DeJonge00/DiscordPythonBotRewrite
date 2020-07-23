@@ -1,7 +1,21 @@
 import logging
 
-from discord import Member, Status, Game, Spotify, Message, DMChannel, Guild, VoiceChannel, User, Activity, \
-    VoiceState, Streaming, Embed, CustomActivity
+from discord import (
+    Member,
+    Status,
+    Game,
+    Spotify,
+    Message,
+    DMChannel,
+    Guild,
+    VoiceChannel,
+    User,
+    Activity,
+    VoiceState,
+    Streaming,
+    Embed,
+    CustomActivity,
+)
 from discord.ext.commands import Cog
 
 from commands.games.games import ROW_NUMS
@@ -16,8 +30,11 @@ from database.general import bot_information
 from database.general import general
 from database.general.stream_notification import get_streamers
 
-logging.basicConfig(filename='logs/listeners.log', level=LOG_LEVEL,
-                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
+logging.basicConfig(
+    filename="logs/listeners.log",
+    level=LOG_LEVEL,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
 
 
 class Listeners(Cog):
@@ -46,21 +63,33 @@ class Listeners(Cog):
         #     log.error_on_message(message, error_message='Forbidden Exception')
 
         # Send message to rpggame for exp
-        if self.bot.RPGGAME and (len(message.content) < 2 or (message.content[:2] == '<@') or
-                                 (message.content[0].isalpha() and message.content[1].isalpha())):
+        if self.bot.RPGGAME and (
+            len(message.content) < 2
+            or (message.content[:2] == "<@")
+            or (message.content[0].isalpha() and message.content[1].isalpha())
+        ):
             RPGGame.handle(message)
 
     @Cog.listener()
     async def on_member_update(self, before: Member, after: Member):
-        if isinstance(after.activity, Streaming) and not isinstance(before.activity, Streaming):
+        if isinstance(after.activity, Streaming) and not isinstance(
+            before.activity, Streaming
+        ):
             ss = get_streamers(after.guild.id)
             if str(after.id) in ss:
                 embed = Embed(colour=STREAMER_EMBED_COLOR)
                 embed.set_author(name=after.activity.name, icon_url=after.avatar_url)
                 embed.add_field(
-                    name='**{}** just started streaming {}!'.format(after.display_name, after.activity.game),
-                    value='Watch here: {}'.format(after.activity.url))
-                embed.set_footer(text='Look for {} on {}!'.format(after.activity.twitch_name, after.activity.platform))
+                    name="**{}** just started streaming {}!".format(
+                        after.display_name, after.activity.game
+                    ),
+                    value="Watch here: {}".format(after.activity.url),
+                )
+                embed.set_footer(
+                    text="Look for {} on {}!".format(
+                        after.activity.twitch_name, after.activity.platform
+                    )
+                )
 
                 channel = self.bot.get_channel(ss.get(str(after.id)))
                 await self.bot.send_message(destination=channel, embed=embed)
@@ -71,21 +100,29 @@ class Listeners(Cog):
 
         if before.id == constants.NYAid and before.activity != after.activity:
             if isinstance(after.activity, Spotify):
-                activity = Game(name='🎵 {}: {} 🎵'.format(after.activity.artist, after.activity.title))
+                activity = Game(
+                    name="🎵 {}: {} 🎵".format(
+                        after.activity.artist, after.activity.title
+                    )
+                )
             elif isinstance(after.activity, CustomActivity):
                 activity = Game(name=game_name)
             elif isinstance(after.activity, Activity):
                 name = after.activity.name
                 if after.activity.details:
-                    name += ' | ' + after.activity.details
+                    name += " | " + after.activity.details
                 activity = Game(name=name)
             else:
                 activity = after.activity if after.activity else Game(name=game_name)
-            await self.bot.change_presence(activity=activity, status=Status.do_not_disturb)
+            await self.bot.change_presence(
+                activity=activity, status=Status.do_not_disturb
+            )
             return
 
     @Cog.listener()
-    async def on_voice_state_update(self, member: Member, before: VoiceState, after: VoiceState):
+    async def on_voice_state_update(
+        self, member: Member, before: VoiceState, after: VoiceState
+    ):
         await channel_handlers.auto_channel(member, before, after)
 
     @Cog.listener()
@@ -102,14 +139,18 @@ class Listeners(Cog):
     async def on_member_join(self, member: Member):
         bot_information.update_server_member_count(member.guild)
         if not member.bot:
-            await on_member_message(member.guild, member, general.WELCOME_TABLE, 'joined', do_log=False)
+            await on_member_message(
+                member.guild, member, general.WELCOME_TABLE, "joined", do_log=False
+            )
         await update_member_counter(member.guild)
 
     @Cog.listener()
     async def on_member_remove(self, member: Member):
         bot_information.update_server_member_count(member.guild)
         if not member.bot:
-            await on_member_message(member.guild, member, general.GOODBYE_TABLE, 'left', do_log=False)
+            await on_member_message(
+                member.guild, member, general.GOODBYE_TABLE, "left", do_log=False
+            )
         await update_member_counter(member.guild)
 
     @Cog.listener()
@@ -133,24 +174,36 @@ class Listeners(Cog):
 
     @Cog.listener()
     async def on_member_ban(self, guild: Guild, user: User):
-        log.announcement(guild_name=guild.name, announcement_text='User {} got banned'.format(user))
+        log.announcement(
+            guild_name=guild.name, announcement_text="User {} got banned".format(user)
+        )
 
     @Cog.listener()
     async def on_member_unban(self, guild: Guild, user: User):
-        log.announcement(guild_name=guild.name, announcement_text='User {} got unbanned'.format(user))
+        log.announcement(
+            guild_name=guild.name, announcement_text="User {} got unbanned".format(user)
+        )
 
     @Cog.listener()
     async def on_guild_join(self, guild: Guild):
         bot_information.update_server(server=guild)
-        channel = self.bot.get_guild(constants.PRIVATESERVERid).get_channel(constants.SNOWFLAKE_GENERAL)
-        m = "I joined a new server named '{}' with {} members, senpai!".format(guild.name, guild.member_count)
+        channel = self.bot.get_guild(constants.PRIVATESERVERid).get_channel(
+            constants.SNOWFLAKE_GENERAL
+        )
+        m = "I joined a new server named '{}' with {} members, senpai!".format(
+            guild.name, guild.member_count
+        )
         await self.bot.send_message(channel, m)
 
     @Cog.listener()
     async def on_guild_remove(self, guild: Guild):
         bot_information.remove_server(server=guild)
-        channel = self.bot.get_guild(constants.PRIVATESERVERid).get_channel(constants.SNOWFLAKE_GENERAL)
-        m = "A server named '{}' ({} members) just removed me from service :(".format(guild.name, guild.member_count)
+        channel = self.bot.get_guild(constants.PRIVATESERVERid).get_channel(
+            constants.SNOWFLAKE_GENERAL
+        )
+        m = "A server named '{}' ({} members) just removed me from service :(".format(
+            guild.name, guild.member_count
+        )
         await self.bot.send_message(channel, m)
 
     @Cog.listener()

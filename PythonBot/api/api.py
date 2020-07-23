@@ -23,7 +23,7 @@ def setup():
 
     @auth.error_handler
     def unauthorized():
-        return make_response(jsonify({'error': 'Unauthorized access'}), 401)
+        return make_response(jsonify({"error": "Unauthorized access"}), 401)
 
     init_commands(api, auth)
     init_servers(api, auth)
@@ -34,6 +34,8 @@ def setup():
     # ----- Standard errors -----
     @api.errorhandler(404)
     def not_found(error):
-        return make_response(jsonify({f'Error 404': 'Resource could not be found'}), 404)
+        return make_response(
+            jsonify({f"Error 404": "Resource could not be found"}), 404
+        )
 
     return api

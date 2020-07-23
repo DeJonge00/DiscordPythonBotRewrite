@@ -3,7 +3,9 @@ from database.rpg.rpg_main import get_table, RPG_CHANNEL_TABLE, SERVER_ID, CHANN
 
 def set_rpg_channel(server_id: int, channel_id: int):
     table = get_table(RPG_CHANNEL_TABLE)
-    table.update({SERVER_ID: str(server_id)}, {'$set': {CHANNEL_ID: channel_id}}, upsert=True)
+    table.update(
+        {SERVER_ID: str(server_id)}, {"$set": {CHANNEL_ID: channel_id}}, upsert=True
+    )
 
 
 def get_rpg_channel(server_id: int):

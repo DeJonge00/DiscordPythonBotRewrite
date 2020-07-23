@@ -90,7 +90,7 @@ The commands marked with the __WIP__ tag have not been added to the rewritten ve
 |Name			|Command, aliases and usage					            |Description
 |---			|---										            |---
 |anime          |`anime,mal,myanimelist` _`title`_                      |Search for the MAL entry of the anime _`title`_
-|game           |`game` _`title`_                                       |Search for a description of the video game named _`title`_ 
+|game           |`game` _`title`_                                       |Search for a description of the video game named _`title`_
 |manga          |`manga` _`title`_                                      |Search for the MAL entry of manga _`title`_
 |movie          |`movie,imdb` _`title`_                                 |Search for the IMDb entry of movie _`title`_
 |osu            |`osu` _`playername`_                                   |Search profile data for a popular rhythm game
@@ -121,7 +121,7 @@ The commands marked with the __WIP__ tag have not been added to the rewritten ve
 |trivia       	|`trivia,tr` `new`                                      |Create a new trivia game
 |               |`trivia,tr` `categories,cat`                           |Display question categories for Trivia
 |               |`trivia,tr` `join`                                     |Join an upcoming turn by turn Trivia game on the channel
-|               |`trivia,tr` `quit`                                     |Quit the game you're currently playing                                           
+|               |`trivia,tr` `quit`                                     |Quit the game you're currently playing
 
 ### Other games
 
@@ -177,13 +177,13 @@ The commands marked with the __WIP__ tag have not been added to the rewritten ve
 |leave          |`music,m` `leave,l`                                    |Let Biribiri leave voice chat
 |skip           |`music,m` `skip,s` _`number`_                          |Vote to skip a song, or just skip it if you are the requester
 |               |                                                       |No number given means voting to skip the current song
-|queue          |`music,m` `queue,q`                                    |Show the queue 
+|queue          |`music,m` `queue,q`                                    |Show the queue
 |               |`music,m` `queue,q` _`songname,url`_                   |Add a song to the queue
 |repeat         |`music,m` `repeat,r`                                   |Repeat the current song
 |volume         |`music,m` `volume,v`                                   |Change the volume of the songs
 |current        |`music,m` `current,c`                                  |Show information about the song currently playing
 |stop           |`music,m` `stop`                                       |Empty the queue and skip the current song, then leave the voice channel
-|play           |`music,m` `play,p`                                     |Pause or resume singing 
+|play           |`music,m` `play,p`                                     |Pause or resume singing
 |               |`music,m` `play,p` _`songname,url`_                    |Add a song to the queue
 |join           |`music,m` `join,j`                                     |Let Biribiri join a voice channel
 
