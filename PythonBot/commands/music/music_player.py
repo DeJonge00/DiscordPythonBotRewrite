@@ -9,8 +9,11 @@ from commands.music.voice_state import VoiceState
 from core.bot import PythonBot
 from config.running_options import LOG_LEVEL
 
-logging.basicConfig(filename='logs/music_player.log', level=LOG_LEVEL,
-                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
+logging.basicConfig(
+    filename="logs/music_player.log",
+    level=LOG_LEVEL,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
 
 
 class MusicPlayer:
@@ -22,7 +25,11 @@ class MusicPlayer:
 
     async def music_loop(self, time: datetime):
         for s, _ in self.states.values():
-            if s.state.is_connected() and not s.state.is_playing() and ((time - s.last_song_start).seconds > (10 * 60)):
+            if (
+                s.state.is_connected()
+                and not s.state.is_playing()
+                and ((time - s.last_song_start).seconds > (10 * 60))
+            ):
                 await s.disconnect()
 
     async def handle_reaction(self, r: Reaction):
@@ -35,7 +42,7 @@ class MusicPlayer:
         :return: Boolean: True if the author is connected to a VoiceChannel
         """
         if not m.author.voice:
-            await self.bot.send_message(m.channel, 'You are not connected to vc, silly')
+            await self.bot.send_message(m.channel, "You are not connected to vc, silly")
             return False
         return True
 
@@ -60,8 +67,13 @@ class MusicPlayer:
         :param message: The message that issued the command
         :param song_url: The url or name of the song to be retrieved from youtube
         """
-        if not re.match('([a-zA-Z0-9 ]*)|(^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$)', song_url):
-            await self.bot.send_message(message.channel, 'I cannot find anything for that sadly...')
+        if not re.match(
+            "([a-zA-Z0-9 ]*)|(^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$)",
+            song_url,
+        ):
+            await self.bot.send_message(
+                message.channel, "I cannot find anything for that sadly..."
+            )
             return
         try:
             song = Song(message.author, song_url)
@@ -78,8 +90,9 @@ class MusicPlayer:
         state.add_song_to_queue(song)
         await self.bot.send_message(message.channel, embed=song.as_embed())
 
-    async def join_voice_channel(self, message: Message, from_state=None,
-                                 only_if_old_empty=True):
+    async def join_voice_channel(
+        self, message: Message, from_state=None, only_if_old_empty=True
+    ):
         """
         Let the bot join the same voicechannel as the author is in.
         :param message: The message that issued the command.
@@ -93,23 +106,35 @@ class MusicPlayer:
         channel = message.author.voice.channel
         perms = channel.permissions_for(channel.guild.me)
         if not perms.connect:
-            await self.bot.send_message(message.channel, 'I need permission to connect to this channel')
+            await self.bot.send_message(
+                message.channel, "I need permission to connect to this channel"
+            )
             return False
         # TODO Test whether perms.use_voice_activation is necessary
         if not perms.speak:
-            await self.bot.send_message(message.channel, 'I need permission to speak in this channel')
+            await self.bot.send_message(
+                message.channel, "I need permission to speak in this channel"
+            )
             return False
 
         if from_state:
-            if only_if_old_empty and from_state.is_playing() and len(from_state.channel.members) > 1:
-                await self.bot.send_message(message.channel, 'There are already people listening to me')
+            if (
+                only_if_old_empty
+                and from_state.is_playing()
+                and len(from_state.channel.members) > 1
+            ):
+                await self.bot.send_message(
+                    message.channel, "There are already people listening to me"
+                )
                 return False
             state = await from_state.move_to(channel)
         else:
             state = await channel.connect(timeout=10.0)
 
         if not state:
-            await self.bot.send_message(message.channel, 'Trying to connect timed out...')
+            await self.bot.send_message(
+                message.channel, "Trying to connect timed out..."
+            )
             return False
         return True
 
@@ -120,7 +145,9 @@ class MusicPlayer:
         """
         state = self.get_voice_state(channel)
         if not state or not len(state.queue):
-            await self.bot.send_message(channel, 'The music queue for this guild is empty')
+            await self.bot.send_message(
+                channel, "The music queue for this guild is empty"
+            )
             return
         await self.bot.send_message(channel, embed=state.get_queue_display())
 
@@ -131,7 +158,7 @@ class MusicPlayer:
         """
         state = self.get_voice_state(channel)
         if not state:
-            await self.bot.send_message(channel, 'That worked all too well')
+            await self.bot.send_message(channel, "That worked all too well")
             return
         await state.disconnect()
         del self.states[channel.guild.id]

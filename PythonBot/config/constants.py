@@ -1,14 +1,14 @@
-RPGDB = 'logs/rpg.db'
+RPGDB = "logs/rpg.db"
 pidfile = "logs/pid.txt"
 
-TEXT = 'text_message'
-EMBED = 'embed_message'
-IMAGE = 'image'
-ERROR = 'error_message'
-KICK_REASON = 'kick_message'
-ACTION = 'action_taken'
+TEXT = "text_message"
+EMBED = "embed_message"
+IMAGE = "image"
+ERROR = "error_message"
+KICK_REASON = "kick_message"
+ACTION = "action_taken"
 
-member_counter_message = 'Members: {}'
+member_counter_message = "Members: {}"
 
 SERVICE = False
 
@@ -38,11 +38,11 @@ BASIC_COMMANDS_EMBED_COLOR = 0x008909
 LOOKUP_COMMANDS_EMBED_COLOR = 0xFF0000
 IMAGE_COMMANDS_EMBED_COLOR = 0x000000
 WELCOME_EMBED_COLOR = 0xFF0000
-MUSIC_EMBED_COLOR = 0x93cc04
-STAR_EMBED_COLOR = 0xf9e000
-HANGMAN_EMBED_COLOR = 0x007a01
-STREAMER_EMBED_COLOR = 0x7900a8
-STAR_EMOJI = '⭐'
+MUSIC_EMBED_COLOR = 0x93CC04
+STAR_EMBED_COLOR = 0xF9E000
+HANGMAN_EMBED_COLOR = 0x007A01
+STREAMER_EMBED_COLOR = 0x7900A8
+STAR_EMOJI = "⭐"
 
 ytdl_options = dict(
     format="bestaudio/best",
@@ -52,7 +52,7 @@ ytdl_options = dict(
     default_search="auto",
     quiet=True,
     nocheckcertificate=True,
-    restrictfilenames=True
+    restrictfilenames=True,
 )
 
 ytdl_before = "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5"

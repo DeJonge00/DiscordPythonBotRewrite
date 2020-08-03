@@ -2,13 +2,8 @@ from random import randrange
 
 from discord import Member, Embed
 
-colors = ['hearts', 'diamonds', 'spades', 'clubs']
-value_conversions = {
-    'ace': 1,
-    'king': 10,
-    'queen': 10,
-    'jack': 10
-}
+colors = ["hearts", "diamonds", "spades", "clubs"]
+value_conversions = {"ace": 1, "king": 10, "queen": 10, "jack": 10}
 
 GAME_OVER = 1
 PLAYING = 2
@@ -20,7 +15,7 @@ class Card:
         self.color = color
 
     def __str__(self):
-        return '{} of {}'.format(self.value, self.color)
+        return "{} of {}".format(self.value, self.color)
 
     def __int__(self):
         if self.value in value_conversions.keys():
@@ -30,14 +25,21 @@ class Card:
 
 class Deck:
     def __init__(self, sets=1):
-        self.cards = [Card(value, color) for value in [*range(2, 10), *value_conversions.keys()] * sets for color in
-                      colors]
+        self.cards = [
+            Card(value, color)
+            for value in [*range(2, 10), *value_conversions.keys()] * sets
+            for color in colors
+        ]
 
     def __len__(self):
         return len(self.cards)
 
     def __str__(self):
-        return 'a pile of {} cards'.format(len(self)) if self.score() > 21 else '\n'.join([str(c) for c in self.cards])
+        return (
+            "a pile of {} cards".format(len(self))
+            if self.score() > 21
+            else "\n".join([str(c) for c in self.cards])
+        )
 
     def score(self):
         aces = len([c for c in self.cards if int(c) == 1])
@@ -60,12 +62,16 @@ class Deck:
 
 def fold_embed(cards: Deck, dealer: Deck):
     embed = Embed()
-    embed.add_field(name='You: {}'.format(cards.score()), value=str(cards))
-    embed.add_field(name='Dealer: {}'.format(dealer.score()), value=str(dealer))
+    embed.add_field(name="You: {}".format(cards.score()), value=str(cards))
+    embed.add_field(name="Dealer: {}".format(dealer.score()), value=str(dealer))
     if dealer.score() > 21:
-        embed.set_footer(text='You win! With {} points less'.format(dealer.score() - cards.score()))
+        embed.set_footer(
+            text="You win! With {} points less".format(dealer.score() - cards.score())
+        )
     else:
-        embed.set_footer(text='You lost! With {} points more'.format(dealer.score() - cards.score()))
+        embed.set_footer(
+            text="You lost! With {} points more".format(dealer.score() - cards.score())
+        )
     return embed
 
 
@@ -94,17 +100,30 @@ class BlackjackGame:
     def as_embed(self):
         embed = Embed()
         embed.set_author(
-            name='Blackjack {} ({})'.format(self.player.display_name, 'lost' if self.game_over else 'playing'),
-            url=self.player.avatar_url)
+            name="Blackjack {} ({})".format(
+                self.player.display_name, "lost" if self.game_over else "playing"
+            ),
+            url=self.player.avatar_url,
+        )
         if self.game_over:
-            embed.add_field(name='Last card drawn', value=str(self.cards_in_play.last()))
+            embed.add_field(
+                name="Last card drawn", value=str(self.cards_in_play.last())
+            )
             embed.set_footer(
-                text='{} points in your hand. You failed to stay under 21'.format(self.cards_in_play.score()))
+                text="{} points in your hand. You failed to stay under 21".format(
+                    self.cards_in_play.score()
+                )
+            )
         else:
-            embed.add_field(name='Cards on the table', value=str(self.cards_in_play))
-            embed.set_footer(text='{} points in your hand. Draw or fold please'.format(self.cards_in_play.score()))
+            embed.add_field(name="Cards on the table", value=str(self.cards_in_play))
+            embed.set_footer(
+                text="{} points in your hand. Draw or fold please".format(
+                    self.cards_in_play.score()
+                )
+            )
         return embed
 
     def __str__(self):
-        return 'Blackjack with {}\nThese cards are on the table: {}'.format(self.player.display_name,
-                                                                            self.cards_in_play)
+        return "Blackjack with {}\nThese cards are on the table: {}".format(
+            self.player.display_name, self.cards_in_play
+        )

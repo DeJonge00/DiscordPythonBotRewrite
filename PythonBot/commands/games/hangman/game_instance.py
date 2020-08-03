@@ -33,7 +33,7 @@ class HangmanInstance:
         # Right guess
         if l not in self.guesses:
             self.guesses.append(l)
-        for x in self.word.lower().translate(str.maketrans('', '', string.punctuation)):
+        for x in self.word.lower().translate(str.maketrans("", "", string.punctuation)):
             if (x.isalpha()) and (x not in self.guesses):
                 return RIGHT
         return WIN
@@ -53,7 +53,9 @@ class HangmanInstance:
     def get_loss_embed(self, author_name: str):
         embed = Embed(colour=EMBED_COLOR)
         if self.faults >= 6:
-            embed.add_field(name="YOU DIED", value="Better luck next time!", inline=False)
+            embed.add_field(
+                name="YOU DIED", value="Better luck next time!", inline=False
+            )
             embed.set_thumbnail(url="http://i.imgur.com/1IXbcNb.png")
             embed.add_field(name="The sentence", value=self.word)
             return embed
@@ -72,13 +74,19 @@ class HangmanInstance:
 
         embed.add_field(name="Guessed so far", value=str(self), inline=False)
         if len(self.wrong_guesses) > 0:
-            embed.add_field(name="Letters guessed wrong", value=" ".join(self.wrong_guesses))
+            embed.add_field(
+                name="Letters guessed wrong", value=" ".join(self.wrong_guesses)
+            )
         embed.add_field(name="Faults", value=str(self.faults) + "/6")
         return embed
 
     def get_win_embed(self, author_name: str):
         embed = Embed(colour=EMBED_COLOR)
-        embed.add_field(name="Congratulations on winning", value=author_name, inline=False)
-        embed.set_thumbnail(url="http://nobacks.com/wp-content/uploads/2014/11/Golden-Star-3-500x500.png")
+        embed.add_field(
+            name="Congratulations on winning", value=author_name, inline=False
+        )
+        embed.set_thumbnail(
+            url="http://nobacks.com/wp-content/uploads/2014/11/Golden-Star-3-500x500.png"
+        )
         embed.add_field(name="The sentence was indeed", value=self.word)
         return embed
