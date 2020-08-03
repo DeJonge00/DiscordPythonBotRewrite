@@ -66,7 +66,6 @@ class AdminCommands(Cog):
                 remove(name)
             except Exception as e:
                 print(e)
-                pass
 
     @commands.command(
         name="serverlist",
