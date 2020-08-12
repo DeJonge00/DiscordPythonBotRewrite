@@ -260,11 +260,17 @@ async def react_with_action(
                         new_name = message.content.partition(" ")[2].partition(" ")[2]
                         await change_nickname_with(pre_command, message, new_name)
                         return {ACTION: True}
+                    if message.content.split(" ")[0] == "i" and message.content.split(" ")[1] == "am":
+                        new_name = message.content.partition(' ')[2].partition(' ')[2]
+                        if len(new_name) <= 32:
+                            await change_nickname_with(pre_command, message, new_name)
+                            return {ACTION: True}
                 if len(message.content.split(" ")) > 1:
                     if message.content.split(" ")[0] in ["i'm", "im"]:
                         new_name = message.content.partition(" ")[2]
-                        await change_nickname_with(pre_command, message, new_name)
-                        return {ACTION: True}
+                        if len(new_name) <= 32:
+                            await change_nickname_with(pre_command, message, new_name)
+                            return {ACTION: True}
             except Forbidden:
                 pass
 

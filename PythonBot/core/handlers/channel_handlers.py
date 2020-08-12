@@ -1,6 +1,6 @@
 import logging
 
-from discord import Member, VoiceChannel, VoiceState, Forbidden
+from discord import Member, VoiceChannel, VoiceState, Forbidden, HTTPException
 
 from database.general.auto_voice_channel import (
     get_joiner_channels,
@@ -34,12 +34,21 @@ async def check_vc(vc: VoiceChannel):
 
 async def auto_channel(member: Member, before: VoiceState, after: VoiceState):
     if after.channel and after.channel.id in get_joiner_channels(member.guild.id):
-        new_vc = await new_voice_channel(after.channel)
+        try:
+            new_vc = await new_voice_channel(after.channel)
+        except Forbidden:
+            await member.send(content="I lack the permissions to do that")
+            return
+        except HTTPException:
+            await member.send(content="I could not create a new channel, perhaps the limit has been reached?")
+            return
         set_created_channel(member.guild.id, new_vc.id)
         try:
             await member.move_to(new_vc)
         except Forbidden:
-            pass
+            await member.send("I do not have the permissions to move you")
+            await check_vc(new_vc)
+        return
     if before.channel and before.channel.id in get_created_channels(member.guild.id):
         await check_vc(before.channel)
 
