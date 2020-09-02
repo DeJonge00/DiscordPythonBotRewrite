@@ -9,8 +9,11 @@ from core import logging as log
 from database.general import banned_commands, welcome, member_counter
 from config.running_options import LOG_LEVEL
 
-logging.basicConfig(filename='logs/utils.log', level=LOG_LEVEL,
-                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
+logging.basicConfig(
+    filename="logs/utils.log",
+    level=LOG_LEVEL,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
 
 REMOVE_JOIN_MESSAGE = False
 REMOVE_LEAVE_MESSAGE = False
@@ -18,19 +21,19 @@ REMOVE_LEAVE_MESSAGE = False
 
 def get_cogs():
     return [
-        'commands.admin',
-        'commands.basic',
-        'commands.config',
-        'commands.image',
-        'commands.lookup',
-        'commands.misc',
-        'commands.mod',
-        'commands.games.games',
-        'commands.games.hangman.commands',
-        'commands.games.minesweeper.commands',
-        'commands.games.trivia.commands',
-        'commands.games.blackjack.commands',
-        'core.listeners'
+        "commands.admin",
+        "commands.basic",
+        "commands.config",
+        "commands.image",
+        "commands.lookup",
+        "commands.misc",
+        "commands.mod",
+        "commands.games.games",
+        "commands.games.hangman.commands",
+        "commands.games.minesweeper.commands",
+        "commands.games.trivia.commands",
+        "commands.games.blackjack.commands",
+        "core.listeners",
     ]
 
 
@@ -44,7 +47,7 @@ def prep_str(s):
     :param s: The text
     :return: filtered text
     """
-    return ''.join([l for l in s if re.match('[a-zA-Z0-9]', l)])
+    return "".join([l for l in s if re.match("[a-zA-Z0-9]", l)])
 
 
 def command_allowed_in(location_type: str, identifier: int, command_name: str):
@@ -55,32 +58,43 @@ def command_allowed_in(location_type: str, identifier: int, command_name: str):
     :param command_name: the name of the command issued
     :return: A boolean stating the command is allowed (True) or banned here (False)
     """
-    return command_name == 'togglecommand' or not (
-            banned_commands.get_banned_command(location_type, identifier, command_name)
-            or banned_commands.get_banned_command(location_type, identifier, 'all'))
+    return command_name == "togglecommand" or not (
+        banned_commands.get_banned_command(location_type, identifier, command_name)
+        or banned_commands.get_banned_command(location_type, identifier, "all")
+    )
 
 
 def command_allowed_in_server(server_id: int, command_name: str):
-    split = command_name.split(' ')
-    return command_allowed_in('server', server_id, command_name) and (
-            len(split) <= 1 or command_allowed_in('server', server_id, split[0]))
+    split = command_name.split(" ")
+    return command_allowed_in("server", server_id, command_name) and (
+        len(split) <= 1 or command_allowed_in("server", server_id, split[0])
+    )
 
 
 def command_allowed_in_channel(channel_id: int, command_name: str):
-    split = command_name.split(' ')
-    return command_allowed_in('channel', channel_id, command_name) and (
-            len(split) <= 1 or command_allowed_in('channel', channel_id, split[0]))
+    split = command_name.split(" ")
+    return command_allowed_in("channel", channel_id, command_name) and (
+        len(split) <= 1 or command_allowed_in("channel", channel_id, split[0])
+    )
 
 
-async def on_member_message(guild: Guild, member: Member, func_name, text, do_log=True) -> bool:
+async def on_member_message(
+    guild: Guild, member: Member, func_name, text, do_log=True
+) -> bool:
     if do_log:
-        log.announcement(guild_name=guild.name, announcement_text='Member {} just {}'.format(member, text))
+        log.announcement(
+            guild_name=guild.name,
+            announcement_text="Member {} just {}".format(member, text),
+        )
     channel, mes = welcome.get_message(func_name, guild.id)
     if not channel or not mes:
         return False
     embed = Embed(colour=WELCOME_EMBED_COLOR)
-    embed.add_field(name="User {}!".format(text), value=prep_str_for_print(mes.format(member.mention)))
-    embed.set_footer(text='Display name: ' + prep_str_for_print(member.display_name))
+    embed.add_field(
+        name="User {}!".format(text),
+        value=prep_str_for_print(mes.format(member.mention)),
+    )
+    embed.set_footer(text="Display name: " + prep_str_for_print(member.display_name))
     channel = guild.get_channel(channel)
     if not channel:
         return False
@@ -101,20 +115,23 @@ async def update_member_counter(guild: Guild):
     if not channel:
         member_counter.delete_member_counter_channel(guild.id)
         return
-    await channel.edit(name=member_counter_message.format(guild.member_count), reason='User left/joined')
+    await channel.edit(
+        name=member_counter_message.format(guild.member_count),
+        reason="User left/joined",
+    )
 
 
 def shorten_number(n: int):
     if n > 1000000000000000000:
-        return '{}T'.format(int(n / 1000000000000000))
+        return "{}T".format(int(n / 1000000000000000))
     if n > 1000000000000000:
-        return '{0:.3f}T'.format(n / 1000000000000000)[:6]
+        return "{0:.3f}T".format(n / 1000000000000000)[:6]
     if n > 1000000000000:
-        return '{0:.3f}T'.format(n / 1000000000000)[:6]
+        return "{0:.3f}T".format(n / 1000000000000)[:6]
     if n > 1000000000:
-        return '{0:.3f}G'.format(n/1000000000)[:6]
+        return "{0:.3f}G".format(n / 1000000000)[:6]
     if n > 1000000:
-        return '{0:.3f}M'.format(n/1000000)[:6]
+        return "{0:.3f}M".format(n / 1000000)[:6]
     if n > 1000:
-        return '{0:.3f}K'.format(n / 1000)
-    return str(n)
+        return "{0:.3f}K".format(n / 1000)
+    return n

@@ -7,7 +7,7 @@ from core.bot import PythonBot
 EMPTY = 0
 PLAYER1 = 1
 PLAYER2 = 2
-ROW_NUMS = {'1️⃣': 1, '2️⃣': 2, '3️⃣': 3, '4️⃣': 4, '5️⃣': 5, '6️⃣': 6, '7️⃣': 7}
+ROW_NUMS = {"1️⃣": 1, "2️⃣": 2, "3️⃣": 3, "4️⃣": 4, "5️⃣": 5, "6️⃣": 6, "7️⃣": 7}
 
 C4_HEIGHT = 7
 C4_WIDTH = 7
@@ -16,10 +16,10 @@ WIN_LENGTH = 4
 
 def c4_convert(i: int) -> str:
     if i == PLAYER1:
-        return '🟥'
+        return "🟥"
     if i == PLAYER2:
-        return '🟨'
-    return '⬛'
+        return "🟨"
+    return "⬛"
 
 
 class ConnectFourGame:
@@ -60,7 +60,7 @@ class ConnectFourGame:
     def check_h(self):
         for h in range(C4_HEIGHT):
             for w in range(int(C4_WIDTH / 2) + 1):
-                a = self.board[h][w:w + WIN_LENGTH - 1]
+                a = self.board[h][w : w + WIN_LENGTH - 1]
                 if a.count(PLAYER1) == WIN_LENGTH or a.count(PLAYER2) == WIN_LENGTH:
                     return self.board[h][w]
         return EMPTY
@@ -90,17 +90,20 @@ class ConnectFourGame:
         r = self.check_h() or self.check_v() or self.check_d()
         if r == PLAYER1:
             self.running = False
-            return self.player1_name + ' has won!'
+            return self.player1_name + " has won!"
         if r == PLAYER2:
             self.running = False
-            return self.player2_name + ' has won!'
+            return self.player2_name + " has won!"
         if self.turn == PLAYER1:
-            return self.player1_name + '\'s turn'
-        return (self.player2_name if self.player2_name else 'Player 2') + '\'s turn'
+            return self.player1_name + "'s turn"
+        return (self.player2_name if self.player2_name else "Player 2") + "'s turn"
 
     def __str__(self):
-        return '\n'.join(
-            [' '.join([c4_convert(i) for i in r]) for r in self.board] + [' '.join(ROW_NUMS.keys())] + [self.check()])
+        return "\n".join(
+            [" ".join([c4_convert(i) for i in r]) for r in self.board]
+            + [" ".join(ROW_NUMS.keys())]
+            + [self.check()]
+        )
 
 
 class GamesCommands(Cog):
@@ -127,12 +130,16 @@ class GamesCommands(Cog):
             self.connect_four_games[server_id] = g
         return g
 
-    @commands.command(name='connectfour', help="Play a game of connect 4", aliases=['c4'])
+    @commands.command(
+        name="connectfour", help="Play a game of connect 4", aliases=["c4"]
+    )
     async def connectfour(self, ctx: Context, *args):
-        if not await self.bot.pre_command(message=ctx.message, channel=ctx.channel, command='connectfour'):
+        if not await self.bot.pre_command(
+            message=ctx.message, channel=ctx.channel, command="connectfour"
+        ):
             return
 
-        if len(args) > 0 and args[0] in ['reset', 'stop', 'quit']:
+        if len(args) > 0 and args[0] in ["reset", "stop", "quit"]:
             del self.connect_four_messages[ctx.guild.id]
             del self.connect_four_games[ctx.guild.id]
             return

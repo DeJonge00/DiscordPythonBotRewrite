@@ -16,18 +16,18 @@ qa = [
     "Not. Even. Close.",
     "Do not question the unquestionable",
     "All day, every day. Just don't involve me...",
-    'Only if you vote for me at https://discordbots.org/bot/244410964693221377 <3',
+    "Only if you vote for me at https://discordbots.org/bot/244410964693221377 <3",
     "With blackjack and hookers?",
-    'Yes, for the Emperor!',
-    'Through the multiverse, accross all timelines, yes.',
-    '*plays uno reverse card*',
+    "Yes, for the Emperor!",
+    "Through the multiverse, accross all timelines, yes.",
+    "*plays uno reverse card*",
     "I think I passed the Turing test",
     "Nonono, you are friends, not food",
     "Woah, it's alive!",
     "Are you not entertained?",
     "Life.. eh.. finds a way,"
     "You want the moon? Just say the word and I'll throw a lasso around it and pull it down",
-    "I'm not worthy"
+    "I'm not worthy",
 ]
 
 response = [
@@ -119,22 +119,22 @@ response = [
     "Sorry, it is time for a nap now",
     "I see your mom raised you well, for the most part",
     "It feels like fate, but we can't...",
-    '*sideeyes you*',
-    'pog',
-    'Do you like fishsticks?',
-    'The cake is a lie...',
-    'Only with time-travel can we recover',
-    'I have a small bonus, specially crafted for you',
-    '*wink wink*',
-    '*casts charm person*',
-    '*casts thunderstep*',
-    'That\'s a nat 1 on your Charisma roll XD',
-    'Shhh, I think I may be transforming into a dragon',
-    'What an odd username :thinking:',
-    'You have yeed your last haw',
-    'I have become death, destroyer of worlds!'
-    'Awwwwn',
-    'ATTENTION *please*',
+    "*sideeyes you*",
+    "pog",
+    "Do you like fishsticks?",
+    "The cake is a lie...",
+    "Only with time-travel can we recover",
+    "I have a small bonus, specially crafted for you",
+    "*wink wink*",
+    "*casts charm person*",
+    "*casts thunderstep*",
+    "That's a nat 1 on your Charisma roll XD",
+    "Shhh, I think I may be transforming into a dragon",
+    "What an odd username :thinking:",
+    "You have yeed your last haw",
+    "I have become death, destroyer of worlds!",
+    "Awwwwn",
+    "ATTENTION *please*",
     "You really are as smooth as they say",
     "Two halves of the same whole, reunited once again",
     "Level 6, here I come",
@@ -171,7 +171,7 @@ response = [
     "My precious!",
     "La di da, la di da",
     "I will take that as a compliment :heart:",
-    "Ha. ha. ha."
+    "Ha. ha. ha.",
 ]
 
 # random responses
@@ -198,7 +198,7 @@ compliments = [
     "Somehow {u[0]} makes time stop and fly at the same time",
     "I bet {u[0]} does the crossword puzzle in ink",
     "{u[0]} is even better than a unicorn, because {u[0]} is real",
-    'I would love {u[0]} if I were more than 1s and 0s'
+    "I would love {u[0]} if I were more than 1s and 0s",
 ]
 
 ded = [
@@ -218,30 +218,30 @@ ded = [
     "Fun fact #318: People die when they are killed",
     "You should go vote for me at https://discordbots.org/bot/244410964693221377 if you are bored :smile:",
     "What if I told you that you could start a conversation right now!",
-    "Tell me how your day was! Every. Single. Detail."
+    "Tell me how your day was! Every. Single. Detail.",
 ]
 
 purr = [
-    '*{0} purrs and wags tail*',
-    '*{0} purrs with sparkling eyes*',
-    '*{0} purrs loudly*',
-    '*{0}\'s purring noises intensify*',
-    '*{0} purrs excitedly*',
-    '*{0} smiles and purrs softly*'
+    "*{0} purrs and wags tail*",
+    "*{0} purrs with sparkling eyes*",
+    "*{0} purrs loudly*",
+    "*{0}'s purring noises intensify*",
+    "*{0} purrs excitedly*",
+    "*{0} smiles and purrs softly*",
 ]
 
 kisses = [
-    '*{u[0]} kisses {u[1]} softly on the cheeks*',
-    '*{u[1]} gets a surprise kiss from {u[0]}*',
+    "*{u[0]} kisses {u[1]} softly on the cheeks*",
+    "*{u[1]} gets a surprise kiss from {u[0]}*",
     "*{u[0]} blows {u[1]} a sweet pink kiss*",
-    '*{u[0]} lewdly kisses {u[1]}*',
-    '*{u[0]} shares a secret kiss with {u[1]}*',
-    '*{u[1]} gets smooched by {u[0]}*'
+    "*{u[0]} lewdly kisses {u[1]}*",
+    "*{u[0]} shares a secret kiss with {u[1]}*",
+    "*{u[1]} gets smooched by {u[0]}*",
 ]
 
 faces = [
     "(づ◔ ͜ʖ◔)づ",
-    "ヾ(๑╹◡╹)ﾉ\"",
+    'ヾ(๑╹◡╹)ﾉ"',
     "(:point_up:︎ ՞ਊ ՞):point_up:︎",
     "(๑･̑◡･̑๑)",
     ":v:︎('ω'):v:︎",
@@ -261,7 +261,7 @@ faces = [
     "(⋗_⋖)",
     "(◔/‿\◔)",
     "ˁ(OᴥO)ˀ",
-    "( ͜。 ͡ʖ ͜。)"
+    "( ͜。 ͡ʖ ͜。)",
 ]
 
 hangmanwords = [
@@ -307,7 +307,7 @@ hangmanwords = [
     "We were born to make history",
     "I rate it a perfect five out of seven",
     "And they lived happily ever after",
-    "All work and no play makes Jack a dull boy"
+    "All work and no play makes Jack a dull boy",
 ]
 
 hug = [
@@ -316,7 +316,7 @@ hug = [
     "*{u[0]} transforms into a pillow and hugs {u[1]}*",
     "*{u[0]} executes realBigHug.exe on {u[1]}*",
     "*{u[0]} immediately ceases doing important stuff to hug {u[1]}*",
-    "*{u[0]} said: \"Let there be hugs\", and {u[1]} got hugs*",
+    '*{u[0]} said: "Let there be hugs", and {u[1]} got hugs*',
     "*{u[0]}-chan hug hug {u[1]}*",
     "*{u[0]} stops fapping to kpop for a hug with {u[1]}*",
     "*{u[0]} fabulously flies in for a hug with {u[1]}*",
@@ -324,12 +324,12 @@ hug = [
     "*{u[0]} stabs a lot of people to be the only one to hug {u[1]}*",
     "*{u[0]} morphs into a hugmonster and attacks {u[1]}*",
     "*{u[0]} uses a love power-up to hug {u[1]}*",
-    "*{u[0]} used special move \"HUG\" on {u[1]}*",
+    '*{u[0]} used special move "HUG" on {u[1]}*',
     "*{u[0]} orders a hug-airstrike on {u[1]}*",
     "*{u[1]} sprung {u[0]}'s hugtrap*",
     "*{u[0]} finished the moment with a super cute hug for {u[1]}*",
     "*{u[0]} has some cuddle-time with {u[1]}*",
-    "*{u[0]} hugs {u[1]} lovingly*"
+    "*{u[0]} hugs {u[1]} lovingly*",
 ]
 
 kill = [
@@ -355,20 +355,20 @@ kill = [
     "{u[0]}, Imma tie your limbs with a rope so tight, they will die and fall off",
     "{u[0]}, Imma insert superglue in every hole on your body I can find",
     "{u[0]}, Imma cut your leg off, take out the bone and sharpen it into a knife to slit your throat",
-    "{u[0]}, Imma hang you by your balls from the ceiling fan and use you as a pinata"
+    "{u[0]}, Imma hang you by your balls from the ceiling fan and use you as a pinata",
 ]
 
 lewd = [
     "{u[0]} rubs {u[1]}'s exposed belly",
     "{u[1]} gets a nice suprise from {u[0]}: *buttsex*",
     "{u[0]} stares like never before at {u[1]}'s chest",
-    "{u[0]} is fapping to \"Boku no {u[1]}\"",
+    '{u[0]} is fapping to "Boku no {u[1]}"',
     "{u[1]} SEND NUDES TO {u[0]}!!",
     "{u[1]} was abducted by aliens to be probed on video",
     "{u[1]} was abducted by {u[0]} and some candy",
     "{u[0]} adds {u[0]} to the harem using a van and icecream",
     "{u[0]} reads some lewd fanfiction about {u[1]}",
-    "All {u[0]}'s lolis are cuddling {u[1]} to death!!"
+    "All {u[0]}'s lolis are cuddling {u[1]} to death!!",
 ]
 
 quotes_40k = [
@@ -415,7 +415,7 @@ quotes_40k = [
     "None who live can survive the flame",
     "By fire be purged!",
     "Let fury guide your weapons, let vengeance be your song!",
-    "Feel the might of the chapter's finest!"
+    "Feel the might of the chapter's finest!",
 ]
 
 spell = [
@@ -437,7 +437,7 @@ spell = [
     "Steal Soul",
     "Wind of Death",
     "Doom and Darkness",
-    "Hyperbeam"
+    "Hyperbeam",
 ]
 
 spellresult = [
@@ -450,5 +450,5 @@ spellresult = [
     "It misfired!",
     "It missed it's target!",
     "The target was immune!",
-    "It was not very effective!"
+    "It was not very effective!",
 ]

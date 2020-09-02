@@ -6,7 +6,10 @@ services:
     volumes:
       - ./PythonBot:/usr/src/PythonBot
     restart: unless-stopped
-
+    logging:
+      options:
+        max-size: "200m"
+        max-file: "20"
 
   pythonbot_api:
     build:
@@ -17,14 +20,22 @@ services:
       - 5000:5000
     entrypoint: python -u run_api.py
     restart: unless-stopped
+    logging:
+      options:
+        max-size: "200m"
+        max-file: "20"
 
   mongodb:
-    image: mongo:latest
+    image: mongo:4.2
     env_file:
       - .env
     volumes:
       - mongo_data:/data/db
     restart: unless-stopped
+    logging:
+      options:
+        max-size: "200m"
+        max-file: "20"
 
 volumes:
   mongo_data:

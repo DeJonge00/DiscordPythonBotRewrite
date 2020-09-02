@@ -29,9 +29,9 @@ class VoiceState:
         e = Embed()
         q = self.get_queue()
         if not len(q):
-            return 'The queue is empty'
-        v = '\n'.join([str(s) for s in self.queue])
-        e.add_field(name='Queue', value=v)
+            return "The queue is empty"
+        v = "\n".join([str(s) for s in self.queue])
+        e.add_field(name="Queue", value=v)
         return e
 
     def get_queue(self):
@@ -62,7 +62,7 @@ class VoiceState:
         :return: The song that was removed
         """
         q = self.get_queue()
-        self.queue = q[:nr] + q[nr + 1:]
+        self.queue = q[:nr] + q[nr + 1 :]
         return q[nr]
 
     def delete_current(self):
@@ -73,9 +73,9 @@ class VoiceState:
         if self.current and path.exists(self.current.file_name):
             try:
                 remove(self.current.file_name)
-                print('Deleted', self.current.file_name)
+                print("Deleted", self.current.file_name)
             except PermissionError:
-                print('Deletion failed: PermissionError')
+                print("Deletion failed: PermissionError")
 
     def finalize_song(self, error):
         """
@@ -83,7 +83,7 @@ class VoiceState:
         :param error: A potential error that was thrown while playing a song
         """
         if error:
-            log.announcement(self.guild_name, 'Error: ' + str(error))
+            log.announcement(self.guild_name, "Error: " + str(error))
         self.play_next(song=self.current) if self.repeat else self.play_next()
 
     def play_next(self, song: Song = None):

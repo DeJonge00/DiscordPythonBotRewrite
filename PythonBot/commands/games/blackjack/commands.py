@@ -8,8 +8,11 @@ from commands.games.blackjack.game_instance import BlackjackGame, GAME_OVER, PLA
 from core.bot import PythonBot
 from config.running_options import LOG_LEVEL
 
-logging.basicConfig(filename='logs/blackjack.log', level=LOG_LEVEL,
-                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
+logging.basicConfig(
+    filename="logs/blackjack.log",
+    level=LOG_LEVEL,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
 
 
 class Blackjack(Cog):
@@ -29,7 +32,9 @@ class Blackjack(Cog):
         return game
 
     async def help(self, channel: TextChannel):
-        await self.bot.send_message(destination=channel, content="Choose 'draw' or 'fold")
+        await self.bot.send_message(
+            destination=channel, content="Choose 'draw' or 'fold"
+        )
 
     async def draw(self, channel: TextChannel, game: BlackjackGame):
         game.draw()
@@ -38,14 +43,14 @@ class Blackjack(Cog):
     async def fold(self, channel: TextChannel, game: BlackjackGame):
         await self.bot.send_message(destination=channel, embed=game.fold())
 
-    @commands.group(name='blackjack', help="Play a game of blackjack", aliases=["bj"])
+    @commands.group(name="blackjack", help="Play a game of blackjack", aliases=["bj"])
     async def blackjack(self, ctx: Context, *args):
         if len(args) > 0:
-            if args[0] in ['d', 'draw']:
+            if args[0] in ["d", "draw"]:
                 await self.draw(channel=ctx.channel, game=self.get_game(ctx.author))
                 return
 
-            if args[0] in ['f', 'fold', 's', 'stop']:
+            if args[0] in ["f", "fold", "s", "stop"]:
                 await self.fold(channel=ctx.channel, game=self.get_game(ctx.author))
                 return
         await self.help(ctx.channel)

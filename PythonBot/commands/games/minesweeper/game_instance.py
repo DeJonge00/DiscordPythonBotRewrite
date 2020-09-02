@@ -29,16 +29,36 @@ class MinesweeperInstance:
     @staticmethod
     def convert(c, game_state=PLAYING):
         if not game_state == PLAYING:
-            return '?' if c == UNGUESSED else 'M' if c == MINE else 'F' if c == FLAG else str(c)
-        return '?' if c in [UNGUESSED, MINE] else 'F' if c == FLAG else str(c)
+            return (
+                "?"
+                if c == UNGUESSED
+                else "M"
+                if c == MINE
+                else "F"
+                if c == FLAG
+                else str(c)
+            )
+        return "?" if c in [UNGUESSED, MINE] else "F" if c == FLAG else str(c)
 
     def __str__(self):
-        m = 'Congrats, you win!' if self.game_state == WIN else 'Sorry, you lost' if self.game_state == LOSS else ''
-        return m + '\n'.join(
-            [''.join([MinesweeperInstance.convert(y, self.game_state) for y in x]) for x in self.board])
+        m = (
+            "Congrats, you win!"
+            if self.game_state == WIN
+            else "Sorry, you lost"
+            if self.game_state == LOSS
+            else ""
+        )
+        return m + "\n".join(
+            [
+                "".join([MinesweeperInstance.convert(y, self.game_state) for y in x])
+                for x in self.board
+            ]
+        )
 
     def as_parameter_str(self):
-        return "Game initialized on a {}x{} board with {} mines, glhf".format(self.height, self.width, self.mines)
+        return "Game initialized on a {}x{} board with {} mines, glhf".format(
+            self.height, self.width, self.mines
+        )
 
     def get_mines_in_area(self, x: int, y: int):
         n = 0

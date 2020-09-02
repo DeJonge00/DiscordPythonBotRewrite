@@ -1,13 +1,13 @@
 import database.common as common
 
-RPG_DND_DATABASE = 'rpgdnd'
+RPG_DND_DATABASE = "rpgdnd"
 
-SOURCE_TABLE = 'sources'
-RACE_TABLE = 'playableraces'
-CLASS_TABLE = 'playableclasses'
-SUBRACE_TABLE = 'playablesubraces'
-SUBCLASS_TABLE = 'playablesubclasses'
-BACKGROUND_TABLE = 'backgrounds'
+SOURCE_TABLE = "sources"
+RACE_TABLE = "playableraces"
+CLASS_TABLE = "playableclasses"
+SUBRACE_TABLE = "playablesubraces"
+SUBCLASS_TABLE = "playablesubclasses"
+BACKGROUND_TABLE = "backgrounds"
 
 ASC = 1
 DESC = -1
@@ -33,6 +33,7 @@ def fill_database():
     from database.dnd.dndclass import fill_classes
     from database.dnd.dndsubclass import fill_subclasses
     from database.dnd.dndbackground import fill_backgrounds
+
     fill_sources()
     fill_races()
     fill_subraces()
@@ -42,31 +43,35 @@ def fill_database():
 
 
 def get_all(table: str, filter):
-    r = get_table(table).find_one(filter, {'_id': 0})
+    r = get_table(table).find_one(filter, {"_id": 0})
     return dict(r) if r else {}
 
 
 def get_all_by_name(table: str, name: str):
-    return get_all(table, {'name': name})
+    return get_all(table, {"name": name})
 
 
 def get_all_by_id(table: str, id: int):
-    return get_all(table, {'id': id})
+    return get_all(table, {"id": id})
 
 
 def get_highest_id(table):
-    return int(list(table.find({}, {'id': 1}).sort('id', DESC).limit(1))[0].get('id')) if id else 0
+    return (
+        int(list(table.find({}, {"id": 1}).sort("id", DESC).limit(1))[0].get("id"))
+        if id
+        else 0
+    )
 
 
 def create_all(table: str, options: dict):
     table = get_table(table)
     try:
-        id = options['id']
+        id = options["id"]
     except (TypeError, ValueError, KeyError):
         id = get_highest_id(table) + 1
-    table.update_one({'id': id}, {'$set': options}, upsert=True)
+    table.update_one({"id": id}, {"$set": options}, upsert=True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     reset_database()
     fill_database()
