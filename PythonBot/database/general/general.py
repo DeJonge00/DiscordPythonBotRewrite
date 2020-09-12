@@ -5,6 +5,7 @@ WELCOME_TABLE = "welcome"
 GOODBYE_TABLE = "goodbye"
 DO_NOT_DELETE_TABLE = "delete_comm"
 BANNED_COMMANDS_TABLE = "banned_comm"
+WHITELIST_TABLE = 'whitelists'
 PREFIX_TABLE = "prefix"
 SELF_ASSIGNABLE_ROLES_TABLE = "selfassignable"
 COMMAND_COUNTER_TABLE = "count_comm"
