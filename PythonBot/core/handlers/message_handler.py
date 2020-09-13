@@ -71,7 +71,7 @@ async def new_message(bot: PythonBot, message: Message):
     if answer.get(ACTION):
         return True
 
-    content = answer.get(TEXT) if is_private else None
+    content = answer.get(TEXT, None)
     embed = answer.get(EMBED) if is_private or perms.embed_links else None
     image = answer.get(IMAGE) if is_private or perms.attach_files else None
     if content or embed or image:
