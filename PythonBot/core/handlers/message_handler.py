@@ -71,7 +71,7 @@ async def new_message(bot: PythonBot, message: Message):
     if answer.get(ACTION):
         return True
 
-    content = answer.get(TEXT) if is_private or perms.manage_messages else None
+    content = answer.get(TEXT) if is_private else None
     embed = answer.get(EMBED) if is_private or perms.embed_links else None
     image = answer.get(IMAGE) if is_private or perms.attach_files else None
     if content or embed or image:
@@ -335,7 +335,7 @@ async def talk(
         ) and any(word in message.content.lower() for word in ["heart", "pls", "love"]):
             return {TEXT: ":heart:"}
 
-        if message.content[len(message.content) - 1] == "?":
+        if message.content[-1] == "?":
             return {TEXT: random.choice(command_text.qa)}
         return {TEXT: random.choice(command_text.response)}
     return {}
