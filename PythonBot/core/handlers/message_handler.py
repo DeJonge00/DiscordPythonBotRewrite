@@ -18,6 +18,7 @@ from database.general.starboard import (
     get_star_message,
     update_star_message,
 )
+from database.general.banned_commands import is_whitelisted
 
 logging.basicConfig(
     filename="logs/message_handlers.log",
@@ -70,7 +71,7 @@ async def new_message(bot: PythonBot, message: Message):
     if answer.get(ACTION):
         return True
 
-    content = answer.get(TEXT) if is_private or perms.manage_messages else None
+    content = answer.get(TEXT, None)
     embed = answer.get(EMBED) if is_private or perms.embed_links else None
     image = answer.get(IMAGE) if is_private or perms.attach_files else None
     if content or embed or image:
@@ -94,7 +95,7 @@ async def react_with_text(
     :return: {TEXT: The text to respond with.} or {} if there is nothing to respond to.
     """
     if (
-        (is_private or guild_id in constants.s_to_ringels_whitelist)
+        (is_private or is_whitelisted('s_to_ringel_s', guild_id))
         and author_id == constants.POLYid
         and "s" in message.content
         and await pre_command(
@@ -247,38 +248,37 @@ async def react_with_action(
     """
     # Change nickname
     if (
-        guild_id in constants.auto_name_change_whitelist
+        is_whitelisted('nickname_auto_change', guild_id)
         and message.author.permissions_in(message.channel).change_nickname
     ):
-        if guild_id in constants.auto_name_change_whitelist:
-            try:
-                if len(message.content.split(" ")) > 2:
-                    if (
-                        message.content.split(" ")[0] == "i",
-                        message.content.split(" ")[1],
-                    ) == ("i", "am"):
-                        new_name = message.content.partition(" ")[2].partition(" ")[2]
+        try:
+            if len(message.content.split(" ")) > 2:
+                if (
+                    message.content.split(" ")[0] == "i",
+                    message.content.split(" ")[1],
+                ) == ("i", "am"):
+                    new_name = message.content.partition(" ")[2].partition(" ")[2]
+                    await change_nickname_with(pre_command, message, new_name)
+                    return {ACTION: True}
+                if message.content.split(" ")[0] == "i" and message.content.split(" ")[1] == "am":
+                    new_name = message.content.partition(' ')[2].partition(' ')[2]
+                    if len(new_name) <= 32:
                         await change_nickname_with(pre_command, message, new_name)
                         return {ACTION: True}
-                    if message.content.split(" ")[0] == "i" and message.content.split(" ")[1] == "am":
-                        new_name = message.content.partition(' ')[2].partition(' ')[2]
-                        if len(new_name) <= 32:
-                            await change_nickname_with(pre_command, message, new_name)
-                            return {ACTION: True}
-                if len(message.content.split(" ")) > 1:
-                    if message.content.split(" ")[0] in ["i'm", "im"]:
-                        new_name = message.content.partition(" ")[2]
-                        if len(new_name) <= 32:
-                            await change_nickname_with(pre_command, message, new_name)
-                            return {ACTION: True}
-            except Forbidden:
-                pass
+            if len(message.content.split(" ")) > 1:
+                if message.content.split(" ")[0] in ["i'm", "im"]:
+                    new_name = message.content.partition(" ")[2]
+                    if len(new_name) <= 32:
+                        await change_nickname_with(pre_command, message, new_name)
+                        return {ACTION: True}
+        except Forbidden:
+            pass
 
-    # Add reacion
+    # Add reaction
     if (
         message.author.id
         in [constants.KAPPAid, constants.RAZid, constants.POLYid, constants.NYAid]
-        and message.guild.id in constants.owo_uumuu_whitelist
+        and is_whitelisted('uumuu_reaction', message.guild.id)
         and message.content.lower() in ["owo", "uwu", "umu"]
     ):
         if await pre_command(
@@ -335,7 +335,7 @@ async def talk(
         ) and any(word in message.content.lower() for word in ["heart", "pls", "love"]):
             return {TEXT: ":heart:"}
 
-        if message.content[len(message.content) - 1] == "?":
+        if message.content[-1] == "?":
             return {TEXT: random.choice(command_text.qa)}
         return {TEXT: random.choice(command_text.response)}
     return {}

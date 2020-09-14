@@ -57,12 +57,12 @@ ytdl_options = dict(
 
 ytdl_before = "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5"
 
-# Whitelists
-s_to_ringels_whitelist = [PRIVATESERVERid]
-auto_name_change_whitelist = [PRIVATESERVERid]
-nickname_change_whitelist = [PRIVATESERVERid]
-image_spam_protection_removal = []
-owo_uumuu_whitelist = [PRIVATESERVERid]
+whitelists = [
+    'image_spam_protection',
+    'nickname_auto_change',
+    's_to_ringel_s',
+    'uumuu_reaction'
+]
 
 # Blacklists
 sponge_capitalization_blacklist = bot_list_servers

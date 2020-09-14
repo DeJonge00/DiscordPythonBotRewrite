@@ -5,12 +5,13 @@ from discord import Member, TextChannel, PermissionOverwrite, Forbidden, Guild, 
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
-from config.constants import TEXT, KICK_REASON, member_counter_message
+from config.constants import TEXT, KICK_REASON, member_counter_message, whitelists
 from config.running_options import LOG_LEVEL
 from core.bot import PythonBot
 from core.utils import prep_str
 from database.general import self_assignable_roles
 from database.general.auto_voice_channel import set_joiner_channel
+from database.general.banned_commands import toggle_whitelist
 from database.general.general import WELCOME_TABLE, GOODBYE_TABLE
 from database.general.member_counter import (
     set_member_counter_channel,
@@ -378,6 +379,28 @@ class ModCommands(Cog):
         await self.bot.send_message(
             ctx.channel, "Role {} is now {}self-assignable".format(role.name, r)
         )
+
+    @commands.command(
+        name="whitelist",
+        help="Toggles a role to be self-assignable or not",
+        aliases=["togglewhitelist", "twl", "tw"],
+    )
+    async def whitelist(self, ctx: Context, *args):
+        if not await self.bot.pre_command(
+            message=ctx.message,
+            channel=ctx.channel,
+            command="whitelist",
+            perm_needed=["manage_guild", "administrator"],
+        ):
+            return
+
+        if not args or args[0].lower() not in whitelists:
+            m = "The following commands can be whitelisted:\n`{}`".format('`\n`'.join(whitelists))
+            await self.bot.send_message(destination=ctx.channel, content=m)
+            return
+        v = toggle_whitelist(command=args[0].lower(), server_id=ctx.guild.id)
+        m = "The command '{}' is now {} in this guild".format(args[0].lower(), 'enabled' if v else 'disabled')
+        await self.bot.send_message(destination=ctx.channel, content=m)
 
 
 def setup(bot):

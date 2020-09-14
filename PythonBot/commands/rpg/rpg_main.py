@@ -1421,22 +1421,24 @@ class RPGGame(commands.Cog):
 
         for i in range(len(players)):
             name, player_score = players[i]
-            player_score = shorten_number(player_score)
+            player_score_text = shorten_number(player_score)
             rank = page * users_per_page + i + 1
             if group == "money":
                 result += "Rank {}:\n\t**{}**, {}{}\n".format(
-                    rank, name, rpggameactivities.money_sign, player_score
+                    rank, name, rpggameactivities.money_sign, player_score_text
                 )
             elif group == "bosstier":
                 result += "Rank {}:\n\t**{}**, tier {}\n".format(
-                    rank, name, player_score
+                    rank, name, player_score_text
                 )
             elif group in ["critical", "weaponskill", "damage", "maxhealth"]:
-                result += "Rank {}:\n\t**{}**, {}\n".format(rank, name, player_score)
+                result += "Rank {}:\n\t**{}**, {}\n".format(rank, name, player_score_text)
             else:
                 result += "Rank {}:\n\t**{}**, {}xp (L{})\n".format(
-                    rank, name, player_score, RPGPlayer.get_level_by_exp(player_score)
+                    rank, name, player_score_text, RPGPlayer.get_level_by_exp(player_score)
                 )
+        if result == "":
+            return None
         embed.add_field(name="Ranks and names", value=result)
         return embed
 
@@ -1452,6 +1454,8 @@ class RPGGame(commands.Cog):
                     await reaction.remove(m)
             try:
                 embed = self.top_board(page, group)
+                if not embed:
+                    return
                 await self.bot.edit_message(reaction.message, embed=embed)
                 self.top_lists[reaction.message.guild.id] = (
                     reaction.message.id,
@@ -1490,12 +1494,11 @@ class RPGGame(commands.Cog):
             n = 0
             group = "exp"
 
-        try:
-            embed = self.top_board(page=n, group=group)
-        except ValueError as e:
+        embed = self.top_board(page=n, group=group)
+        if not embed:
             await self.bot.send_message(
                 destination=ctx.channel,
-                content="There are only {} pages...".format(str(e)),
+                content="There aren't that many pages...",
             )
             return
         m = await self.bot.send_message(ctx.message.channel, embed=embed)

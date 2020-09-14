@@ -11,11 +11,11 @@ from discord.ext.commands import Cog, Context
 from config import image_links
 from config.constants import (
     IMAGE_COMMANDS_EMBED_COLOR as EMBED_COLOR,
-    image_spam_protection_removal,
     EMBED,
 )
 from core.bot import PythonBot
 from config.running_options import LOG_LEVEL
+from database.general.banned_commands import is_whitelisted
 
 logging.basicConfig(
     filename="logs/image_commands.log",
@@ -82,7 +82,7 @@ class ImageCommands(Cog):
         if pic_number:
             pic_number = int(pic_number)
 
-        if channel.guild.id not in image_spam_protection_removal:
+        if is_whitelisted(command='image_spam_protection', server_id=message.guild.id):
             if not self.image_timers.get(command):
                 self.image_timers[command] = {}
 
