@@ -82,7 +82,7 @@ class ImageCommands(Cog):
         if pic_number:
             pic_number = int(pic_number)
 
-        if is_whitelisted(command='image_spam_protection', server_id=message.guild.id):
+        if is_whitelisted(command="image_spam_protection", server_id=message.guild.id):
             if not self.image_timers.get(command):
                 self.image_timers[command] = {}
 

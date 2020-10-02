@@ -95,7 +95,7 @@ async def react_with_text(
     :return: {TEXT: The text to respond with.} or {} if there is nothing to respond to.
     """
     if (
-        (is_private or is_whitelisted('s_to_ringel_s', guild_id))
+        (is_private or is_whitelisted("s_to_ringel_s", guild_id))
         and author_id == constants.POLYid
         and "s" in message.content
         and await pre_command(
@@ -194,14 +194,14 @@ async def react_with_image(
     pre_command, message: Message, is_private: bool, guild_id: int
 ):
     """
-        React to a message with a file response.
-        :param pre_command: The command to execute before an action is taken.
-        :param message: The message to respond to.
-        :param is_private: Whether the channel the message was received in is a private channel.
-        :param guild_id: The id of the guild the message was send in (possible None if is_private).
-        :param author_id: The id of the author of the message.
-        :return: {IMAGE: The file to respond with.} or {} if there is nothing to respond to.
-        """
+    React to a message with a file response.
+    :param pre_command: The command to execute before an action is taken.
+    :param message: The message to respond to.
+    :param is_private: Whether the channel the message was received in is a private channel.
+    :param guild_id: The id of the guild the message was send in (possible None if is_private).
+    :param author_id: The id of the author of the message.
+    :return: {IMAGE: The file to respond with.} or {} if there is nothing to respond to.
+    """
     # TODO add or replace images
     if (
         (is_private or guild_id not in constants.praise_the_sun_blacklist)
@@ -248,7 +248,7 @@ async def react_with_action(
     """
     # Change nickname
     if (
-        is_whitelisted('nickname_auto_change', guild_id)
+        is_whitelisted("nickname_auto_change", guild_id)
         and message.author.permissions_in(message.channel).change_nickname
     ):
         try:
@@ -260,8 +260,11 @@ async def react_with_action(
                     new_name = message.content.partition(" ")[2].partition(" ")[2]
                     await change_nickname_with(pre_command, message, new_name)
                     return {ACTION: True}
-                if message.content.split(" ")[0] == "i" and message.content.split(" ")[1] == "am":
-                    new_name = message.content.partition(' ')[2].partition(' ')[2]
+                if (
+                    message.content.split(" ")[0] == "i"
+                    and message.content.split(" ")[1] == "am"
+                ):
+                    new_name = message.content.partition(" ")[2].partition(" ")[2]
                     if len(new_name) <= 32:
                         await change_nickname_with(pre_command, message, new_name)
                         return {ACTION: True}
@@ -278,7 +281,7 @@ async def react_with_action(
     if (
         message.author.id
         in [constants.KAPPAid, constants.RAZid, constants.POLYid, constants.NYAid]
-        and is_whitelisted('uumuu_reaction', message.guild.id)
+        and is_whitelisted("uumuu_reaction", message.guild.id)
         and message.content.lower() in ["owo", "uwu", "umu"]
     ):
         if await pre_command(

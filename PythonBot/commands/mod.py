@@ -395,11 +395,15 @@ class ModCommands(Cog):
             return
 
         if not args or args[0].lower() not in whitelists:
-            m = "The following commands can be whitelisted:\n`{}`".format('`\n`'.join(whitelists))
+            m = "The following commands can be whitelisted:\n`{}`".format(
+                "`\n`".join(whitelists)
+            )
             await self.bot.send_message(destination=ctx.channel, content=m)
             return
         v = toggle_whitelist(command=args[0].lower(), server_id=ctx.guild.id)
-        m = "The command '{}' is now {} in this guild".format(args[0].lower(), 'enabled' if v else 'disabled')
+        m = "The command '{}' is now {} in this guild".format(
+            args[0].lower(), "enabled" if v else "disabled"
+        )
         await self.bot.send_message(destination=ctx.channel, content=m)
 
 

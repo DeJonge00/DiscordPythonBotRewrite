@@ -1,7 +1,7 @@
 ---
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.2.3
+    rev: v3.2.0
     hooks:
       - id: check-merge-conflict
       - id: end-of-file-fixer
@@ -12,4 +12,4 @@ repos:
     rev: stable
     hooks:
       - id: black
-        language_version: python3.6
+        language_version: python3

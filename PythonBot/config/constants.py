@@ -58,10 +58,10 @@ ytdl_options = dict(
 ytdl_before = "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5"
 
 whitelists = [
-    'image_spam_protection',
-    'nickname_auto_change',
-    's_to_ringel_s',
-    'uumuu_reaction'
+    "image_spam_protection",
+    "nickname_auto_change",
+    "s_to_ringel_s",
+    "uumuu_reaction",
 ]
 
 # Blacklists
