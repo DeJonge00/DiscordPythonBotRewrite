@@ -30,12 +30,12 @@ class LookupCommands(Cog):
 
     @staticmethod
     def lookup(
-            query: str,
-            search_url: str,
-            search_for: str,
-            min_results: int,
-            skip_results: int,
-            result_url,
+        query: str,
+        search_url: str,
+        search_for: str,
+        min_results: int,
+        skip_results: int,
+        result_url,
     ):
         page = requests.get(search_url, {"q": query})
         if page.status_code != 200:
@@ -63,7 +63,7 @@ class LookupCommands(Cog):
     )
     async def anime(self, ctx: Context, *args):
         if not await self.bot.pre_command(
-                message=ctx.message, channel=ctx.channel, command="anime"
+            message=ctx.message, channel=ctx.channel, command="anime"
         ):
             return
         await self.am_lookup(ctx.channel, " ".join(args), "anime")
@@ -71,7 +71,7 @@ class LookupCommands(Cog):
     @commands.command(name="manga", help="Look up a manga!")
     async def manga(self, ctx: Context, *args):
         if not await self.bot.pre_command(
-                message=ctx.message, channel=ctx.channel, command="manga"
+            message=ctx.message, channel=ctx.channel, command="manga"
         ):
             return
         await self.am_lookup(ctx.channel, " ".join(args), "manga")
@@ -79,7 +79,7 @@ class LookupCommands(Cog):
     @commands.command(name="movie", help="Look up a movie!", aliases=["imdb"])
     async def movie(self, ctx: Context, *args):
         if not await self.bot.pre_command(
-                message=ctx.message, channel=ctx.channel, command="manga"
+            message=ctx.message, channel=ctx.channel, command="manga"
         ):
             return
         answer = self.lookup(
@@ -142,7 +142,7 @@ class LookupCommands(Cog):
     @commands.command(name="osu", help="Look up someones osu stats!")
     async def osu(self, ctx: Context, *args):
         if not await self.bot.pre_command(
-                message=ctx.message, channel=ctx.channel, command="osu"
+            message=ctx.message, channel=ctx.channel, command="osu"
         ):
             return
 
@@ -210,7 +210,7 @@ class LookupCommands(Cog):
     @commands.command(name="game", help="Look up a game!")
     async def game(self, ctx: Context, *args):
         if not await self.bot.pre_command(
-                message=ctx.message, channel=ctx.channel, command="game"
+            message=ctx.message, channel=ctx.channel, command="game"
         ):
             return
 
@@ -231,7 +231,7 @@ class LookupCommands(Cog):
     )
     async def nowplaying(self, ctx: Context, *args):
         if not await self.bot.pre_command(
-                message=ctx.message, channel=ctx.channel, command="nowplaying"
+            message=ctx.message, channel=ctx.channel, command="nowplaying"
         ):
             return
 
@@ -247,16 +247,18 @@ class LookupCommands(Cog):
 
         for a in user.activities:
             if isinstance(a, Spotify):
-                track_url = 'https://open.spotify.com/track/{}'.format(a.track_id)
+                track_url = "https://open.spotify.com/track/{}".format(a.track_id)
                 m = str("{} is now listening to {}".format(name, track_url))
             elif isinstance(a, Game):
                 m = "{} is now playing '{}'".format(name, a.name)
             elif isinstance(a, Streaming):
-                m = "{} is streaming '{}' on {}:\n{}".format(name, a.game, a.platform, a.url)
+                m = "{} is streaming '{}' on {}:\n{}".format(
+                    name, a.game, a.platform, a.url
+                )
             else:
                 m = "{} is now playing '{}'".format(name, a.name)
-                if a.assets and a.assets.get('large_text'):
-                    m += "\n{}".format(a.assets.get('large_text'))
+                if a.assets and a.assets.get("large_text"):
+                    m += "\n{}".format(a.assets.get("large_text"))
             await self.bot.send_message(destination=ctx.channel, content=m)
 
     @staticmethod
@@ -270,8 +272,8 @@ class LookupCommands(Cog):
             params = {"term": q}
             r = (
                 requests.get("http://api.urbandictionary.com/v0/define", params=params)
-                    .json()
-                    .get("list")
+                .json()
+                .get("list")
             )
             if len(r) <= 0:
                 embed.add_field(
@@ -308,7 +310,7 @@ class LookupCommands(Cog):
     )
     async def urban(self, ctx: Context, *args):
         if not await self.bot.pre_command(
-                message=ctx.message, channel=ctx.channel, command="urban"
+            message=ctx.message, channel=ctx.channel, command="urban"
         ):
             return
 
@@ -344,7 +346,7 @@ class LookupCommands(Cog):
     @commands.command(name="wikipedia", help="Search the wiki!", aliases=["wiki"])
     async def wikipedia(self, ctx, *args):
         if not await self.bot.pre_command(
-                message=ctx.message, channel=ctx.channel, command="wikipedia"
+            message=ctx.message, channel=ctx.channel, command="wikipedia"
         ):
             return
 
