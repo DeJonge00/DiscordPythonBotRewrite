@@ -273,7 +273,7 @@ class LookupCommands(Cog):
                     .json()
                     .get("list")
             )
-            if len(r) <= 0:
+            if not r or len(r) <= 0:
                 embed.add_field(
                     name="Definition",
                     value="I'm afraid there are no results for '{}'".format(q),
