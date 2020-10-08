@@ -232,7 +232,14 @@ class RPGGame(commands.Cog):
                                 )
                                 * attacker.get_damage(defender.get_element())
                             )
-                            battle_report.append((attacker, defender, damage, True,))
+                            battle_report.append(
+                                (
+                                    attacker,
+                                    defender,
+                                    damage,
+                                    True,
+                                )
+                            )
 
                         else:
                             damage = int(
@@ -241,7 +248,14 @@ class RPGGame(commands.Cog):
                                     * attacker.get_damage(defender.get_element())
                                 )
                             )
-                            battle_report.append((attacker, defender, damage, False,))
+                            battle_report.append(
+                                (
+                                    attacker,
+                                    defender,
+                                    damage,
+                                    False,
+                                )
+                            )
 
                         defender.add_health(
                             -1 * damage, death=not (battle_name == "Mockbattle")
@@ -1432,10 +1446,15 @@ class RPGGame(commands.Cog):
                     rank, name, player_score_text
                 )
             elif group in ["critical", "weaponskill", "damage", "maxhealth"]:
-                result += "Rank {}:\n\t**{}**, {}\n".format(rank, name, player_score_text)
+                result += "Rank {}:\n\t**{}**, {}\n".format(
+                    rank, name, player_score_text
+                )
             else:
                 result += "Rank {}:\n\t**{}**, {}xp (L{})\n".format(
-                    rank, name, player_score_text, RPGPlayer.get_level_by_exp(player_score)
+                    rank,
+                    name,
+                    player_score_text,
+                    RPGPlayer.get_level_by_exp(player_score),
                 )
         if result == "":
             return None

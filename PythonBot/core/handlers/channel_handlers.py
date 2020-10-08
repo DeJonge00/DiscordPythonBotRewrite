@@ -40,7 +40,9 @@ async def auto_channel(member: Member, before: VoiceState, after: VoiceState):
             await member.send(content="I lack the permissions to do that")
             return
         except HTTPException:
-            await member.send(content="I could not create a new channel, perhaps the limit has been reached?")
+            await member.send(
+                content="I could not create a new channel, perhaps the limit has been reached?"
+            )
             return
         set_created_channel(member.guild.id, new_vc.id)
         try:
