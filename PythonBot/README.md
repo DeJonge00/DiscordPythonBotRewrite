@@ -93,6 +93,7 @@ The commands marked with the __WIP__ tag have not been added to the rewritten ve
 |game           |`game` _`title`_                                       |Search for a description of the video game named _`title`_
 |manga          |`manga` _`title`_                                      |Search for the MAL entry of manga _`title`_
 |movie          |`movie,imdb` _`title`_                                 |Search for the IMDb entry of movie _`title`_
+|nowplaying     |`nowplaying,np,playing`                                |Mention what you are playing, links the song url when used while playing a song on Spotify
 |osu            |`osu` _`playername`_                                   |Search profile data for a popular rhythm game
 |urban       	|`urban,us,urbandictionary` _`query`_                   |Search urbandictionary for _`query`_
 |wikipedia   	|`wikipedia,wiki` _`query`_                             |Search wikipedia for _`query`_
