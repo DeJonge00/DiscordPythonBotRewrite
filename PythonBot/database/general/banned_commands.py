@@ -1,4 +1,9 @@
-from database.general.general import get_table, BANNED_COMMANDS_TABLE, WHITELIST_TABLE, SERVER_ID
+from database.general.general import (
+    get_table,
+    BANNED_COMMANDS_TABLE,
+    WHITELIST_TABLE,
+    SERVER_ID,
+)
 
 
 def get_banned_command(id_type: str, iden: int, command: str):
@@ -14,7 +19,7 @@ def toggle_banned_command(id_type: str, iden: int, command: str):
     return v
 
 
-COMMAND = 'command'
+COMMAND = "command"
 """
 {
     COMMAND: str,
@@ -24,7 +29,9 @@ COMMAND = 'command'
 
 
 def is_whitelisted(command: str, server_id: int):
-    return bool(get_table(WHITELIST_TABLE).find_one({COMMAND: command, SERVER_ID: server_id}))
+    return bool(
+        get_table(WHITELIST_TABLE).find_one({COMMAND: command, SERVER_ID: server_id})
+    )
 
 
 def toggle_whitelist(command: str, server_id: int):

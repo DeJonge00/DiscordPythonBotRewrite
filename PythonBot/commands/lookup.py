@@ -3,7 +3,7 @@ import re
 
 import requests
 import wikipedia
-from discord import TextChannel, Embed, Member
+from discord import TextChannel, Embed, Member, Spotify, Game, Streaming
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
@@ -13,8 +13,8 @@ from config.constants import (
     LOOKUP_COMMANDS_EMBED_COLOR as EMBED_COLOR,
     ERROR,
 )
-from core.bot import PythonBot
 from config.running_options import LOG_LEVEL
+from core.bot import PythonBot
 from secret.secrets import osu_api_key
 
 logging.basicConfig(
@@ -224,6 +224,43 @@ class LookupCommands(Cog):
             ctx.channel, content=answer.get(TEXT), embed=answer.get(EMBED)
         )
 
+    @commands.command(
+        pass_context=1,
+        help="Share the Spotify song you are listening to or game you are playing",
+        aliases=["playing", "np"],
+    )
+    async def nowplaying(self, ctx: Context, *args):
+        if not await self.bot.pre_command(
+            message=ctx.message, channel=ctx.channel, command="nowplaying"
+        ):
+            return
+
+        user = await self.bot.get_member_from_message(
+            ctx=ctx, args=args, in_text=True, errors={}
+        )
+
+        name = user.display_name
+        if len(user.activities) <= 0:
+            m = "{} is not doing anything :/".format(name)
+            await self.bot.send_message(destination=ctx.channel, content=m)
+            return
+
+        for a in user.activities:
+            if isinstance(a, Spotify):
+                track_url = "https://open.spotify.com/track/{}".format(a.track_id)
+                m = str("{} is now listening to {}".format(name, track_url))
+            elif isinstance(a, Game):
+                m = "{} is now playing '{}'".format(name, a.name)
+            elif isinstance(a, Streaming):
+                m = "{} is streaming '{}' on {}:\n{}".format(
+                    name, a.game, a.platform, a.url
+                )
+            else:
+                m = "{} is now playing '{}'".format(name, a.name)
+                if a.assets and a.assets.get("large_text"):
+                    m += "\n{}".format(a.assets.get("large_text"))
+            await self.bot.send_message(destination=ctx.channel, content=m)
+
     @staticmethod
     def command_urban(args: [str]):
         q = " ".join(args)
@@ -238,7 +275,7 @@ class LookupCommands(Cog):
                 .json()
                 .get("list")
             )
-            if len(r) <= 0:
+            if not r or len(r) <= 0:
                 embed.add_field(
                     name="Definition",
                     value="I'm afraid there are no results for '{}'".format(q),

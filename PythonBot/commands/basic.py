@@ -594,8 +594,8 @@ class BasicCommands(Cog):
 
         if limit:
             async for message in ctx.channel.history(limit=limit, before=ctx.message):
-                m = message
-            m = m.content.split()
+                m = message.content
+        m = m.split()
         c = '"{}"'.format(" ".join([BasicCommands.mockify(x) for x in m]))
         await self.bot.send_message(destination=ctx.channel, content=c)
 
