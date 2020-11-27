@@ -335,7 +335,7 @@ class BasicCommands(Cog):
         except AttributeError:
             # Search for emoji name in known emoji
             try:
-                group = [e for e in emoji_list if text in e.name]
+                group = [e for e in emoji_list if text.lower() in e.name.lower()]
                 e = await self.bot.ask_one_from_multiple(
                     ctx=ctx,
                     group=group,
@@ -367,7 +367,7 @@ class BasicCommands(Cog):
         if not emoji_id:
             return {TEXT: "Sorry, emoji not found..."}
         if small_emoji:
-            e = await self.bot.get_emoji(emoji_id)
+            e = self.bot.get_emoji(emoji_id)
             if e.available:
                 return {TEXT: "{}".format(e)}
 
