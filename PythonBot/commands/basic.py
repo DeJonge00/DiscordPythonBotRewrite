@@ -328,9 +328,24 @@ class BasicCommands(Cog):
             destination=ctx, content=answer.get(TEXT), embed=answer.get(EMBED)
         )
 
-    @staticmethod
-    def command_emoji(
-        args: [str], display_name: str, avatar_url: str, emoji_list: [Emoji]
+    async def get_emoji_id(self, text: str, ctx: Context, emoji_list: [Emoji]):
+        try:
+            # Emoji id was given
+            return int(re.match("\D*([0-9]{15,25})\D*", text).groups()[0])
+        except AttributeError:
+            # Search for emoji name in known emoji
+            try:
+                group = [e for e in emoji_list if text in e.name]
+                e = await self.bot.ask_one_from_multiple(
+                    ctx=ctx,
+                    group=group,
+                    print_format=lambda e: e if e.available else "{}".format(e.name))
+                return e.id
+            except (ValueError, AttributeError):
+                return
+
+    async def command_emoji(
+        self, ctx: Context, args: [str], display_name: str, avatar_url: str, emoji_list: [Emoji]
     ):
         # TODO Test gif emoji with nitro users
         """
@@ -343,20 +358,19 @@ class BasicCommands(Cog):
         """
         if len(args) <= 0:
             return {TEXT: "I NEED MORE ARGUMENTS"}
+        small_emoji = False
+        if args[0] in ['small', 's']:
+            small_emoji = True
+            args = args[1:]
 
-        text = " ".join(args)
-        try:
-            # Emoji id was given
-            emoji_id = re.match("\D*([0-9]{15,25})\D*", text).groups()[0]
-        except AttributeError:
-            # Search for emoji name in known emoji
-            for e in emoji_list:
-                if e.name in args:
-                    emoji_id = e.id
-                    break
-            else:
-                # No emoji was found
-                return {TEXT: "Sorry, emoji not found..."}
+        emoji_id = await self.get_emoji_id(text=" ".join(args), ctx=ctx, emoji_list=emoji_list)
+        if not emoji_id:
+            return {TEXT: "Sorry, emoji not found..."}
+        if small_emoji:
+            e = await self.bot.get_emoji(emoji_id)
+            if e.available:
+                return {TEXT: "{}".format(e)}
+
         ext = (
             "gif"
             if requests.get(
@@ -375,14 +389,15 @@ class BasicCommands(Cog):
     @commands.command(name="emoji", help="Make big emojis")
     async def emoji(self, ctx: Context, *args):
         if not await self.bot.pre_command(
-            message=ctx.message, channel=ctx.channel, command="emoji"
+                message=ctx.message, channel=ctx.channel, command="emoji"
         ):
             return
-        answer = BasicCommands.command_emoji(
-            args,
-            ctx.message.author.display_name,
-            ctx.message.author.avatar_url,
-            self.bot.emojis,
+        answer = await self.command_emoji(
+            ctx=ctx,
+            args=args,
+            display_name=ctx.message.author.display_name,
+            avatar_url=ctx.message.author.avatar_url,
+            emoji_list=self.bot.emojis,
         )
         await self.bot.send_message(
             ctx, content=answer.get(TEXT), embed=answer.get(EMBED)

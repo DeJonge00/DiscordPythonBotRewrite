@@ -49,7 +49,7 @@ class PythonBot(Bot):
     """ Helper functions """
 
     async def ask_one_from_multiple(
-        self, ctx: Context, group: list, question="", errors: dict = {}
+        self, ctx: Context, group: list, question="", errors: dict = {}, print_format=str
     ):
         """
         Ask a user to select one object from a list by name
@@ -59,16 +59,20 @@ class PythonBot(Bot):
         :param errors: The possible error messages
         :return:
         """
+        if not group:
+            return
+        if len(group) == 1:
+            return group[0]
         is_private = isinstance(ctx.channel, DMChannel)
 
         m = question
         for x in range(min(len(group), 10)):
-            m += "\n{}) {}".format(x + 1, str(group[x]))
+            m += "\n{}) {}".format(x + 1, print_format(group[x]))
         m = await self.send_message(ctx.channel, m)
 
         def check(message: Message):
             return (
-                message.author is ctx.message.author and message.channel is ctx.channel
+                message.author == ctx.message.author and message.channel == ctx.channel
             )
 
         r = await self.wait_for(event="message", timeout=60, check=check)
@@ -321,7 +325,10 @@ class PythonBot(Bot):
                 return await self.send_message(destination, content=m)
 
         # Send and log message
-        m = await destination.send(content=content, tts=tts, file=file, embed=embed)
+        try:
+            m = await destination.send(content=content, tts=tts, file=file, embed=embed)
+        except Exception as e:
+            print(repr(e))
         if content:
             log.message(m)
         if file:
