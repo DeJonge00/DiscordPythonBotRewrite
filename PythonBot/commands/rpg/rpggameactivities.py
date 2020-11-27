@@ -286,7 +286,7 @@ class RPGGameActivities(Cog):
             await self.bot.send_message(destination=ctx.channel, content=c)
             return
         if weapon is None:
-            c = "That is not an armor sold in this part of the country"
+            c = "That is not an weapon sold in this part of the country"
             await self.bot.send_message(destination=ctx.channel, content=c)
             return
         pw = player.weapon
