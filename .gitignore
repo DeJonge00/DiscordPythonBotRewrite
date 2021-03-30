@@ -259,3 +259,6 @@ PythonBot/comm/__pycache__/*
 */.idea/*
 .idea
 .env
+/PythonBot/secret/secrets-pretender.py
+/PythonBot/secret/secrets.py
+/PythonBot/secret/secrets-pretender.py

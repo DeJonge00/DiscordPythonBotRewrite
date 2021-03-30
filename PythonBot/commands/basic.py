@@ -21,6 +21,7 @@ from discord import (
 )
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
+from json.decoder import JSONDecodeError
 
 from config import constants, command_text
 from config.constants import TEXT, EMBED, BASIC_COMMANDS_EMBED_COLOR as EMBED_COLOR
@@ -28,7 +29,7 @@ from config.running_options import LOG_LEVEL
 from config.structs import englishyfy_numbers
 from core.bot import PythonBot
 from core.utils import on_member_message, prep_str_for_print
-from database.general import self_assignable_roles, stream_notification
+from database.general import self_assignable_roles, stream_notification, schedule
 from database.general.general import GOODBYE_TABLE
 from database.pats import increment_pats
 
@@ -196,6 +197,11 @@ class BasicCommands(Cog):
             message=ctx.message, channel=ctx.channel, command="dice"
         ):
             return
+        if not args:
+            await self.bot.send_message(
+                ctx.channel, "Please give me something to roll..."
+            )
+            return
 
         if args[0] in ["stats", "new", "statistics", "abilities"]:
             input = "4d6k3, 4d6k3, 4d6k3, 4d6k3, 4d6k3, 4d6k3"
@@ -214,9 +220,9 @@ class BasicCommands(Cog):
             to_eval = text
             for m in re.findall("(\d*d\d+k?\d*)", text):
                 s = m.split("d")
-                amount, dice = int(s[0]) if len(s) > 1 else 1, s[-1]
+                amount, dice = int(s[0]) if s[0] else 1, s[-1]
                 s = dice.split("k")
-                dice, keep = int(s[0]), int(s[-1]) if len(s) > 1 else int(s[0])
+                dice, keep = int(s[0]), int(s[-1]) if len(s) > 1 and s[1] else int(s[0])
                 numbers = [random.randint(1, dice) for _ in range(amount)]
                 numbers.sort(reverse=True)
                 numbers_text = [
@@ -729,7 +735,13 @@ class BasicCommands(Cog):
             if r.status_code != 200:
                 await self.bot.send_message(ctx, "Something went wrong on my end...")
                 return
-            r = r.json()
+            try:
+                r = r.json()
+            except JSONDecodeError:
+                r = {
+                    "quoteText": "Some quotes were born to be unreadable",
+                    "quoteAuthor": "Biribiri"
+                }
         m = "`{}`".format(r.get("quoteText"))
         if r.get("quoteAuthor"):
             m += "\n- {}".format(r.get("quoteAuthor"))

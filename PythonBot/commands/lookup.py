@@ -235,13 +235,17 @@ class LookupCommands(Cog):
         ):
             return
 
-        user = await self.bot.get_member_from_message(
-            ctx=ctx, args=args, in_text=True, errors={}
-        )
+        try:
+            user = await self.bot.get_member_from_message(
+                ctx=ctx, args=args, in_text=True, errors={}
+            )
+        except ValueError:
+            user = ctx.author
 
         name = user.display_name
         if len(user.activities) <= 0:
             m = "{} is not doing anything :/".format(name)
+            # TODO: Different message for users with a custom status
             await self.bot.send_message(destination=ctx.channel, content=m)
             return
 
