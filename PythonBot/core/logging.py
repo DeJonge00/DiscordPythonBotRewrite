@@ -123,9 +123,13 @@ def message_content(m: Message, guild_name: str, channel_name: str, type: str):
 
 def embedded_message(m: Message, guild_name: str, channel_name: str, type: str):
     title = (
-        (m.embeds[0].author.name
-         if m.embeds[0].author.name
-         else (m.embeds[0].fields[0].name if m.embeds[0].fields[0] else m.color)) if m.embeds else 'Generated Embed'
+        (
+            m.embeds[0].author.name
+            if m.embeds[0].author.name
+            else (m.embeds[0].fields[0].name if m.embeds[0].fields[0] else m.color)
+        )
+        if m.embeds
+        else "Generated Embed"
     )
     log_and_print(
         guild_name,

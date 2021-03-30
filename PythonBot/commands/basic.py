@@ -345,13 +345,19 @@ class BasicCommands(Cog):
                 e = await self.bot.ask_one_from_multiple(
                     ctx=ctx,
                     group=group,
-                    print_format=lambda e: e if e.available else "{}".format(e.name))
+                    print_format=lambda e: e if e.available else "{}".format(e.name),
+                )
                 return e.id
             except (ValueError, AttributeError):
                 return
 
     async def command_emoji(
-        self, ctx: Context, args: [str], display_name: str, avatar_url: str, emoji_list: [Emoji]
+        self,
+        ctx: Context,
+        args: [str],
+        display_name: str,
+        avatar_url: str,
+        emoji_list: [Emoji],
     ):
         # TODO Test gif emoji with nitro users
         """
@@ -365,11 +371,13 @@ class BasicCommands(Cog):
         if len(args) <= 0:
             return {TEXT: "I NEED MORE ARGUMENTS"}
         small_emoji = False
-        if args[0] in ['small', 's']:
+        if args[0] in ["small", "s"]:
             small_emoji = True
             args = args[1:]
 
-        emoji_id = await self.get_emoji_id(text=" ".join(args), ctx=ctx, emoji_list=emoji_list)
+        emoji_id = await self.get_emoji_id(
+            text=" ".join(args), ctx=ctx, emoji_list=emoji_list
+        )
         if not emoji_id:
             return {TEXT: "Sorry, emoji not found..."}
         if small_emoji:
@@ -395,7 +403,7 @@ class BasicCommands(Cog):
     @commands.command(name="emoji", help="Make big emojis")
     async def emoji(self, ctx: Context, *args):
         if not await self.bot.pre_command(
-                message=ctx.message, channel=ctx.channel, command="emoji"
+            message=ctx.message, channel=ctx.channel, command="emoji"
         ):
             return
         answer = await self.command_emoji(

@@ -49,7 +49,12 @@ class PythonBot(Bot):
     """ Helper functions """
 
     async def ask_one_from_multiple(
-        self, ctx: Context, group: list, question="", errors: dict = {}, print_format=str
+        self,
+        ctx: Context,
+        group: list,
+        question="",
+        errors: dict = {},
+        print_format=str,
     ):
         """
         Ask a user to select one object from a list by name
