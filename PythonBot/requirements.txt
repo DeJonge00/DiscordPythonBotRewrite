@@ -30,7 +30,7 @@ six==1.14.0
 soupsieve==2.0
 urbandictionary==1.1
 urbanpyctionary==0.86
-urllib3==1.25.8
+urllib3==1.26.5
 websockets==8.1
 Werkzeug==1.0.1
 wikipedia==1.4.0
